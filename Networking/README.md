@@ -28,7 +28,7 @@
   - [What is Port Forwarding?](#what-is-port-forwarding)
     - [Setting up Port Forwarding](#setting-up-port-forwarding)
     - [Uses of Port Forwarding](#uses-of-port-forwarding)
-- [How are Web Server IP Addresses and Domain Names linked? : Introduction to DN](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dn)
+- [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
 - [Types of Networks](#types-of-networks)
   - [Local Area Network](#local-area-network)
   - [Metropolitan Area Network](#metropolitan-area-network)
@@ -293,7 +293,9 @@ The permissions given to people accessing the application using Forwarding is co
 - Providing public access to a game server
 - Accessing your computers/network remotely
 
-# How are Web Server IP Addresses and Domain Names linked? : Introduction to DN
+# How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS
+
+TODO
 
 # Types of Networks
 
