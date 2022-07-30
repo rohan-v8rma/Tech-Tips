@@ -1,6 +1,58 @@
-## What exactly is the World Wide Web?
+- [What exactly is the World Wide Web?](#what-exactly-is-the-world-wide-web)
+- [URL (Uniform Resource Locator)](#url-uniform-resource-locator)
+  - [Scheme](#scheme)
+    - [`mailto` scheme](#mailto-scheme)
+  - [Authority (Domain & Port)](#authority-domain--port)
+    - [Separator between the scheme and authority (`://`)](#separator-between-the-scheme-and-authority-)
+  - [Path to resource](#path-to-resource)
+  - [Parameters](#parameters)
+  - [Anchor](#anchor)
+- [Network Protocols](#network-protocols)
+  - [What is a Protocol?](#what-is-a-protocol)
+  - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
+  - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
+  - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
+  - [`HTTP` (HyperText Transfer Protocol Secure)](#http-hypertext-transfer-protocol-secure)
+  - [`DHCP` (Dynamic Host Configuration Protocol)](#dhcp-dynamic-host-configuration-protocol)
+- [Global and Local IP Addresses](#global-and-local-ip-addresses)
+  - [`NAT` (Network Address Translation)](#nat-network-address-translation)
+    - [`NAT` types](#nat-types)
+      - [`NAT` type 1](#nat-type-1)
+      - [`NAT` type 2](#nat-type-2)
+      - [`NAT` type 3](#nat-type-3)
+- [Ports](#ports)
+  - [Types of Ports](#types-of-ports)
+    - [Reserved Ports (0 - 1023)](#reserved-ports-0---1023)
+    - [Registered Ports (1024 - 49151)](#registered-ports-1024---49151)
+    - [Dynamic Ports (49152 - 65535)](#dynamic-ports-49152---65535)
+  - [What is Port Forwarding?](#what-is-port-forwarding)
+    - [Setting up Port Forwarding](#setting-up-port-forwarding)
+    - [Uses of Port Forwarding](#uses-of-port-forwarding)
+- [How are Web Server IP Addresses and Domain Names linked? : Introduction to DN](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dn)
+- [Types of Networks](#types-of-networks)
+  - [Local Area Network](#local-area-network)
+  - [Metropolitan Area Network](#metropolitan-area-network)
+  - [Wide Area Network](#wide-area-network)
+    - [SONET (Synchronous Optical Networking)](#sonet-synchronous-optical-networking)
+    - [Frame relay](#frame-relay)
+- [What is the difference between a Modem and a Router?](#what-is-the-difference-between-a-modem-and-a-router)
+  - [What is a Modem?](#what-is-a-modem)
+  - [What is a Router?](#what-is-a-router)
+- [OSI (Open Systems Interconnection) Model](#osi-open-systems-interconnection-model)
+  - [7. Application Layer](#7-application-layer)
+  - [6. Presentation Layer](#6-presentation-layer)
+  - [5. Session Layer](#5-session-layer)
+  - [4. Transport Layer](#4-transport-layer)
+  - [3. Network Layer](#3-network-layer)
+  - [2. Data-Link Layer](#2-data-link-layer)
+  - [1. Physical Layer](#1-physical-layer)
+- [Other Concepts](#other-concepts)
+  - [Packets](#packets)
+  - [Firewall](#firewall)
 
-The World Wide Web—commonly referred to as the **Web**—is an public information system where documents and other web resources are identified by URLs(Uniform Resource Locator). They are displayed in the form of web pages, which may be interconnected. 
+# What exactly is the World Wide Web?
+
+The World Wide Web—commonly referred to as the **Web**—is a public information system where documents and other web resources are identified by [URLs (Uniform Resource Locator)](#url-uniform-resource-locator). They are displayed in the form of web pages, which may be interconnected. 
 
 The Web could be accessed through the Internet. The Web is not the same as the Internet: the Web is one of many applications built on top of the Internet.
 
@@ -10,7 +62,110 @@ Note that it wasn't possible to search for resources in this system, which was a
 
 This was solved with the invention of search engines.
 
-![](./networking-0.png)
+![](./client-server-architecture.png)
+
+# URL (Uniform Resource Locator)
+
+A URL is nothing more than the address of a given unique resource on the Web. 
+
+In theory, each valid URL points to a unique resource. Such resources can be an HTML page, a CSS document, an image, etc. 
+
+In practice, there are some exceptions, the most common being a URL pointing to a resource that no longer exists or that has moved.
+
+A URL is composed of different parts, some mandatory and others optional. The most important parts are highlighted on the URL below:
+
+![](./url-format.png)
+
+Note: 
+
+A URL can be thought of like a regular postal mail address: 
+- the [*scheme*](#scheme) represents the postal service you want to use
+- the [*domain*](#authority-domain--port) name is the city or town
+- the [*port*](#authority-domain--port) is like the zip code
+- the [*path*](#path-to-resource) represents the building where your mail should be delivered; 
+- the [*parameters*](#parameters) represent extra information such as the number of the apartment in the building 
+- finally, the [*anchor*](#anchor) represents the actual person to whom you've addressed your mail.
+
+## Scheme
+
+![](./scheme.png)
+
+The first part of the URL is the scheme, which indicates the protocol that the browser must use to request the resource.
+
+Usually for websites the protocol is [`https`](#http-hypertext-transfer-protocol-secure) or [`http`](#http-hypertext-transfer-protocol). 
+
+Addressing web pages requires one of these two, but browsers also know how to handle other schemes such as `mailto:` (to open a mail client).
+
+### `mailto` scheme
+
+`mailto` is a Uniform Resource Identifier (URI) scheme for email addresses. 
+
+It is used to produce hyperlinks on websites that allow users to send an email to a specific address directly from an HTML document, without having to copy it and entering it into an email client.
+
+URLs having schemes as `mailto` are examples of URLs that don't use an authority. 
+
+That is why a URL containing `mailto` looks like this:
+```
+mailto:example@gmail.com
+```
+The need of `//` in the URL is explained [below](#separator-between-the-scheme-and-authority).
+
+## Authority (Domain & Port)
+
+![](./authority.png)
+
+Next follows the authority, which is separated from the scheme by the character pattern `://`. 
+
+If present, the authority includes both the domain (e.g. www.example.com) and the port (80), separated by a colon (`:`).
+
+- The domain indicates which Web server is being requested. 
+  
+  Usually this is a domain name, but an IP address may also be used (but this is rare as it is much less convenient).
+
+    A section is given [below](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns) for understanding how a domain name is converted into an IP address.
+
+- The [port](#ports) indicates the technical "gate" used to access the resources on the web server. 
+  
+  It is usually omitted if the web server uses the standard ports of the HTTP protocol (80 for [`HTTP`](#http-hypertext-transfer-protocol) and 443 for [`HTTPS`](#http-hypertext-transfer-protocol-secure)) to grant access to its resources. Otherwise, it is mandatory.
+
+### Separator between the scheme and authority (`://`)
+
+- `:` separates the scheme from the next part of the URL.
+- `//` indicates that the next part of the URL is the **authority**.
+
+## Path to resource
+
+![](./path-to-resource.png)
+
+`/path/to/myfile.html` is the path to the resource on the Web server. 
+
+In the early days of the Web, a path like this represented a physical file location on the Web server. 
+
+Nowadays, it is mostly an abstraction handled by Web servers without any physical reality.
+
+## Parameters
+
+![](./parameters.png)
+
+`?key1=value1&key2=value2` are extra parameters provided to the Web server. 
+
+Those parameters are a list of key/value pairs, separated by the `&` symbol. The starting point of the list is indicated by the `?` symbol.
+
+The Web server can use those parameters to do extra stuff before returning the resource. Each Web server has its own rules regarding parameters, and the only reliable way to know if a specific Web server is handling parameters is by asking the Web server owner.
+
+## Anchor
+
+![](./anchor.png)
+
+`#SomewhereInTheDocument` is an anchor to another part of the resource itself. 
+
+An anchor represents a sort of "bookmark" inside the resource, giving the browser the directions to show the content located at that "bookmarked" spot. 
+
+For example:
+- On an HTML document, the browser will scroll to the point where the anchor is defined; 
+- On a video or audio document, the browser will try to go to the time the anchor represents. 
+  
+Note that the part after the `#`, also known as the **fragment identifier**, is never sent to the server with the request.
 
 # Network Protocols
 
@@ -32,6 +187,10 @@ This is used by web browsers.
 
 It defines the format of data transmission between clients and web servers. 
 
+## `HTTP` (HyperText Transfer Protocol Secure)
+
+TODO
+
 ## `DHCP` (Dynamic Host Configuration Protocol)
 
 
@@ -44,7 +203,7 @@ We use a [router](#what-is-a-router) in combination with the modem in order to c
 
 The router gives distinct IP addresses to the devices connected as well, which are known as Local IP Addresses. This process of assigning local IP addresses is carried out using [`DHCP`](#dhcp-dynamic-host-configuration-protocol).
 
-![](./networking-1.png)
+![](./ip-addresses.png)
 
 If suppose a device attempts to make a request to a particular website, the ISP will forward that request to the website. 
 
@@ -134,6 +293,8 @@ The permissions given to people accessing the application using Forwarding is co
 - Providing public access to a game server
 - Accessing your computers/network remotely
 
+# How are Web Server IP Addresses and Domain Names linked? : Introduction to DN
+
 # Types of Networks
 
 Internet is a collection of 3 types of networks. 
@@ -178,5 +339,36 @@ Whenever data is received by the modem, it is passed on to the router, which use
 
 A router allows a single modem to be used for connecting mutiple devices to the internet.
 
-<!-- # Packets -->
-<!-- # Firewall -->
+# OSI (Open Systems Interconnection) Model
+
+Standard way about how computers communicate with each other.
+
+The OSI Model can be seen as a universal language for computer networking. It’s based on the concept of splitting up a communication system into seven abstract layers, each one stacked upon the last.
+
+The seven abstraction layers of the OSI model can be defined as follows, from top to bottom:
+
+![](./osi-model.svg)
+
+## 7. Application Layer
+
+## 6. Presentation Layer
+
+## 5. Session Layer
+
+## 4. Transport Layer
+
+## 3. Network Layer
+
+## 2. Data-Link Layer
+
+## 1. Physical Layer
+
+# Other Concepts
+
+## Packets
+
+TODO
+
+## Firewall
+
+TODO
