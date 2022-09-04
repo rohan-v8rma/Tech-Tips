@@ -47,8 +47,10 @@
   - [2. Data-Link Layer](#2-data-link-layer)
   - [1. Physical Layer](#1-physical-layer)
 - [Other Concepts](#other-concepts)
+  - [Content Negotiation](#content-negotiation)
   - [Packets](#packets)
   - [Firewall](#firewall)
+- [TODO](#todo)
 
 # What exactly is the World Wide Web?
 
@@ -367,6 +369,12 @@ The seven abstraction layers of the OSI model can be defined as follows, from to
 
 # Other Concepts
 
+## Content Negotiation
+
+Content negotiation refers to mechanisms defined as a part of [`HTTP`](#http-hypertext-transfer-protocol) that make it possible to ***serve*** different versions of a document (or more generally, representations of a resource) at the same URI, so that [user agents](https://github.com/rohan-verma19/javascripting#user-agent) can specify which version fits their capabilities the best. 
+
+One classical use of this mechanism is to serve an image in GIF or PNG format, so that a browser that CANNOT display PNG images (e.g. **MS Internet Explorer 4**), will be served the GIF version.
+
 ## Packets
 
 TODO
@@ -374,3 +382,9 @@ TODO
 ## Firewall
 
 TODO
+
+# TODO
+
+subnet
+
+ARP caching
