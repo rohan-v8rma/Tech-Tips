@@ -12,7 +12,10 @@
   - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
-  - [`HTTP` (HyperText Transfer Protocol Secure)](#http-hypertext-transfer-protocol-secure)
+  - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
+  - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
+    - [ARP Cache](#arp-cache)
+    - [Taking an example to understand...](#taking-an-example-to-understand)
   - [`DHCP` (Dynamic Host Configuration Protocol)](#dhcp-dynamic-host-configuration-protocol)
 - [Global and Local IP Addresses](#global-and-local-ip-addresses)
   - [`NAT` (Network Address Translation)](#nat-network-address-translation)
@@ -189,9 +192,31 @@ This is used by web browsers.
 
 It defines the format of data transmission between clients and web servers. 
 
-## `HTTP` (HyperText Transfer Protocol Secure)
+## `HTTPS` (HyperText Transfer Protocol Secure)
 
 TODO
+
+## `ARP` (Address Resolution Protocol)
+
+Address Resolution Protocol is used to keep track of the IP address of a device and its associated MAC address. 
+
+Whenever you request any data or communicate with other devices, it always looks for MAC address associated with an incoming IP address in [ARP cache](#arp-cache). 
+
+### ARP Cache
+
+Every time there is a communication between two devices IP and MAC addresses are stored in ARP cache if not already there.
+
+ARP cache holds data for both wireless and ethernet connections. This data is stored in ARP cache which is in memory for each computer so that it can reduce the time required for an ARP process every time.
+
+### Taking an example to understand...
+
+If suppose we try pinging our own device using its local IP address (assigned to it by our [Router](#what-is-a-router), which creates a LAN for this process), the request would be sent to our **Router**, to resolve which device has that specific local IP address, and we would get our own MAC address or the information that the device is `localhost` i.e., our own device.
+
+This information that the IP address maps to `localhost` is stored in the ARP cache.
+
+So now, even if we disconnect from the LAN of our Router and try pinging our previous local IP address, we would get information from the ARP cache, that the machine we are trying to ping is `localhost` itself, which is why we would still get a response.
+
+But, if we restart our machine, the ARP cache would get reset. So, if we tried pinging the address while not connected to the Router, we would no longer get a response.
 
 ## `DHCP` (Dynamic Host Configuration Protocol)
 
