@@ -49,8 +49,14 @@
   - [3. Network Layer](#3-network-layer)
   - [2. Data-Link Layer](#2-data-link-layer)
   - [1. Physical Layer](#1-physical-layer)
+- [Types of Cyber Attacks](#types-of-cyber-attacks)
+  - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
+  - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
 - [Other Concepts](#other-concepts)
   - [Content Negotiation](#content-negotiation)
+  - [IP Spoofing](#ip-spoofing)
+  - [What is a Bot?](#what-is-a-bot)
+    - [Botnet](#botnet)
   - [Packets](#packets)
   - [Firewall](#firewall)
 - [TODO](#todo)
@@ -344,7 +350,11 @@ It extends over a large geographical area, across countries, usually using subma
 
 ### SONET (Synchronous Optical Networking)
 
+TODO
+
 ### Frame relay
+
+TODO
 
 # What is the difference between a Modem and a Router?
 
@@ -392,6 +402,24 @@ The seven abstraction layers of the OSI model can be defined as follows, from to
 
 ## 1. Physical Layer
 
+# Types of Cyber Attacks
+
+## Denial-of-Service (DoS) attack
+
+Denial-of-Service Attacks are any type of attack on anything that keeps the legitimate owner or user from utilizing their own resources, generally by overloading the resource or the access paths to it.
+
+An example would be a person or organization conducting an attack on a computer service operated by someone they don't like by sending more traffic to the server than can be handled reliably by either the server itself or the communications paths leading to it. 
+
+## Distributed-Denial-of-Service (DDoS) attack
+
+Distributed Denial Of Service Attacks differ from the [normal sort](#denial-of-service-dos-attack) in that the source of the attack is itself 'distributed'. 
+
+Instead of coming from one machine, it comes from a large number; hundreds, thousands, or millions, generally with command and control from one or many points, often in a [**botnet**](#botnet).
+
+This sort of attack is more difficult to mitigate than the usual type because there's often no good choke point at which to drop the incoming attack packets.
+
+Also, they may come in slowly enough from each attacking host that you can't even tell they're an attack; they may be valid requests, just in UNSUPPORTABLE numbers.
+
 # Other Concepts
 
 ## Content Negotiation
@@ -399,6 +427,30 @@ The seven abstraction layers of the OSI model can be defined as follows, from to
 Content negotiation refers to mechanisms defined as a part of [`HTTP`](#http-hypertext-transfer-protocol) that make it possible to ***serve*** different versions of a document (or more generally, representations of a resource) at the same URI, so that [user agents](https://github.com/rohan-verma19/javascripting#user-agent) can specify which version fits their capabilities the best. 
 
 One classical use of this mechanism is to serve an image in GIF or PNG format, so that a browser that CANNOT display PNG images (e.g. **MS Internet Explorer 4**), will be served the GIF version.
+
+## IP Spoofing
+
+Spoofing is a specific type of cyber-attack in which someone attempts to use a computer, device, or network to trick other computer networks by pretending to be a legitimate entity.
+
+IP spoofing is the creation of Internet Protocol (IP) packets which have a modified source address in order to hide the identity of the sender, to impersonate another computer system, or both. 
+
+It is a technique often used by bad actors to invoke [DDoS](#distributed-denial-of-service-ddos-attack) attacks against a target device or the surrounding infrastructure.
+
+## What is a Bot?
+
+An Internet bot, or simply bot, is a software application that runs automated tasks (scripts) over the Internet, usually with the intent to imitate human activity on the Internet, such as messaging, on a large scale.
+
+An Internet bot plays the client role in a client–server model whereas the server role is usually played by web servers. 
+
+Internet bots are able to perform tasks, that are simple and repetitive, much faster than a person could ever do. 
+
+The most extensive use of bots is for web crawling, in which an automated script fetches, analyzes and files information from web servers. 
+
+### Botnet
+
+A botnet is a group of Internet-connected devices, each of which runs one or more bots. 
+
+Botnets can be used to perform Distributed Denial-of-Service (DDoS) attacks, steal data, send spam, and allow the attacker to access the device and its connection.
 
 ## Packets
 
@@ -412,4 +464,4 @@ TODO
 
 subnet
 
-ARP caching
+Learn how [IP spoofing](#ip-spoofing) is done.
