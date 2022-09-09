@@ -7,7 +7,6 @@
   - [Path to resource](#path-to-resource)
   - [Parameters](#parameters)
   - [Anchor](#anchor)
-  - [Understanding Sub-domains](#understanding-sub-domains)
 - [Network Protocols](#network-protocols)
   - [What is a Protocol?](#what-is-a-protocol)
   - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
@@ -34,6 +33,10 @@
     - [Setting up Port Forwarding](#setting-up-port-forwarding)
     - [Uses of Port Forwarding](#uses-of-port-forwarding)
 - [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
+  - [Fully Qualified Domain Name (`FQDN`)](#fully-qualified-domain-name-fqdn)
+    - [Examples of `FQDN`](#examples-of-fqdn)
+  - [Partially Qualified Domain Name (`PQDN`)](#partially-qualified-domain-name-pqdn)
+    - [Examples of `PQDN`](#examples-of-pqdn)
   - [A (Address) Record](#a-address-record)
   - [CNAME (Canonical Name) Record](#cname-canonical-name-record)
 - [Types of Networks](#types-of-networks)
@@ -186,10 +189,6 @@ For example:
 - On a video or audio document, the browser will try to go to the time the anchor represents. 
   
 Note that the part after the `#`, also known as the **fragment identifier**, is never sent to the server with the request.
-
-## Understanding Sub-domains
-
-TODO
 
 # Network Protocols
 
@@ -346,6 +345,43 @@ The permissions given to people accessing the application using Forwarding is co
 # How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS
 
 TODO
+
+## Fully Qualified Domain Name (`FQDN`)
+
+An FQDN, or a Fully Qualified Domain Name, is written with the hostname and the domain name, including the top-level domain, in that order: `[hostname].[domain].[tld].`
+
+In this scenario, "qualified" means "specified" since the full location of the domain is specified in the name. 
+
+The `FQDN` specifies the exact location of a host within DNS. 
+
+An FQDN might also be called an **absolute domain name**, since it provides the absolute path of the host.
+
+### Examples of `FQDN`
+
+A fully qualified domain name is always written in this format: `[hostname].[domain].[tld].` 
+
+For example, a mail server on the `example.com` domain may use the FQDN `mail.example.com.`
+
+Fully qualified domain names actually require a period at the end. This means `www.microsoft.com.` would be the acceptable way to enter that `FQDN`. However, most systems simply imply the period, even if you don't explicitly give it.
+
+Here are some other examples of fully qualified domain names:
+```
+www.microsoft.com
+en.wikipedia.org
+p301srv03.timandtombreadco.us
+```
+
+## Partially Qualified Domain Name (`PQDN`)
+
+Another term that's similar to FQDN is PQDN, or partially qualified domain name, which is just a domain name that isn't fully specified. 
+
+Partially qualified domain names are just used for convenience, but only in certain contexts. 
+
+An FQDN provides the full absolute path of the host, while the PQDN only gives a relative name that's just a small portion of the full domain name.
+
+### Examples of `PQDN`
+
+Suppose we use just `google.com` instead of the FQDN `www.google.com`. That would qualify as a `PQDN`.
 
 ## A (Address) Record
 
