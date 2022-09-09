@@ -7,12 +7,14 @@
   - [Path to resource](#path-to-resource)
   - [Parameters](#parameters)
   - [Anchor](#anchor)
+  - [Understanding Sub-domains](#understanding-sub-domains)
 - [Network Protocols](#network-protocols)
   - [What is a Protocol?](#what-is-a-protocol)
   - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
   - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
+  - [`SSL` (Secure Socket Layer)](#ssl-secure-socket-layer)
   - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
     - [ARP Cache](#arp-cache)
     - [Taking an example to understand...](#taking-an-example-to-understand)
@@ -32,6 +34,8 @@
     - [Setting up Port Forwarding](#setting-up-port-forwarding)
     - [Uses of Port Forwarding](#uses-of-port-forwarding)
 - [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
+  - [A (Address) Record](#a-address-record)
+  - [CNAME (Canonical Name) Record](#cname-canonical-name-record)
 - [Types of Networks](#types-of-networks)
   - [Local Area Network](#local-area-network)
   - [Metropolitan Area Network](#metropolitan-area-network)
@@ -52,6 +56,11 @@
 - [Types of Cyber Attacks](#types-of-cyber-attacks)
   - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
+  - [Subdomain Takeover attack](#subdomain-takeover-attack)
+- [Hosting](#hosting)
+  - [Virtual Hosting](#virtual-hosting)
+    - [IP-based virtual hosting](#ip-based-virtual-hosting)
+    - [Name-based virtual hosting](#name-based-virtual-hosting)
 - [Other Concepts](#other-concepts)
   - [Content Negotiation](#content-negotiation)
   - [IP Spoofing](#ip-spoofing)
@@ -178,6 +187,10 @@ For example:
   
 Note that the part after the `#`, also known as the **fragment identifier**, is never sent to the server with the request.
 
+## Understanding Sub-domains
+
+TODO
+
 # Network Protocols
 
 ## What is a Protocol?
@@ -199,6 +212,10 @@ This is used by web browsers.
 It defines the format of data transmission between clients and web servers. 
 
 ## `HTTPS` (HyperText Transfer Protocol Secure)
+
+TODO
+
+## `SSL` (Secure Socket Layer)
 
 TODO
 
@@ -330,6 +347,22 @@ The permissions given to people accessing the application using Forwarding is co
 
 TODO
 
+## A (Address) Record
+
+An Adress Record (abbreviated as **A record**) returns a 32-bit `IPv4` address, most commonly used to map hostnames to an IP address of the host. 
+
+## CNAME (Canonical Name) Record
+
+A Canonical Name record (abbreviated as **CNAME record**) is a type of resource record in the Domain Name System (DNS) that maps one domain name (an alias) to another (the canonical name).
+
+This can prove convenient when running multiple services (like an FTP server and a web server, each running on different ports) from a single IP address. 
+
+For example, we can use CNAME records to point `ftp.example.com` and `www.example.com` to the DNS entry for `example.com`, which in turn has an [A record](#a-address-record) which points to the IP address. 
+
+Then, if the IP address ever changes, one only has to record the change in one place within the network: in the DNS [A record](#a-address-record) for `example.com`.
+
+CNAME records must always point to another domain name, never directly to an IP address.
+
 # Types of Networks
 
 Internet is a collection of 3 types of networks. 
@@ -419,6 +452,36 @@ Instead of coming from one machine, it comes from a large number; hundreds, thou
 This sort of attack is more difficult to mitigate than the usual type because there's often no good choke point at which to drop the incoming attack packets.
 
 Also, they may come in slowly enough from each attacking host that you can't even tell they're an attack; they may be valid requests, just in UNSUPPORTABLE numbers.
+
+## Subdomain Takeover attack
+
+TODO
+
+# Hosting
+
+Hosting, in its most generic sense, is a service through which storage and computing resources are providing to an individual or organization for the accommodation and maintenance of one or more websites and related services.
+
+## Virtual Hosting
+
+Virtual hosting is a method for hosting multiple domain names (with separate handling of each name) on a single server (or pool of servers). 
+
+This allows one server to share its resources, such as memory and processor cycles, without requiring all services provided to use the same host name. 
+
+The term virtual hosting is usually used in reference to web servers but the principles do carry over to other Internet services.
+
+### IP-based virtual hosting
+
+IP-based virtual hosting uses the IP address to determine the correct virtual host to serve, and it can be performed with any protocol but requires a dedicated IP address per domain name served.
+
+Therefore you need to have a separate IP address for each host.
+
+### Name-based virtual hosting
+
+With name-based virtual hosting, the server relies on the client to report the hostname as part of the HTTP headers.
+
+Using this technique, many different hosts can share the same IP address and the associated administrative overhead is saved, but the protocol being served must supply the host name at an appropriate point. 
+
+In particular, there are significant difficulties using name-based virtual hosting with SSL/TLS.  
 
 # Other Concepts
 
