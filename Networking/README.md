@@ -1,17 +1,36 @@
+# INDEX
+
+- [INDEX](#index)
 - [What exactly is the World Wide Web?](#what-exactly-is-the-world-wide-web)
 - [URL (Uniform Resource Locator)](#url-uniform-resource-locator)
   - [Scheme](#scheme)
     - [`mailto` scheme](#mailto-scheme)
-  - [Authority (Domain & Port)](#authority-domain--port)
+  - [Authority (Domain \& Port)](#authority-domain--port)
     - [Separator between the scheme and authority (`://`)](#separator-between-the-scheme-and-authority-)
   - [Path to resource](#path-to-resource)
   - [Parameters](#parameters)
   - [Anchor](#anchor)
+- [User Agent](#user-agent)
+  - [User Agent string](#user-agent-string)
+  - [State and Identity of User Agent](#state-and-identity-of-user-agent)
+- [State in the context of *components*](#state-in-the-context-of-components)
+- [Types of States in Web Applications](#types-of-states-in-web-applications)
+  - [Application/Program State](#applicationprogram-state)
+  - [Resource State](#resource-state)
+    - [Working with resources stateless using REST](#working-with-resources-stateless-using-rest)
+    - [Better alternative to REST : GraphQL (TODO)](#better-alternative-to-rest--graphql-todo)
+  - [Session State](#session-state)
 - [Network Protocols](#network-protocols)
-  - [What is a Protocol?](#what-is-a-protocol)
+  - [What is a Network Protocol?](#what-is-a-network-protocol)
+  - [Stateful Protocol](#stateful-protocol)
+  - [Stateless and Stateful Protocols (TODO)](#stateless-and-stateful-protocols-todo)
   - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
+    - [`HTTP` request methods](#http-request-methods)
+      - [Safe Methods](#safe-methods)
+      - [Idempotent Methods](#idempotent-methods)
+      - [Cacheable Methods](#cacheable-methods)
   - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
   - [`SSL` (Secure Socket Layer)](#ssl-secure-socket-layer)
   - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
@@ -33,6 +52,10 @@
     - [Setting up Port Forwarding](#setting-up-port-forwarding)
     - [Uses of Port Forwarding](#uses-of-port-forwarding)
 - [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
+  - [What are hostnames?](#what-are-hostnames)
+    - [Why do we use `www` in front of a hostname (TODO)](#why-do-we-use-www-in-front-of-a-hostname-todo)
+  - [Understanding Sub-domains (TODO)](#understanding-sub-domains-todo)
+  - [Top-level domain (TODO)](#top-level-domain-todo)
   - [Fully Qualified Domain Name (`FQDN`)](#fully-qualified-domain-name-fqdn)
     - [Examples of `FQDN`](#examples-of-fqdn)
   - [Partially Qualified Domain Name (`PQDN`)](#partially-qualified-domain-name-pqdn)
@@ -59,7 +82,7 @@
 - [Types of Cyber Attacks](#types-of-cyber-attacks)
   - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
-  - [Subdomain Takeover attack](#subdomain-takeover-attack)
+  - [Subdomain Takeover attack (TODO)](#subdomain-takeover-attack-todo)
 - [Hosting](#hosting)
   - [Virtual Hosting](#virtual-hosting)
     - [IP-based virtual hosting](#ip-based-virtual-hosting)
@@ -190,15 +213,110 @@ For example:
   
 Note that the part after the `#`, also known as the **fragment identifier**, is never sent to the server with the request.
 
+# [User Agent](https://github.com/rohan-verma19/javascripting#user-agent)
+
+## [User Agent string](https://github.com/rohan-verma19/javascripting#user-agent-string)
+
+## [State and Identity of User Agent](https://github.com/rohan-verma19/javascripting#state-and-identity-of-user-agent)
+
+# State in the context of *components*
+
+State refers to how something is; its *configuration*, *attributes*, *condition* or *information content*.
+
+- Virtually all **components** (both software and hardware) have state, from **applications** to **operating systems** to **network layers**.
+
+- A **component** changes from one state to another over time when triggered by *some kind of event*; such as a network message, a timer expiring or an application message.
+
+- **Components** that have no such trigger that causes a transition, are called ***stateless***.
+
+# Types of States in Web Applications
+
+## Application/Program State 
+
+It represents everything necessary to keep an application running.
+
+- When we refer *application state*, we are normally referring to the **state of the program/application**, as it exists in the *server's memory*.
+
+  > ***Note***: State of a program/application encompasses general information related to the program as described [above](#state-in-the-context-of-components), such as the program's *configuration*, attributes, etcetera.
+
+- Since this application-related data is stored on the *server's memory*, the *information and functionality core to the application* is lost if a server goes down/restarts, since memory is volatile.
+
+- This is why in web development we often use stateless resource controllers which distribute the infromation necessary to the running of the application.
+
+  This way the application does not rely heavily on the holding of data on the *server's memory*, for retrieval.
+
+  > ***Note***: An example of this is how HTTP, which is a [*stateless protocol*](#stateless-protocols), is partially made *stateful* with the help of cookies and caching on the client side (in the browser), instead of the server side.
+  >
+  > Every cookie is re-transmitted in both directions to try to "fake" some amount of a "session" for the user's sake. 
+  >
+  > The servers don't hold any resources open for any given client across requests -- each one starts from scratch.
+
+
+Examples of things which make an application *stateful*:
+
+- **Does the application have a file open, positioned at byte 225?** 
+
+  If so, that file is part of the *application's state* because the next byte written should go to position 226.
+
+- **Has the application authenticated itself to a secure server with a time-based key?** 
+  
+  Then that connection is part of the *application's state*, because if the application were to be suspended for 24 hours, when it resumes it will no longer have a valid connection to the secure server because it will have timed out.
+
+---
+
+## Resource State
+
+It refers to the state of the **resources** (*files*, *images*, *database records*, etc) being stored on the server. 
+
+- The ***resource state*** changes as **resources** are added, modified, or deleted.
+
+### Working with resources stateless using REST
+
+REST Architecture is a stateless way of working with web **resources**.
+  
+Each request in REST explicitly communicates its intended action on the **resource** and passes with it, the information necessary for achieving that action.
+
+But, nowadays even REST is not adequate. 
+
+Applications are becoming so laden with information that making multiple HTTP requests to retrieve the resources using traditional REST endpoints is becoming cumbersome on performance.
+
+### Better alternative to REST : GraphQL (TODO)
+
+<!-- See networking TODO in edge -->
+
+---
+
+## Session State
+
+- It keeps of track of user interaction during a **browser session**.
+- It holds the status of the communication between the client and the server.
+- Now, we use it broadly to describe the state that relates to a *session ID* and *HTTP cookies*.
+- It is the **session state** that:
+  - Remembers the last visited page.
+  - Holds cart items such that, they can be restored if the browser gets closed; and the user later on navigates back to the website.
+  - Informs the website as to whether a user is authorized to view a specific page.
+
 # Network Protocols
 
-## What is a Protocol?
+## What is a Network Protocol?
 
 In networking, a protocol is a set of rules for formatting and processing data defined by organizations like The Internet Society. Network protocols are like a common language for computers. The computers within a network may use vastly different software and hardware; however, the use of protocols enables them to communicate with each other regardless.
+
+## Stateful Protocol
+
+It is a protocol that has the ability to recollect and reserve the attributes of the interactions 
+
+## Stateless and Stateful Protocols (TODO)
+
+https://www.mygreatlearning.com/blog/stateful-vs-stateless/
 
 ## `TCP` (Transmission Control Protocol)
 
 All data reaches the destination uncorrupted. For documents etc.
+
+https://www.educative.io/answers/what-is-tcp 
+
+<!-- TODO: See diagram of this on educative -->
 
 ## `UDP` (User Datagram Protocol)
 
@@ -209,6 +327,26 @@ All data need not reach the other end. For video conferencing where some frame d
 This is used by web browsers.
 
 It defines the format of data transmission between clients and web servers. 
+
+### `HTTP` request methods
+
+HTTP defines a set of request methods to indicate the desired action to be performed for a given resource. 
+
+These request methods are sometimes referred to as *HTTP verbs*.
+
+Each of them implements a different semantic/logic, but some common features are shared by a group of them:
+
+#### Safe Methods
+
+Methods that don't alter the state of the server
+
+#### Idempotent Methods
+
+#### Cacheable Methods
+
+HTTP provides a simple set of operations 
+
+Read about `HTTP` APIs which utilize  in the API README [here](../APIs/README.md#api-request-http-response-codes).
 
 ## `HTTPS` (HyperText Transfer Protocol Secure)
 
@@ -346,6 +484,16 @@ The permissions given to people accessing the application using Forwarding is co
 
 TODO
 
+## What are hostnames?
+
+### Why do we use `www` in front of a hostname (TODO)
+
+https://superuser.com/questions/1644463/difference-between-subdomain-hostname-host-and-www-in-a-dns-system
+
+## Understanding Sub-domains (TODO)
+
+## Top-level domain (TODO)
+
 ## Fully Qualified Domain Name (`FQDN`)
 
 An FQDN, or a Fully Qualified Domain Name, is written with the hostname and the domain name, including the top-level domain, in that order: `[hostname].[domain].[tld].`
@@ -385,7 +533,7 @@ Suppose we use just `google.com` instead of the FQDN `www.google.com`. That woul
 
 ## A (Address) Record
 
-An Adress Record (abbreviated as **A record**) returns a 32-bit `IPv4` address, most commonly used to map hostnames to an IP address of the host. 
+An Address Record (abbreviated as **A record**) returns a 32-bit `IPv4` address, most commonly used to map hostnames to an IP address of the host. 
 
 ## CNAME (Canonical Name) Record
 
@@ -489,10 +637,12 @@ This sort of attack is more difficult to mitigate than the usual type because th
 
 Also, they may come in slowly enough from each attacking host that you can't even tell they're an attack; they may be valid requests, just in UNSUPPORTABLE numbers.
 
-## Subdomain Takeover attack
+## Subdomain Takeover attack (TODO)
 
-TODO
+https://developer.mozilla.org/en-US/docs/Web/Security/Subdomain_takeovers
 
+
+---
 # Hosting
 
 Hosting, in its most generic sense, is a service through which storage and computing resources are providing to an individual or organization for the accommodation and maintenance of one or more websites and related services.
