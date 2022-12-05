@@ -17,7 +17,7 @@
 - [Types of States in Web Applications](#types-of-states-in-web-applications)
   - [Application/Program State](#applicationprogram-state)
   - [Resource State](#resource-state)
-    - [Working with resources stateless using REST](#working-with-resources-stateless-using-rest)
+    - [Working with resources statelessly using REST](#working-with-resources-statelessly-using-rest)
     - [Better alternative to REST : GraphQL (TODO)](#better-alternative-to-rest--graphql-todo)
   - [Session State](#session-state)
 - [Network Protocols](#network-protocols)
@@ -66,12 +66,12 @@
   - [Local Area Network](#local-area-network)
   - [Metropolitan Area Network](#metropolitan-area-network)
   - [Wide Area Network](#wide-area-network)
-    - [SONET (Synchronous Optical Networking)](#sonet-synchronous-optical-networking)
-    - [Frame relay](#frame-relay)
+    - [SONET (Synchronous Optical Networking) (TODO)](#sonet-synchronous-optical-networking-todo)
+    - [Frame relay (TODO)](#frame-relay-todo)
 - [What is the difference between a Modem and a Router?](#what-is-the-difference-between-a-modem-and-a-router)
   - [What is a Modem?](#what-is-a-modem)
   - [What is a Router?](#what-is-a-router)
-- [OSI (Open Systems Interconnection) Model](#osi-open-systems-interconnection-model)
+- [OSI (Open Systems Interconnection) Model (complete)](#osi-open-systems-interconnection-model-complete)
   - [7. Application Layer](#7-application-layer)
   - [6. Presentation Layer](#6-presentation-layer)
   - [5. Session Layer](#5-session-layer)
@@ -92,9 +92,12 @@
   - [IP Spoofing](#ip-spoofing)
   - [What is a Bot?](#what-is-a-bot)
     - [Botnet](#botnet)
+- [TODO](#todo)
   - [Packets](#packets)
   - [Firewall](#firewall)
-- [TODO](#todo)
+  - [subnet](#subnet)
+  - [Learn how IP spoofing is done.](#learn-how-ip-spoofing-is-done)
+  - [HTTP tunneling](#http-tunneling)
 
 # What exactly is the World Wide Web?
 
@@ -270,7 +273,7 @@ It refers to the state of the **resources** (*files*, *images*, *database record
 
 - The ***resource state*** changes as **resources** are added, modified, or deleted.
 
-### Working with resources stateless using REST
+### Working with resources statelessly using REST
 
 REST Architecture is a stateless way of working with web **resources**.
   
@@ -565,13 +568,13 @@ It interconnects users with computer resources in a geographic region of the siz
 
 It extends over a large geographical area, across countries, usually using submarine optical fiber cables.
 
-### SONET (Synchronous Optical Networking)
+### SONET (Synchronous Optical Networking) (TODO)
 
-TODO
 
-### Frame relay
 
-TODO
+### Frame relay (TODO)
+
+
 
 # What is the difference between a Modem and a Router?
 
@@ -595,7 +598,7 @@ Whenever data is received by the modem, it is passed on to the router, which use
 
 A router allows a single modem to be used for connecting mutiple devices to the internet.
 
-# OSI (Open Systems Interconnection) Model
+# OSI (Open Systems Interconnection) Model (complete)
 
 Standard way about how computers communicate with each other.
 
@@ -701,16 +704,15 @@ A botnet is a group of Internet-connected devices, each of which runs one or mor
 
 Botnets can be used to perform Distributed Denial-of-Service (DDoS) attacks, steal data, send spam, and allow the attacker to access the device and its connection.
 
-## Packets
-
-TODO
-
-## Firewall
-
-TODO
-
 # TODO
 
-subnet
+## Packets
+## Firewall 
 
-Learn how [IP spoofing](#ip-spoofing) is done.
+See networking TODO in edge  
+
+## subnet
+## Learn how [IP spoofing](#ip-spoofing) is done.
+## HTTP tunneling
+
+See networking TODO in edge
