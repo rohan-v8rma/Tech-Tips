@@ -27,10 +27,8 @@
   - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
+    - [What are "Resources"?](#what-are-resources)
     - [`HTTP` request methods](#http-request-methods)
-      - [Safe Methods](#safe-methods)
-      - [Idempotent Methods](#idempotent-methods)
-      - [Cacheable Methods](#cacheable-methods)
   - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
   - [`SSL` (Secure Socket Layer)](#ssl-secure-socket-layer)
   - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
@@ -269,13 +267,13 @@ Examples of things which make an application *stateful*:
 
 ## Resource State
 
-It refers to the state of the **resources** (*files*, *images*, *database records*, etc) being stored on the server. 
+It refers to the state of the [**resources**](#what-are-resources) (*files*, *images*, *database records*, etc) being stored on the server. 
 
-- The ***resource state*** changes as **resources** are added, modified, or deleted.
+The ***resource state*** changes as [**resources**](#what-are-resources) are added, modified, or deleted.
 
 ### Working with resources statelessly using REST
 
-REST Architecture is a stateless way of working with web **resources**.
+REST Architecture is a stateless way of working with web [**resources**](#what-are-resources).
   
 Each request in REST explicitly communicates its intended action on the **resource** and passes with it, the information necessary for achieving that action.
 
@@ -331,25 +329,81 @@ This is used by web browsers.
 
 It defines the format of data transmission between clients and web servers. 
 
+### What are "Resources"?
+
+HTTP is used to transmit *resources*, not just files. 
+
+A *resource* is some chunk of information that can be identified by a URL (it's the **R** in **URL**). 
+
+The most common kind of *resource* is a file, but a *resource* may also be a dynamically-generated query result, the output of a CGI script, a document that is available in several languages, database records, or something else.
+
+While learning HTTP, it may help to think of a *resource* as similar to a file, but more general.
+
+As a practical matter, almost all HTTP *resources* are currently either files or server-side script output.
+
+---
+
 ### `HTTP` request methods
 
-HTTP defines a set of request methods to indicate the desired action to be performed for a given resource. 
+HTTP defines a set of request methods to indicate the desired action to be performed for a given *resource*. 
+
 
 These request methods are sometimes referred to as *HTTP verbs*.
 
 Each of them implements a different semantic/logic, but some common features are shared by a group of them:
 
-#### Safe Methods
+- **Safe**
+  
+  Request methods are considered **safe** if their defined semantics are essentially read-only; i.e., the client does not request, and does not expect, any state change on the origin server as a result of applying a **safe** method to a target resource. 
+  
+  Likewise, reasonable use of a **safe** method is not expected to cause any harm, loss of property, or unusual burden on the origin server.
 
-Methods that don't alter the state of the server
+  > ***Note***: This definition of **safe** methods does not prevent an implementation from including behavior that is potentially harmful, that is not entirely read-only, or that causes side effects while invoking a safe method. 
+  >
+  > What is important, however, is that the client did not request that additional behavior and cannot be held accountable for it. 
+  >
+  > For example: 
+  > - Most servers append **request information** to *access log files* at the completion of every response, regardless of the method, and that is considered safe even though the log storage might become full and cause the server to fail. 
+  > 
+  > - Likewise, a safe request initiated by selecting an advertisement on the Web will often have the side effect of charging an advertising account.
 
-#### Idempotent Methods
+  Read the HTTP specification [here](https://httpwg.org/specs/rfc9110.html#safe.methods), to get more clarity on **safe** methods.
 
-#### Cacheable Methods
+- **Idempotent**
+  
+  A request method is considered **idempotent** if the intended effect on the server of *multiple identical requests* with that method is the same as the effect for a *single such request*. 
+  
+  All **safe** methods are **idempotent**; but all **idempotent** methods are NOT **safe**.
 
-HTTP provides a simple set of operations 
+  Examples of this are `PUT` and `DELETE` which are **idempotent**, but not safe.
 
-Read about `HTTP` APIs which utilize  in the API README [here](../APIs/README.md#api-request-http-response-codes).
+  > ***Note***: Like the definition of **safe**, the **idempotent** property only applies to what has been requested by the user; a server is free to log each request separately, retain a revision control history, or implement other non-idempotent side effects for each **idempotent** request.
+  >
+  > For example, the first call of a `DELETE` will likely return a `200`, while successive ones will likely return a `404` (because the resource was deleted on the first call).
+
+  Read the HTTP specification [here](https://httpwg.org/specs/rfc9110.html#idempotent.methods), to get more clarity on **idempotent** methods.
+
+- **Cacheable Responses**
+
+  A **cacheable response** is an HTTP response that can be *cached*, that is stored to be retrieved and used later, saving a new request to the server. 
+  
+  Not all HTTP responses can be *cached*, these are the following constraints for an HTTP response to be *cached*:
+
+  - The method used in the request is itself **cacheable**, that is either a `GET` or a `HEAD` method. 
+  
+    Read about the ability to cache responses of other methods [here](https://developer.mozilla.org/en-US/docs/Glossary/cacheable).
+
+  - The status code of the response is known by the application caching, and it is considered **cacheable**. 
+   
+    The following status code are cacheable: `200`, `203`, `204`, `206`, `300`, `301`, `404`, `405`, `410`, `414`, and `501`.
+    
+    > ***Note***: There are specific headers in the response, like `Cache-Control`, that prevents caching.
+    >
+    > Also, it is important to know that some **non-cacheable** requests/responses to a specific URI may invalidate previously cached responses on the same URI. 
+    >
+    > For example, a `PUT` to `pageX.html` will invalidate all *cached* `GET` or `HEAD` requests to the same URI.
+
+---
 
 ## `HTTPS` (HyperText Transfer Protocol Secure)
 
