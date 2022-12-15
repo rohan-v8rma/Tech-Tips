@@ -10,12 +10,21 @@
   - [Path to resource](#path-to-resource)
   - [Parameters](#parameters)
   - [Anchor](#anchor)
+- [Origins](#origins)
+  - [What is an Origin?](#what-is-an-origin)
+  - [Same-Origin Policy](#same-origin-policy)
+  - [Cross-Origin-Resource-Sharing (CORS)](#cross-origin-resource-sharing-cors)
+    - [CORS Preflight request](#cors-preflight-request)
+    - [Some scenarios of browsers fetching resources where CORS comes into play](#some-scenarios-of-browsers-fetching-resources-where-cors-comes-into-play)
+- [Cookies](#cookies)
+  - [HTTP Cookies](#http-cookies)
+    - [Todo (Watch Hussein Nasser's video on HTTP cookies, in networking TODO in edge)](#todo-watch-hussein-nassers-video-on-http-cookies-in-networking-todo-in-edge)
 - [User Agent](#user-agent)
-  - [User Agent string](#user-agent-string)
-  - [State and Identity of User Agent](#state-and-identity-of-user-agent)
 - [State in the context of *components*](#state-in-the-context-of-components)
 - [Types of States in Web Applications](#types-of-states-in-web-applications)
   - [Application/Program State](#applicationprogram-state)
+  - [How a stateless protocol like HTTP, is made somewhat *stateful* using Cookies](#how-a-stateless-protocol-like-http-is-made-somewhat-stateful-using-cookies)
+    - [Examples of things which make an application *stateful*](#examples-of-things-which-make-an-application-stateful)
   - [Resource State](#resource-state)
     - [Working with resources statelessly using REST](#working-with-resources-statelessly-using-rest)
     - [Better alternative to REST : GraphQL (TODO)](#better-alternative-to-rest--graphql-todo)
@@ -29,6 +38,8 @@
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
     - [What are "Resources"?](#what-are-resources)
     - [`HTTP` request methods](#http-request-methods)
+      - [`POST` method](#post-method)
+      - [`DELETE` method](#delete-method)
   - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
   - [`SSL` (Secure Socket Layer)](#ssl-secure-socket-layer)
   - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
@@ -214,11 +225,142 @@ For example:
   
 Note that the part after the `#`, also known as the **fragment identifier**, is never sent to the server with the request.
 
+# Origins 
+
+## What is an Origin?
+
+The **origin** of a particular piece of web content is defined by the [scheme](#scheme) (protocol), [hostname](#what-are-hostnames) (domain), and [port](#ports) of the URL used to access it. 
+
+> **What does the term Web Content refer to?**
+>
+> Web content may include: 
+> - Webpage document pages
+> - Information
+> - Software data and applications
+> - E-services
+> - Images
+> - Audio and video files
+> - Personal Web pages
+> - Archived e-mail messages stored on email servers, etcetera.
+
+Two objects have the same origin only when the [scheme](#scheme), [hostname](#what-are-hostnames), and [port](#ports) all match.
+
+Some examples to understand origins:
+
+| | | | |
+|-|-|-|-|
+|https://ranakhalil.com/courses|https://ranakhalil.com/sign_in | Same origin | Same scheme, domain and port. *Sub-domain does not matter* |
+|https://ranakhalil.com/courses|http://ranakhalil.com/courses | Different origin | Different scheme, and resultingly different port, since default port is 80 for `HTTP` and 443 for `HTTPS`. |
+|http://ranakhalil.com/courses|http://ranakhalil.com:8080/ | Different origin | Same scheme and domain but different port |
+
+---
+
+## Same-Origin Policy
+
+The same-origin policy is a *critical security mechanism* that restricts how a document or script loaded by one origin can **interact** with a resource from another origin.
+
+It helps isolate potentially malicious documents, reducing possible attack vectors. 
+
+*For example*, it prevents:
+- A malicious website on the Internet from running JS in a browser to read data from a third-party webmail service; which the user is signed into. 
+- A company intranet, which is protected from direct access by the attacker *just by not having a public IP address*; from relaying that data to the attacker.
+
+Watch [this](https://www.youtube.com/watch?v=bSJm8-zJTzQ&t=08m00s) video on liveoverflow's channel to understand how the same-origin policy came into being.
+
+---
+
+## Cross-Origin-Resource-Sharing (CORS)
+
+Cross-Origin Resource Sharing (CORS) is an HTTP-header based mechanism that allows a server to indicate any origins (domain, scheme, or port) other than its own from which a browser should permit loading resources.
+
+It is a mechanism to enable ***client-side cross-origin requests***, that would otherwise be block according to the [Same-Origin-Policy](#same-origin-policy).
+
+For HTTP request methods that can cause side-effects on server data (in particular, HTTP methods other than GET, or POST with certain MIME types), the CORS specification mandates that browsers ["preflight"](#cors-preflight-request) the request, soliciting supported methods from the server with the HTTP OPTIONS request method, and then, upon "approval" from the server, sending the actual request.
+
+> ***Note***: Browsers are responsible for restricting cross-origin HTTP requests, according to the CORS rules (*in the form of HTTP headers*) specified by the origin it is loading resources from.
+
+Read in-detail about CORS on MDN, [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+### CORS Preflight request
+
+A CORS preflight request is a CORS request that checks to see if the CORS protocol is understood and a server is aware using specific methods and headers.
+
+It is an HTTP request that uses the `OPTIONS` method and has the following HTTP request headers, that can be read about on MDN:
+
+- [Access-Control-Request-Method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Request-Method)
+- [Access-Control-Request-Headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Request-Headers)
+- [Origin](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Origin)
+
+Also, read more about the ***response*** to the Preflight request [here](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
+
+Let us take an example to understand how a Preflight request would prove to be useful. 
+
+> These resources that the browser is about to request to load on behalf of a malicious website, that the user somehow reached; can be the session ID and login details of a banking website currently logged into by the user.
+>
+> If CORS header returned by the banking website in response to the COR Pre-flight request, doesn't contain the domain-name of the malicious website (which it most probably won't), the request to load those sensitive resources will not be sent by the browser, preventing the data from getting into the hands of the hackers.
+>
+> So, in this way, there is no chance for the hacker to even manipulate the browser properties to get the sensitive information, because the actual request is not made, so the data is not given to the browser.
+
+### Some scenarios of browsers fetching resources where CORS comes into play
+
+- Display a map of a user’s location in an HTML or single page application hosted in a domain `xyz.com` by calling google’s Map API `https://maps.googleapis.com/maps/api/js`.
+- Show tweets from a public Twitter handle in an HTML hosted in a domain `xyz.com` by calling a Twitter API `https://api.twitter.com/xxx/tweets/xxxxx`.
+- Using web fonts like Typekit and Google Fonts in an HTML hosted in a domain `xyz.com` from their remote domains.
+
+---
+
+# Cookies
+
+Cookies are text files with small pieces of data — like a username and password — that are used to identify your computer as you use a computer network. 
+
+- Specific cookies known as [HTTP cookies](#http-cookies) are used to identify specific users and improve their web browsing experience.
+
+- Data stored in a cookie is created by the server upon your connection. This data is labeled with an ID unique to you and your computer.
+
+- When the cookie is exchanged between your computer and the network server, the server reads the ID and knows what information to specifically serve to you.
+
+  Read below about how a [stateless protocol like HTTP, is made somewhat stateful using Cookies](#how-a-stateless-protocol-like-http-is-made-somewhat-stateful-using-cookies).
+
+> ***Note***: When cookies were invented by creators of the Netscape Browser, these were the guarantees they provided to users in relation to the safety of cookies:
+>
+> - A cookie file is NOT a secret way for a web server to find out everything about you and what you have on your hard drive. 
+>
+> - The ONLY way that any private information could be in your cookie files would be if you personally gave that information to a web server in the first place and it decide to put that information into your cookie file for some reason.
+> 
+> - Also, each cookies is marked with information about what web server it's for. The browser doesn't send any cookies to any web server they're not for.
+> 
+> - There is absolutely no way for a web server to get access to any private information about you or your system through cookies.
+> 
+> - Also, there is no possible way that a virus could be spread through the use of cookies.
+
+
+
+## HTTP Cookies
+
+HTTP cookies, or internet cookies, are built specifically for Internet web browsers to track, personalize, and save information about each user’s session. 
+
+> ***Note***: A **“session”** just refers to the time you spend on a site.
+
+Cookies are created to identify you when you visit a new website. 
+
+The web server — which stores the website’s data — sends a short stream of identifying info to your web browser.
+
+Browser cookies are identified and read by “name-value” pairs. These tell cookies where to be sent and what data to recall.
+
+The server only sends the cookie when it wants the web browser to save it. The web browser stores the cookie locally to remember the “name-value pair” that identifies you.
+
+If a user returns to that site in the future, the web browser returns that data to the web server in the form of a cookie. This is when your browser will send it back to the server to recall data from your previous sessions.
+
+### Todo (Watch Hussein Nasser's video on HTTP cookies, in networking TODO in edge)
+
+---
+
 # [User Agent](https://github.com/rohan-verma19/javascripting#user-agent)
 
-## [User Agent string](https://github.com/rohan-verma19/javascripting#user-agent-string)
+- ## [User Agent string](https://github.com/rohan-verma19/javascripting#user-agent-string)
+- ## [State and Identity of User Agent](https://github.com/rohan-verma19/javascripting#state-and-identity-of-user-agent)
 
-## [State and Identity of User Agent](https://github.com/rohan-verma19/javascripting#state-and-identity-of-user-agent)
+--
 
 # State in the context of *components*
 
@@ -242,18 +384,21 @@ It represents everything necessary to keep an application running.
 
 - Since this application-related data is stored on the *server's memory*, the *information and functionality core to the application* is lost if a server goes down/restarts, since memory is volatile.
 
-- This is why in web development we often use stateless resource controllers which distribute the infromation necessary to the running of the application.
+- This is why in web development we often use stateless resource controllers which distribute the information necessary to the running of the application.
 
   This way the application does not rely heavily on the holding of data on the *server's memory*, for retrieval.
 
-  > ***Note***: An example of this is how HTTP, which is a [*stateless protocol*](#stateless-protocols), is partially made *stateful* with the help of cookies and caching on the client side (in the browser), instead of the server side.
-  >
-  > Every cookie is re-transmitted in both directions to try to "fake" some amount of a "session" for the user's sake. 
-  >
-  > The servers don't hold any resources open for any given client across requests -- each one starts from scratch.
+## How a stateless protocol like HTTP, is made somewhat *stateful* using Cookies
 
+This is an example of how an application reduces its dependency on the server for information retrieval.
 
-Examples of things which make an application *stateful*:
+HTTP, which is a [*stateless protocol*](#stateless-protocols), is partially made *stateful* with the help of cookies and caching on the client side (in the browser), instead of the server side.
+
+Every cookie is re-transmitted in both directions to try to "fake" some amount of a "session" for the user's sake. 
+
+The servers don't hold any resources open for any given client across requests -- each one starts from scratch.
+
+### Examples of things which make an application *stateful*
 
 - **Does the application have a file open, positioned at byte 225?** 
 
@@ -296,6 +441,8 @@ Applications are becoming so laden with information that making multiple HTTP re
   - Remembers the last visited page.
   - Holds cart items such that, they can be restored if the browser gets closed; and the user later on navigates back to the website.
   - Informs the website as to whether a user is authorized to view a specific page.
+
+---
 
 # Network Protocols
 
@@ -403,6 +550,27 @@ Each of them implements a different semantic/logic, but some common features are
     >
     > For example, a `PUT` to `pageX.html` will invalidate all *cached* `GET` or `HEAD` requests to the same URI.
 
+
+#### `POST` method
+
+`POST /add_row HTTP/1.1` is not idempotent; if it is called several times, it adds several rows:
+
+```
+POST /add_row HTTP/1.1
+POST /add_row HTTP/1.1   -> Adds a 2nd row
+POST /add_row HTTP/1.1   -> Adds a 3rd row
+```
+
+#### `DELETE` method
+
+`DELETE /idX/delete HTTP/1.1` is idempotent, even if the returned status code may change between requests:
+```
+DELETE /idX/delete HTTP/1.1   -> Returns 200 if idX exists
+DELETE /idX/delete HTTP/1.1   -> Returns 404 as it just got deleted
+DELETE /idX/delete HTTP/1.1   -> Returns 404
+```
+
+
 ---
 
 ## `HTTPS` (HyperText Transfer Protocol Secure)
@@ -438,6 +606,7 @@ But, if we restart our machine, the ARP cache would get reset. So, if we tried p
 ## `DHCP` (Dynamic Host Configuration Protocol)
 
 
+---
 
 # Global and Local IP Addresses
 
