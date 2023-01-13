@@ -8,7 +8,12 @@
   - [4. Better handling of JavaScript-dependent websites](#4-better-handling-of-javascript-dependent-websites)
 - [How capable are search engines in crawling JavaScript-dependent websites?](#how-capable-are-search-engines-in-crawling-javascript-dependent-websites)
 - [What is an XML sitemap?](#what-is-an-xml-sitemap)
-    - [How capable are search engines in crawling JavaScript-dependent websites?](#how-capable-are-search-engines-in-crawling-javascript-dependent-websites-1)
+  - [How capable are search engines in crawling JavaScript-dependent websites?](#how-capable-are-search-engines-in-crawling-javascript-dependent-websites-1)
+- [What is Lazy Loading?](#what-is-lazy-loading)
+  - [Does lazy loading help in SEO?](#does-lazy-loading-help-in-seo)
+    - [1. Faster page load times](#1-faster-page-load-times)
+    - [2. Better user experience](#2-better-user-experience)
+    - [3. More efficient crawling of your website](#3-more-efficient-crawling-of-your-website)
 
 # How does Server Side Rendering help in SEO?
 
@@ -93,7 +98,7 @@ Search engines will use the information provided in the sitemap to determine whi
 It's also worth noting that most popular website builders and content management systems like WordPress or Shopify have plugins that can automatically generate an XML sitemap for you, and many website analytics platforms will also be able to automatically generate a sitemap for you.
 
 
-### How capable are search engines in crawling JavaScript-dependent websites?
+## How capable are search engines in crawling JavaScript-dependent websites?
 
 Search engines have come a long way in their ability to crawl and understand JavaScript-dependent websites. Many modern search engines, such as Google, are now able to execute JavaScript and index the content of JavaScript-dependent websites. However, the support for JavaScript rendering may vary between different search engines, and the process of crawling and indexing JavaScript-dependent websites can still be more challenging for search engines than for traditional websites.
 
@@ -102,3 +107,46 @@ Google uses Googlebot, a web crawler that is able to execute JavaScript and rend
 It's worth noting that it is still important to ensure that your application follows best practices for SEO even with SSR, such as providing a clear, well-structured HTML, using proper meta tags, and providing descriptive, keyword-rich URLs. Google also recommends providing a pre-rendered version of your content for the web crawlers by using the dynamic rendering feature.
 
 Additionally, if you have an application with dynamic content it might take a bit longer for Google to index it, as it would need to crawl your website multiple times to pick up the dynamic content, so it's a good idea to also implement an XML sitemap and submit it to Google Search Console to notify Google about all the URLs that your application generates
+
+
+# What is Lazy Loading?
+
+Lazy loading is a technique used to optimize the performance of web pages and applications by loading only the resources that are needed at a given time. This can be particularly beneficial for large or complex pages that may have many resources (such as images, videos, scripts, and other assets) that take a long time to load.
+
+There are a few different ways that lazy loading can be implemented, but the basic idea is to only load the resources that are needed when they are actually needed, rather than loading all of the resources at once.
+
+One common way to implement lazy loading is to use the `IntersectionObserver` API, which allows you to track when an element becomes visible in the viewport. When an element that is configured for lazy loading becomes visible in the viewport, the actual resource (e.g. an image) will be loaded.
+
+Another way is to use a popular package, like `lozad.js` for loading the images or `react-lazyload` for loading the components.
+
+Another popular way of lazy loading is to use a `<iframe>` to lazy-load the content, this allows to load the iframe content after the initial loading of the page, so the user doesn't have to wait to see the content and interact with the page while the resources are loading.
+
+Lazy loading can also be used for loading other resources such as scripts or stylesheets that are only needed in certain sections of the page.
+
+It is worth noting that when it comes to image, videos or other multimedia content, Lazy loading is less important on high-speed connections, but it can make a noticeable difference on mobile networks and slow connections which can improve user experience and help with the page load time.
+
+Overall, lazy loading is a technique that can help to improve the performance of web pages and applications by only loading the resources that are needed at a given time, which can help to make pages load faster and improve the user experience.
+
+## Does lazy loading help in SEO?
+
+Lazy loading can help improve the performance of a website, which can have a positive impact on SEO in a few ways:
+
+### 1. Faster page load times
+
+Lazy loading can help to improve the speed at which a page loads, by only loading the resources that are actually needed when they are needed. Since page load time is a known ranking factor for SEO, faster page load times can help to improve the search engine ranking of a website.
+
+### 2. Better user experience
+
+Lazy loading can also improve the user experience by making pages load faster and reducing the amount of data that needs to be downloaded. A better user experience can lead to more engagement with the website, which can also have a positive impact on SEO.
+
+### 3. More efficient crawling of your website
+
+Crawling a website with a lot of images, videos or other multimedia content can take a lot of resources and time, Lazy loading can help by only loading the resources that are actually needed and reducing the amount of data that needs to be crawled. This can lead to more efficient crawling of your website, which can help to ensure that all of the important pages on your website are discovered and indexed by search engines.
+
+---
+
+However, it's worth noting that Lazy loading is a technique that is mostly focused on improving the performance and user experience, it is not a direct SEO technique. While it can have a positive impact on SEO, it is only one of many factors that are considered by search engines when ranking pages.
+
+It's important to also implement other SEO best practices such as providing high-quality, unique content, using proper meta tags and providing descriptive, keyword-rich URLs, as well as ensuring that your website is accessible and mobile-friendly, and submitting an [XML sitemap](#what-is-an-xml-sitemap).
+
+---
