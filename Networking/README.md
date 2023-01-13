@@ -19,6 +19,8 @@
 - [Cookies](#cookies)
   - [HTTP Cookies](#http-cookies)
     - [Todo (Watch Hussein Nasser's video on HTTP cookies, in networking TODO in edge)](#todo-watch-hussein-nassers-video-on-http-cookies-in-networking-todo-in-edge)
+- [Packets](#packets)
+- [Payload](#payload)
 - [User Agent](#user-agent)
 - [State in the context of *components*](#state-in-the-context-of-components)
 - [Types of States in Web Applications](#types-of-states-in-web-applications)
@@ -29,6 +31,7 @@
     - [Working with resources statelessly using REST](#working-with-resources-statelessly-using-rest)
     - [Better alternative to REST : GraphQL (TODO)](#better-alternative-to-rest--graphql-todo)
   - [Session State](#session-state)
+- [REST (Representational State Transfer)](#rest-representational-state-transfer)
 - [Network Protocols](#network-protocols)
   - [What is a Network Protocol?](#what-is-a-network-protocol)
   - [Stateful Protocol](#stateful-protocol)
@@ -46,7 +49,11 @@
     - [ARP Cache](#arp-cache)
     - [Taking an example to understand...](#taking-an-example-to-understand)
   - [`DHCP` (Dynamic Host Configuration Protocol)](#dhcp-dynamic-host-configuration-protocol)
-- [Global and Local IP Addresses](#global-and-local-ip-addresses)
+- [IP Addresses](#ip-addresses)
+  - [IPv4](#ipv4)
+  - [Process of reaching from host to destination (***Network \& Host Address***)](#process-of-reaching-from-host-to-destination-network--host-address)
+  - [Unusable addresses in a network (all 0s \& all 1s)](#unusable-addresses-in-a-network-all-0s--all-1s)
+  - [Global and Local IP Addresses](#global-and-local-ip-addresses)
   - [`NAT` (Network Address Translation)](#nat-network-address-translation)
     - [`NAT` types](#nat-types)
       - [`NAT` type 1](#nat-type-1)
@@ -102,7 +109,6 @@
   - [What is a Bot?](#what-is-a-bot)
     - [Botnet](#botnet)
 - [TODO](#todo)
-  - [Packets](#packets)
   - [Firewall](#firewall)
   - [subnet](#subnet)
   - [Learn how IP spoofing is done.](#learn-how-ip-spoofing-is-done)
@@ -355,6 +361,18 @@ If a user returns to that site in the future, the web browser returns that data 
 
 ---
 
+# Packets
+
+Refer to [this](https://techterms.com/definition/packet) link for a proper explanation on what packets are.
+
+Take a look at pictorial representations of packets online to great a clear understanding of its general components.
+
+# Payload
+
+Refer to [this](https://techterms.com/definition/payload) link for to understand both ***data packet payloads*** and ***malware payloads***.
+
+---
+
 # [User Agent](https://github.com/rohan-verma19/javascripting#user-agent)
 
 - ## [User Agent string](https://github.com/rohan-verma19/javascripting#user-agent-string)
@@ -418,7 +436,7 @@ The ***resource state*** changes as [**resources**](#what-are-resources) are add
 
 ### Working with resources statelessly using REST
 
-REST Architecture is a stateless way of working with web [**resources**](#what-are-resources).
+[REST](#rest-representational-state-transfer) Architecture is a stateless way of working with web [**resources**](#what-are-resources).
   
 Each request in REST explicitly communicates its intended action on the **resource** and passes with it, the information necessary for achieving that action.
 
@@ -441,6 +459,29 @@ Applications are becoming so laden with information that making multiple HTTP re
   - Remembers the last visited page.
   - Holds cart items such that, they can be restored if the browser gets closed; and the user later on navigates back to the website.
   - Informs the website as to whether a user is authorized to view a specific page.
+
+---
+
+# REST (Representational State Transfer)
+
+REST, or Representational State Transfer, is an architectural style for building web services. 
+
+It's a way of designing and structuring the communication between different systems over the internet.
+
+The term "Representational State Transfer" (REST) was first coined by Roy Fielding in his doctoral dissertation in 2000. In it, he defined REST as an architectural style for building web services.
+
+The key concept behind REST is that it is a way of representing the state of a resource (such as a user, a piece of data, or a service) over the internet. This is done by using a set of conventions for how resources are represented, and how clients can interact with them.
+
+- The "representational" part of the name refers to the idea that the *state of a resource* is represented in a standardized format, such as JSON or XML, and can be transferred between the client and the server.
+
+- The "state transfer" part of the name refers to the idea that each interaction between the client and the server results in a transfer of the state of the resource. 
+
+  For example: 
+  1. When a client sends a `GET` request to an endpoint, the server responds with the current representation of the resource. 
+  
+  2. When the client sends a `PUT` request to the same endpoint with new data, the state of the resource changes on the server.
+
+To read about **RESTful APIs**, go [here](../APIs/README.md#restful-apis).
 
 ---
 
@@ -605,10 +646,73 @@ But, if we restart our machine, the ARP cache would get reset. So, if we tried p
 
 ## `DHCP` (Dynamic Host Configuration Protocol)
 
+---
+
+# IP Addresses
+
+An IP address is a 32-bit number. It uniquely identifies a host (computer or other device, such as a printer or router) on a TCP/IP network.
+
+IP address typically still refers to 32-bit `IPv4` addresses until `IPv6` is deployed more broadly.
+
+## IPv4
+
+IPv4 addresses are normally expressed in dotted-decimal format, with four decimal numbers separated by periods, such as 192.168.123.132. 
+
+Each 8-bit number (also known as ***octet***) can be written with base-2, base-10 or base-16. For example:
+
+```
+binary --> decimal --> hexadecimal
+
+11011101.10000001.11010000.00000100 --> 221.129.208.4 -> DD.81.D0.04
+```
 
 ---
 
-# Global and Local IP Addresses
+## Process of reaching from host to destination (***Network & Host Address***)
+
+1. For a `TCP/IP` [wide area network](#wide-area-network) (WAN) to work efficiently as a collection of networks, the routers that pass packets of data between networks do NOT know the exact location of a host for which a packet of information is destined. 
+
+    > ***Note***: This is more efficient since otherwise addresses for a lot of devices would have to be stored, increasing the required amount of memory.
+
+2. Routers only know ***what network the host is a member of*** and use information stored in their *route table* to determine how to get the packet to the ***destination host's network***. 
+
+3. After the packet is delivered to the destination's network, the packet is delivered to the appropriate host.
+
+For this process to work, an IP address has two parts. 
+
+- ### Network Part
+- ### Host part
+
+The first part of an IP address is used as a *network address*, the last part as a *host address*.
+
+If you take the example **`192.168.123.132`** and divide it into these two parts, you get:
+- `192.168.123.` as the ***Network Part***; 
+
+  where `192.168.123.0` would be the ***Network Address*** (making host bits as 0).
+- `.132` as the ***Host Part***; 
+
+  where `0.0.0.132` would be the ***Host Address*** (making the network bits as 0).
+  
+> ***Note***: For each host on your network, the ***network part*** of the address is the same, but the ***host part*** must be different.
+
+---
+
+## Unusable addresses in a network (all 0s & all 1s)
+
+Suppose we have a network with *Network Address* as `192.168.123.0`.
+
+Two addresses that can't be used for hosts in this network are `192.168.123.0` and `192.168.123.255` because binary addresses with a host portion of **all ones** and **all zeros** are *invalid*. 
+
+- The zero address is invalid because it's used to specify a network without specifying a host i.e., *Network Address*. 
+- The 255 address (in binary notation, ***a host address of all ones***, not necessarily 255) is used to broadcast a message to every host on a network. 
+
+Just remember that the first and last address in any network or subnet can't be assigned to any individual host.
+
+So, in the case of the network with Network Address `192.168.123.0`, we can assign IP addresses to a maximum of 254 hosts.
+
+---
+
+## Global and Local IP Addresses
 
 Your ISP gives you a [modem](#what-is-a-modem) which has a global IP address. It helps us connect to a [Wide Area Network](#wide-area-network).
 
@@ -929,7 +1033,7 @@ Botnets can be used to perform Distributed Denial-of-Service (DDoS) attacks, ste
 
 # TODO
 
-## Packets
+
 ## Firewall 
 
 See networking TODO in edge  

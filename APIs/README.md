@@ -4,7 +4,9 @@
 - [API Endpoint](#api-endpoint)
 - [Routes of API](#routes-of-api)
 - [API payload](#api-payload)
-- [HTTP APIs](#http-apis)
+- [RESTful APIs](#restful-apis)
+  - [Example of a RESTful API](#example-of-a-restful-api)
+  - [Uses of REST APIs](#uses-of-rest-apis)
 - [API request: HTTP response codes](#api-request-http-response-codes)
 - [`cURL` command explained](#curl-command-explained)
 
@@ -57,22 +59,35 @@ The payload can be sent or received in various formats, including `JSON`. Usuall
 
 Payload = “{}”
 
-# HTTP APIs
+---
 
-HTTP APIs, also known as RESTful APIs or web APIs, are interfaces that allow applications to communicate with each other over the internet using the HTTP protocol. 
+# RESTful APIs
 
-They are designed to expose certain functionality of a system or service to other systems and applications, and are ***typically accessed via a URL endpoint***.
+If you wish to learn what exactly REST is, go [here](../Networking/README.md#rest).
 
-An HTTP API typically defines a set of endpoints, each of which corresponds to a specific resource or functionality of the system or service. These endpoints can be accessed using the standard HTTP methods (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, etc.) to create, read, update, and delete resources. The data exchanged between the client and server is typically in the form of JSON or XML.
+In simple words, a RESTful API is an API that conforms to certain constraints, such as using HTTP methods (like GET, POST, PUT, DELETE) to interact with resources, and returning data in a standardized format (such as JSON).
+
+REST APIs are always built on top of HTTP.
+
+A RESTful API typically has a set of endpoints, which are URLs that represent specific resources. For example, an API for managing users may have:
+- an endpoint for creating a new user (e.g. `POST /users`) and;
+- an endpoint for retrieving a list of all users (e.g. `GET /users`). 
+ 
+Each endpoint typically supports a set of HTTP methods (e.g. GET, POST, PUT, DELETE) that correspond to different actions that can be performed on the resource. The data exchanged between the client and server is typically in the form of JSON or XML.
+
+## Example of a RESTful API
 
 A simple example of an HTTP API would be a weather service that provides current weather information for a given location. This service might define an endpoint such as `api.weather.com/current?location=New+York`, which the client can access via an HTTP `GET` request to retrieve the current weather conditions for New York City.
 
-HTTP APIs are used in a wide variety of contexts, from simple web-based apps to complex enterprise systems. They are a popular choice for building modern, scalable, and maintainable systems because they are easy to understand and use, and can be consumed by a wide variety of client applications.
+## Uses of REST APIs
 
-Additionally, HTTP APIs are also commonly used in **Microservices architecture**, where different services are developed and deployed independently and communicate via APIs, this way each service can evolve and be scaled independently.
+REST APIs are used in a wide variety of contexts, from simple web-based apps to complex enterprise systems. They are a popular choice for building modern, scalable, and maintainable systems because they are easy to understand and use, and can be consumed by a wide variety of client applications.
+
+Additionally, REST APIs are also commonly used in **Microservices architecture**, where different services are developed and deployed independently and communicate via APIs, this way each service can evolve and be scaled independently.
 
 > ***Note***: There are other architectural styles for building APIs, such as SOAP (Simple Object Access Protocol) based APIs, but HTTP APIs are the most widely used.
 
+---
 
 # API request: HTTP response codes
 
