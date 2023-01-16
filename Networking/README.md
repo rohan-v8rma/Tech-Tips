@@ -16,6 +16,18 @@
   - [Cross-Origin-Resource-Sharing (CORS)](#cross-origin-resource-sharing-cors)
     - [CORS Preflight request](#cors-preflight-request)
     - [Some scenarios of browsers fetching resources where CORS comes into play](#some-scenarios-of-browsers-fetching-resources-where-cors-comes-into-play)
+- [Content Security Policy (CSP)](#content-security-policy-csp)
+  - [What is CSP?](#what-is-csp)
+    - [Scripts](#scripts)
+    - [Styles](#styles)
+    - [Images](#images)
+    - [Frames](#frames)
+    - [Plugins](#plugins)
+    - [AJAX and WebSockets](#ajax-and-websockets)
+    - [Objects](#objects)
+    - [Eval() and inline-code execution](#eval-and-inline-code-execution)
+  - [Who is responsible for specifying the CSP rules of a particular website?](#who-is-responsible-for-specifying-the-csp-rules-of-a-particular-website)
+- [Whose interests are protected by CORS and CSP?](#whose-interests-are-protected-by-cors-and-csp)
 - [Cookies](#cookies)
   - [HTTP Cookies](#http-cookies)
     - [Todo (Watch Hussein Nasser's video on HTTP cookies, in networking TODO in edge)](#todo-watch-hussein-nassers-video-on-http-cookies-in-networking-todo-in-edge)
@@ -41,6 +53,10 @@
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
     - [What are "Resources"?](#what-are-resources)
     - [`HTTP` request methods](#http-request-methods)
+      - [Safe](#safe)
+      - [Idempotent](#idempotent)
+      - [Cacheable Responses](#cacheable-responses)
+    - [Descriptions of HTTP methods](#descriptions-of-http-methods)
       - [`POST` method](#post-method)
       - [`DELETE` method](#delete-method)
   - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
@@ -109,6 +125,7 @@
   - [What is a Bot?](#what-is-a-bot)
     - [Botnet](#botnet)
 - [TODO](#todo)
+- [Web Socket](#web-socket)
   - [Firewall](#firewall)
   - [subnet](#subnet)
   - [Learn how IP spoofing is done.](#learn-how-ip-spoofing-is-done)
@@ -312,6 +329,98 @@ Let us take an example to understand how a Preflight request would prove to be u
 - Display a map of a user’s location in an HTML or single page application hosted in a domain `xyz.com` by calling google’s Map API `https://maps.googleapis.com/maps/api/js`.
 - Show tweets from a public Twitter handle in an HTML hosted in a domain `xyz.com` by calling a Twitter API `https://api.twitter.com/xxx/tweets/xxxxx`.
 - Using web fonts like Typekit and Google Fonts in an HTML hosted in a domain `xyz.com` from their remote domains.
+
+---
+
+# Content Security Policy (CSP)
+
+## What is CSP? 
+
+Content Security Policy (CSP) is a client-side security mechanism. It is implemented by web browsers and is used to control the loading of resources on a web page.
+
+CSP is set by the web server in the HTTP headers of the server response, and it is enforced by the web browser. The web browser uses the CSP rules defined in the HTTP headers to determine which sources of content are allowed to be loaded by a web page, and which types of resources are allowed to be executed. 
+
+If a web page tries to load or execute a resource that is not allowed by the CSP rules, the browser will block the resource and may report the violation to the server.
+
+CSP can be used to mitigate a variety of security risks, such as cross-site scripting (XSS) and clickjacking attacks.
+
+CSP can restrict the following types of resources:
+
+---
+
+### Scripts
+
+CSP can be used to restrict the types of scripts that a web page can load, such as JavaScript, VBScript, or ECMAScript modules. CSP can also be used to restrict the use of inline scripts, such as scripts embedded in HTML or event handlers.
+
+### Styles
+
+CSP can be used to restrict the types of styles that a web page can load, such as CSS or pre-processed styles. CSP can also be used to restrict the use of inline styles, such as styles embedded in HTML.
+
+### Images
+
+CSP can be used to restrict the types of images that a web page can load, such as PNG, JPG, or GIF.
+
+### Frames
+
+CSP can be used to restrict the types of frames that a web page can load, such as iframes or framesets.
+
+### Plugins
+
+CSP can be used to restrict the types of plugins that a web page can load, such as Java or Flash.
+
+### AJAX and WebSockets
+
+CSP can be used to restrict the types of AJAX and WebSockets requests that a web page can make.
+
+### Objects
+
+CSP can be used to restrict the types of objects that a web page can load, such as applets, audio, or video.
+
+### Eval() and inline-code execution
+
+CSP can be used to restrict the use of the eval() function and inline-code execution, which can be used to execute malicious code.
+
+---
+
+It's important to note that CSP is a feature of the browser and it does not involve the server, but it can be set by the server through the http header, the browser will follow the instructions set by the CSP header when loading resources.
+
+## Who is responsible for specifying the CSP rules of a particular website?
+
+The Content Security Policy (CSP) rules for a particular website are typically written by the web developers or security team responsible for the development and maintenance of the website.
+
+The CSP rules are typically defined in the HTTP headers of the server response, and they specify the sources of content that are allowed to be loaded by a web page. These rules can be set by the server administrator, developer, or security team, depending on the organization and the resources available.
+
+The rules for CSP can be complex and depend on the specific needs of the website, it's important for the developer to understand the website's architecture, the resources it's using and how it's being used, this knowledge is crucial to set the appropriate rules to secure the website.
+
+It's also worth noting that CSP rules are not a one-time setup, the web developers need to keep track of the changes on the website and the resources it's using, and adapt the rules accordingly, to make sure that the website is secure.
+
+In summary, CSP rules are typically written by web developers or security team responsible for the development and maintenance of the website, and they are set by the server administrator, developer, or security team, depending on the organization and resources available.
+
+---
+
+# Whose interests are protected by CORS and CSP?
+
+Both Content Security Policy (CSP) and Cross-Origin Resource Sharing (CORS) are used to secure web applications, but they serve different purposes and protect different interests.
+
+1. CORS is a mechanism that controls whether or not a web page can make requests to a different domain. 
+
+    It allows the server to specify which origins are allowed to make requests to it, and which methods, headers, and credentials are allowed. 
+
+    CORS is mainly ***used to protect the service provider's interests***. 
+    
+    CORS is used to prevent unauthorized access to the server resources, by only allowing requests from authorized domains, it also provides a way to share resources across different domains in a controlled and secure manner.
+
+2. CSP is a security mechanism that allows web servers to specify which sources of content are allowed to be loaded by a web page. It can be used to restrict the types of resources that a web page can load and the ways in which they can be used. 
+   
+    CSP can be used to mitigate a variety of security risks, such as cross-site scripting (XSS) and clickjacking attacks. 
+    
+    CSP is mainly used to ***protect the client's interests***, by limiting the types of resources that can be loaded and the ways in which they can be used, it helps to prevent the execution of malicious code.
+
+In summary:
+- CORS is mainly used to protect the service provider's interests, by controlling access to the server resources.
+- While CSP is mainly used to protect the client's interests by controlling the resources that can be loaded and executed by the client. 
+
+Both CSP and CORS play an important role in securing web applications, they complement each other and can be used together to provide a more complete security model.
 
 ---
 
@@ -540,7 +649,7 @@ These request methods are sometimes referred to as *HTTP verbs*.
 
 Each of them implements a different semantic/logic, but some common features are shared by a group of them:
 
-- **Safe**
+#### Safe
   
   Request methods are considered **safe** if their defined semantics are essentially read-only; i.e., the client does not request, and does not expect, any state change on the origin server as a result of applying a **safe** method to a target resource. 
   
@@ -557,7 +666,9 @@ Each of them implements a different semantic/logic, but some common features are
 
   Read the HTTP specification [here](https://httpwg.org/specs/rfc9110.html#safe.methods), to get more clarity on **safe** methods.
 
-- **Idempotent**
+---
+
+#### Idempotent
   
   A request method is considered **idempotent** if the intended effect on the server of *multiple identical requests* with that method is the same as the effect for a *single such request*. 
   
@@ -571,7 +682,9 @@ Each of them implements a different semantic/logic, but some common features are
 
   Read the HTTP specification [here](https://httpwg.org/specs/rfc9110.html#idempotent.methods), to get more clarity on **idempotent** methods.
 
-- **Cacheable Responses**
+---
+
+#### Cacheable Responses
 
   A **cacheable response** is an HTTP response that can be *cached*, that is stored to be retrieved and used later, saving a new request to the server. 
   
@@ -591,16 +704,30 @@ Each of them implements a different semantic/logic, but some common features are
     >
     > For example, a `PUT` to `pageX.html` will invalidate all *cached* `GET` or `HEAD` requests to the same URI.
 
+---
+
+### Descriptions of HTTP methods
 
 #### `POST` method
 
-`POST /add_row HTTP/1.1` is not idempotent; if it is called several times, it adds several rows:
+The `POST` method is typically used to create a new resource on the server; and is usually Non-[Idempotent](#idempotent). 
 
+In the case of `POST /add_row HTTP/1.1`, if it is called several times, it adds several rows:
 ```
 POST /add_row HTTP/1.1
 POST /add_row HTTP/1.1   -> Adds a 2nd row
 POST /add_row HTTP/1.1   -> Adds a 3rd row
 ```
+
+However, it is possible to design a `POST` method to be ***idempotent***. The idea behind this is that you can use the `POST` method to create a new resource, but if the resource already exists, the `POST` method will return the existing resource without creating a new one.
+
+For example, you might create a POST method to create a new user account, but if the user already exists, the method will return the existing user account rather than creating a new one. 
+
+To implement this, you need to design your API in such a way that it first checks if the resource already exists, and if it does, it returns it without creating a new one. If the resource does not exist, it creates a new one.
+
+> ***Note***: Even though it is possible to implement the `POST` method as [***idempotent***](#idempotent), it is NOT a ***common practice*** and most of the API are designed to be non-idempotent for `POST` method.
+
+---
 
 #### `DELETE` method
 
@@ -610,7 +737,6 @@ DELETE /idX/delete HTTP/1.1   -> Returns 200 if idX exists
 DELETE /idX/delete HTTP/1.1   -> Returns 404 as it just got deleted
 DELETE /idX/delete HTTP/1.1   -> Returns 404
 ```
-
 
 ---
 
@@ -1033,13 +1159,17 @@ Botnets can be used to perform Distributed Denial-of-Service (DDoS) attacks, ste
 
 # TODO
 
+# Web Socket
+
 
 ## Firewall 
 
 See networking TODO in edge  
 
 ## subnet
+
 ## Learn how [IP spoofing](#ip-spoofing) is done.
+
 ## HTTP tunneling
 
 See networking TODO in edge
