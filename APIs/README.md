@@ -17,6 +17,9 @@
     - [Code generation](#code-generation)
     - [Improved documentation](#improved-documentation)
     - [Testing](#testing)
+  - [An example OpenAPI definition](#an-example-openapi-definition)
+    - [In JSON](#in-json)
+    - [In YAML](#in-yaml)
 - [API request: HTTP response codes (TODO: complete)](#api-request-http-response-codes-todo-complete)
 - [JSON Data](#json-data)
   - [Use a consistent naming convention](#use-a-consistent-naming-convention)
@@ -155,6 +158,97 @@ OpenAPI definitions can be used to generate API documentation automatically, whi
 ### Testing
 
 OpenAPI definitions can be used to validate that an API implementation is correct and meets the specifications defined in the OpenAPI definition. This can help to catch problems early in the development process, before the API is deployed to production.
+
+---
+
+
+## An example OpenAPI definition
+
+A simple OpenAPI definition looks like this:
+
+```yaml
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Sample API
+  description: A sample API to illustrate OpenAPI concepts
+paths:
+  /list:
+    get:
+      description: Returns a list of stuff              
+      responses:
+        '200':
+          description: Successful response
+```
+
+
+Here's a simple example of an OpenAPI definition for a REST API that allows users to retrieve a list of books:
+
+---
+
+### In JSON
+
+```json
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Book API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/books"
+    }
+  ],
+  "paths": {
+    "/books": {
+      "get": {
+        "description": "Retrieve a list of books",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### In YAML
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Book API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/books
+paths:
+  /books:
+    get:
+      description: Retrieve a list of books
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+```
+
+---
+
+In this example, the API definition specifies:
+- The API endpoint (`/books`)
+- The HTTP method used to retrieve a list of books (`GET`), and 
+- The response format (`application/json`). 
+
+The `schema` property is used to define the structure of the JSON response data.
 
 ---
 
