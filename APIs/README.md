@@ -21,13 +21,15 @@
     - [In JSON](#in-json)
     - [In YAML](#in-yaml)
 - [API request: HTTP response codes (TODO: complete)](#api-request-http-response-codes-todo-complete)
-- [JSON Data](#json-data)
-  - [Use a consistent naming convention](#use-a-consistent-naming-convention)
-  - [Keep it simple](#keep-it-simple)
-  - [Use arrays for lists](#use-arrays-for-lists)
-  - [Use objects for nested data](#use-objects-for-nested-data)
-  - [Use a single root element](#use-a-single-root-element)
-  - [Use meaningful keys](#use-meaningful-keys)
+- [JSON](#json)
+  - [Structuring JSON Data](#structuring-json-data)
+    - [Use a consistent naming convention](#use-a-consistent-naming-convention)
+    - [Keep it simple](#keep-it-simple)
+    - [Use arrays for lists](#use-arrays-for-lists)
+    - [Use objects for nested data](#use-objects-for-nested-data)
+    - [Use a single root element](#use-a-single-root-element)
+    - [Use meaningful keys](#use-meaningful-keys)
+  - [Meaning of `application/json` in the context of APIs (MIME types)](#meaning-of-applicationjson-in-the-context-of-apis-mime-types)
 - [`cURL` command explained](#curl-command-explained)
 - [Server-Side API Caching](#server-side-api-caching)
 
@@ -260,31 +262,33 @@ Every HTTP status code has a different meaning, but often the outcome of the req
 
 Resp
 
-# JSON Data
+# JSON
+
+## Structuring JSON Data
 
 When structuring JSON data, it's important to keep in mind that JSON is a hierarchical format, meaning that it has a tree-like structure with nested elements. Here are a few guidelines for structuring JSON data:
 
-## Use a consistent naming convention
+### Use a consistent naming convention
 
 Choose a naming convention and stick to it throughout the JSON data. This will make it easier to understand and navigate the data.
 
-## Keep it simple
+### Keep it simple
 
 Avoid complex nesting and use only the necessary elements to make the data easy to read and understand.
 
-## Use arrays for lists
+### Use arrays for lists
 
 Use arrays to represent lists of items, and use objects to represent individual items within those lists.
 
-## Use objects for nested data
+### Use objects for nested data
 
 Use objects to represent nested data, such as an object containing multiple properties.
 
-## Use a single root element
+### Use a single root element
 
 Use a single root element to contain all the data, making it easy to identify and access the data.
 
-## Use meaningful keys
+### Use meaningful keys
 
 Use keys that are meaningful and easy to understand.
 
@@ -343,6 +347,21 @@ Here is an example of well-structured JSON data:
 
 It's clear to see that the data is structured in a way that makes it easy to understand and navigate. The keys are meaningful, the data is not overly nested, and there's a single root element.
 
+## Meaning of `application/json` in the context of APIs (MIME types)
+
+`application/json` is a media type, also known as a MIME type, used to specify the format of data being sent in an API request or response. The `application/json` media type indicates that the data is formatted as a JSON object.
+
+> ***Note***: Read more about ***MIME types*** under the Swagger 2 spec documentation [here](https://swagger.io/docs/specification/2-0/mime-types/).
+
+There are alternative media types that can be used in APIs, depending on the specific needs of the API and the data being exchanged. Some of the most common alternatives include:
+
+- `application/xml`: Indicates that the data is formatted as an XML document.
+- `application/x-www-form-urlencoded`: Indicates that the data is formatted as a series of key-value pairs, typically used in HTML forms.
+- `text/plain`: Indicates that the data is plain text, with no specific formatting.
+
+It's worth noting that while different media types can be used in APIs, `application/json` is a very common choice due to its simplicity, support for a wide range of data types, and widespread support in programming languages and tooling.
+
+---
 
 # `cURL` command explained
 
