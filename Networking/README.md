@@ -16,6 +16,10 @@
   - [Cross-Origin-Resource-Sharing (CORS)](#cross-origin-resource-sharing-cors)
     - [CORS Preflight request](#cors-preflight-request)
     - [Some scenarios of browsers fetching resources where CORS comes into play](#some-scenarios-of-browsers-fetching-resources-where-cors-comes-into-play)
+    - [Inherited Origins](#inherited-origins)
+    - [Is it possible to face CORS issue on making an API request from client side?](#is-it-possible-to-face-cors-issue-on-making-an-api-request-from-client-side)
+    - [Using a proxy server to avoid CORS issues](#using-a-proxy-server-to-avoid-cors-issues)
+      - [Why are proxy servers allowed to make requests to the required domain but not the browser?](#why-are-proxy-servers-allowed-to-make-requests-to-the-required-domain-but-not-the-browser)
 - [Content Security Policy (CSP)](#content-security-policy-csp)
   - [What is CSP?](#what-is-csp)
     - [Scripts](#scripts)
@@ -28,6 +32,7 @@
     - [Eval() and inline-code execution](#eval-and-inline-code-execution)
   - [Who is responsible for specifying the CSP rules of a particular website?](#who-is-responsible-for-specifying-the-csp-rules-of-a-particular-website)
 - [Whose interests are protected by CORS and CSP?](#whose-interests-are-protected-by-cors-and-csp)
+- [Caching](#caching)
 - [Cookies](#cookies)
   - [HTTP Cookies](#http-cookies)
     - [Todo (Watch Hussein Nasser's video on HTTP cookies, in networking TODO in edge)](#todo-watch-hussein-nassers-video-on-http-cookies-in-networking-todo-in-edge)
@@ -282,6 +287,8 @@ Some examples to understand origins:
 
 The same-origin policy is a *critical security mechanism* that restricts how a document or script loaded by one origin can **interact** with a resource from another origin.
 
+This policy is enforced by browsers to prevent ***cross-site scripting (XSS)*** attacks, where an attacker injects malicious code into a web page from a different domain and gains access to sensitive information.
+
 It helps isolate potentially malicious documents, reducing possible attack vectors. 
 
 *For example*, it prevents:
@@ -329,6 +336,83 @@ Let us take an example to understand how a Preflight request would prove to be u
 - Display a map of a user’s location in an HTML or single page application hosted in a domain `xyz.com` by calling google’s Map API `https://maps.googleapis.com/maps/api/js`.
 - Show tweets from a public Twitter handle in an HTML hosted in a domain `xyz.com` by calling a Twitter API `https://api.twitter.com/xxx/tweets/xxxxx`.
 - Using web fonts like Typekit and Google Fonts in an HTML hosted in a domain `xyz.com` from their remote domains.
+
+### Inherited Origins
+
+If a script is executed from a page with a URL of `about:blank` or `javascript:`, it will inherit the origin of the document that contained that URL. In other words, the origin of the script will be the same as the origin of the page that caused it to be executed.
+
+For example, if a parent script on `https://example.com` opens a new, empty popup window with a URL of `about:blank`, and writes content into it, any script that is executed in that popup window will have an origin of `https://example.com`. 
+
+This means that the script in the popup window will have the same access to resources and APIs as the parent script, and can make cross-origin requests to the same domains as the parent script.
+
+This is important to keep in mind when developing web applications that make use of popups, as **it can affect the security and functionality of your scripts**.
+
+
+### Is it possible to face CORS issue on making an API request from client side?
+
+Yes, a CORS (Cross-Origin Resource Sharing) issue can occur when making an API request from the client side (e.g. from a browser).
+
+If your web page is hosted on one domain (e.g. `example.com`) and you're trying to make an API request to a different domain (e.g. `api.example.com`), the browser will block the request if the server at `api.example.com` doesn't specifically allow it.
+
+To avoid this issue, the server at `api.example.com` needs to send the correct CORS headers in its response. The headers indicate which domains are allowed to make requests to the server. For example, the server could send the following header:
+
+```makefil
+Access-Control-Allow-Origin: https://example.com
+```
+This header would allow requests from the `https://example.com` domain, but block requests from any other domains.
+
+> ***Note***: If you don't have control over the server you're trying to make requests to, there are workarounds, such as:
+> - [Using a proxy server](#using-a-proxy-server-to-avoid-cors-issues)
+> - Making the request from a backend instead of the client side. 
+> However, these solutions depend on the specific use case and constraints, and should be carefully considered.
+
+### Using a proxy server to avoid CORS issues
+
+Here's a high-level overview of the process for using a proxy server to bypass CORS restrictions:
+
+1. Set up a proxy server
+
+    You'll need to set up a proxy server that can receive API requests from your client-side code and forward them to the target API server. You can set up a proxy server using a variety of technologies, such as Node.js, Nginx, or Apache.
+
+2. Configure the proxy server
+
+    The proxy server needs to be configured to forward requests to the target API server. Depending on the technology you're using, this may involve editing configuration files or writing custom code to handle the requests and responses.
+
+3. Update your client-side code
+
+    Instead of making API requests directly to the target API server, you'll need to make API requests to the proxy server instead. The URLs for the API requests will need to be updated to point to the proxy server instead of the target API server.
+
+4. Test the setup
+
+    After making the changes to your client-side code and the proxy server, you should test the setup to ensure that API requests are being properly forwarded and that the correct data is being returned.
+
+5. Deploy the proxy server
+
+    Finally, you'll need to deploy the proxy server so that it's accessible from the client-side code. Depending on your setup, this may involve deploying to a cloud hosting provider, a local server, or some other infrastructure.
+
+By using a proxy server, your client-side code can make API requests to the target API server without being blocked by CORS restrictions. 
+
+The proxy server acts as a bridge between your client-side code and the target API server, allowing you to bypass the restrictions.
+
+Keep in mind that using a proxy server to bypass CORS restrictions is just one approach, and that other solutions may be more appropriate for your specific use case and constraints.
+
+---
+
+#### Why are proxy servers allowed to make requests to the required domain but not the browser?
+
+The reason proxy servers are allowed to make requests to the required domain while browsers are restricted is because the proxy server is not bound by the [same-origin policy](#same-origin-policy) that is enforced in browsers.
+
+A proxy server, on the other hand, is not a web page and is not subject to the same-origin policy. 
+
+- When a client-side request is made through a proxy server, the proxy server acts as an intermediary between the client and the target API server. 
+
+- The API response is returned to the proxy server, which can then return the response to the client. 
+
+- The client-side code is not directly communicating with the target API server, so it is not subject to the same-origin policy restrictions.
+
+This allows the client-side code to bypass the CORS restrictions and make API requests to the target API server, even if the target API server is on a different domain. 
+
+The proxy server acts as a bridge between the client-side code and the target API server, allowing the request to be made without being blocked by the browser's same-origin policy.
 
 ---
 
@@ -421,6 +505,28 @@ In summary:
 - While CSP is mainly used to protect the client's interests by controlling the resources that can be loaded and executed by the client. 
 
 Both CSP and CORS play an important role in securing web applications, they complement each other and can be used together to provide a more complete security model.
+
+---
+
+# Caching
+
+Caching is the ability to store copies of frequently accessed data in several places along the ***request-response path***.
+
+- When a consumer requests a resource representation, the request goes through a cache or a series of caches (local cache, proxy cache, or reverse proxy) toward the service hosting the resource.
+
+  If any of the caches along the request path has a fresh copy of the requested representation, it uses that copy to satisfy the request. If none of the caches can satisfy the request, the request travels to the service (or origin server as it is formally known).
+
+- By using HTTP headers, an origin server indicates whether a response can be cached and, if so, by whom, and for how long.
+
+  Caches along the response path can take a copy of a response, but only if the ***caching metadata*** (**HTTP headers**, etcetera) allows them to do so.
+
+- Optimizing the network using caching improves the overall quality-of-service in the following ways:
+  - Reduce bandwidth
+  - Reduce latency
+  - Reduce load on servers
+  - Hide network failures
+
+> ***Note***: For caching in REST APIs, visit [here](../APIs/README.md#caching-in-rest-apis).
 
 ---
 
