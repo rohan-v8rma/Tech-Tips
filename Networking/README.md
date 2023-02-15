@@ -116,7 +116,7 @@
   - [3. Network Layer](#3-network-layer)
   - [2. Data-Link Layer](#2-data-link-layer)
   - [1. Physical Layer](#1-physical-layer)
-- [Types of Cyber Attacks](#types-of-cyber-attacks)
+- [Types of Cyber Attacks \& Vulnerabilities](#types-of-cyber-attacks--vulnerabilities)
   - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
   - [Subdomain Takeover attack (TODO)](#subdomain-takeover-attack-todo)
@@ -1181,7 +1181,9 @@ The seven abstraction layers of the OSI model can be defined as follows, from to
 
 ## 1. Physical Layer
 
-# Types of Cyber Attacks
+# Types of Cyber Attacks & Vulnerabilities
+
+> ***Note***: Remember to not just keep reading up on the types of attacks and instead see how they are carried out, how to find out the identity of the attacker and think of solutions to stop them parallely.
 
 ## Denial-of-Service (DoS) attack
 
