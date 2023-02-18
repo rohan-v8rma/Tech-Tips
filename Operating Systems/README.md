@@ -6,10 +6,17 @@
   - [How OS achieves the task of making programs easier to run (*Virtualization*)](#how-os-achieves-the-task-of-making-programs-easier-to-run-virtualization)
   - [How users interface with the OS to perform general operations (*System Calls* \& *Standard Library*)](#how-users-interface-with-the-os-to-perform-general-operations-system-calls--standard-library)
   - [How OS functions as a *Resource Manager*](#how-os-functions-as-a-resource-manager)
+  - [Different ways to represent dates in Software](#different-ways-to-represent-dates-in-software)
+    - [Epoch time](#epoch-time)
+    - [ISO 8601](#iso-8601)
+    - [Calendar date](#calendar-date)
+    - [Julian date](#julian-date)
+    - [`.NET` date time](#net-date-time)
+    - [UNIX timestamp](#unix-timestamp)
 - [TODO](#todo)
-- [A deep dive into Virtualization](#a-deep-dive-into-virtualization)
-- [Concurrency](#concurrency)
-- [Persistence](#persistence)
+  - [A deep dive into Virtualization](#a-deep-dive-into-virtualization)
+  - [Concurrency](#concurrency)
+  - [Persistence](#persistence)
   - [OS-level virtualization](#os-level-virtualization)
   - [Hypervisor](#hypervisor)
 - [More Operating System Concepts](#more-operating-system-concepts)
@@ -94,13 +101,39 @@ Because of this, the OS is sometimes known as as ***Resource Manager***
 
 The CPU, memory and disk are ***resources*** of the system, which the OS transforms into *virtual* resources. It then needs to ***manage*** these, doing so efficiently or fairly or indeed with many other possible goals in mind.
 
+## Different ways to represent dates in Software
+
+### Epoch time
+
+This is the number of seconds that have elapsed since January 1, 1970 (UTC). This is a commonly used representation in computer systems and programming languages.
+
+### ISO 8601
+
+This is an international standard for representing date and time in a machine-readable format. It uses the format `YYYY-MM-DDTHH:MM:SS`.
+
+### Calendar date
+
+This is the traditional way of representing a date, using the format `MM/DD/YYYY` or `DD/MM/YYYY`. This format is often used in human-readable interfaces and user input.
+
+### Julian date
+
+A Julian date is the number of days that have elapsed since January 1, 4713 BC (Julian calendar). It is widely used in astronomical applications.
+
+### `.NET` date time
+
+`.NET` Framework provides a set of date and time classes in the System namespace that are designed for both local and global use. It is widely used in Microsoft applications.
+
+### UNIX timestamp
+
+similar to Epoch time but the reference point is January 1, 1970 (UTC) but not limited to seconds but also includes milliseconds, microseconds and nanoseconds.
+
 # TODO
 
-# A deep dive into Virtualization
+## A deep dive into Virtualization
 
-# Concurrency 
+## Concurrency 
 
-# Persistence
+## Persistence
 
 ## OS-level virtualization
 

