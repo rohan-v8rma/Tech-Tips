@@ -9,11 +9,13 @@
 - [Branches in git](#branches-in-git)
   - [Example to understand branches in git](#example-to-understand-branches-in-git)
   - [What is the HEAD pointer in Git?](#what-is-the-head-pointer-in-git)
+  - [Detached HEAD state](#detached-head-state)
   - [Visualizing branching using `ADOG`](#visualizing-branching-using-adog)
   - [Creating \& switching to a branch (`git checkout -b <branchname>`)](#creating--switching-to-a-branch-git-checkout--b-branchname)
   - [Fetching changes from a remote repo (`git fetch <remotename> <branch>`)](#fetching-changes-from-a-remote-repo-git-fetch-remotename-branch)
   - [*Technological uniqueness* in git](#technological-uniqueness-in-git)
   - [Merging changes of another branch into current branch using (`git merge`)](#merging-changes-of-another-branch-into-current-branch-using-git-merge)
+  - [Creating a local version of a remote branch after fetching its changes](#creating-a-local-version-of-a-remote-branch-after-fetching-its-changes)
 - [Steps for merging a branch](#steps-for-merging-a-branch)
   - [](#)
   - [`git cherry-pick`](#git-cherry-pick)
@@ -147,12 +149,16 @@ o--o--o--o   <-- master (HEAD)
 Git will discover that `HEAD` is **"attached to"** *(contains the name)* `master`, then follow the backwards arrow from `master` to the tip commit.
 
 > ***Note***: `git log --decorate` prints the decoration as `HEAD -> master`, when `HEAD` points to `master`. 
-> 
+>
 > When `HEAD` points directly to a commit, Git calls this a ***detached HEAD***, and you might see `HEAD, master` instead. 
 > 
 > This formatting trick was new in Git 2.4: before that, it just showed `HEAD, master` for both ***detached HEAD*** mode, and ***non-detached-HEAD mode***, for this case. 
 > 
 > ***Non-detached** `HEAD` can be referred to as an attached `HEAD`, and can be the **"attachment"** can be represented using `master (HEAD)`.
+
+## Detached HEAD state
+
+When `HEAD` points directly to a commit, Git calls this a ***detached HEAD***. Read more about it [here](https://www.cloudbees.com/blog/git-detached-head).
 
 ---
 
@@ -164,7 +170,7 @@ The best command for seeing the graph is *`A DOG`*:
 git log --decorate --oneline --graph --all
 ```
 
-See the explanation for each flag over [here](https://explainshell.com/explain?cmd=git+log+--all+--graph+--decorate+--oneline+--simplify-by-decoration).
+See the explanation for each flag over [here](https://expla inshell.com/explain?cmd=git+log+--all+--graph+--decorate+--oneline+--simplify-by-decoration).
 
 
 Note `origin/master` and `master` are two different branches. Fetching origin/master will not automatically update master as well.
@@ -260,6 +266,45 @@ It runs the equivalent of `git merge origin/master`.
 - What `git merge` does is to locate the *nearest common-ancestor* commit, which I've drawn as `*` instead of just `o` here. 
 
   That's the merge base. It's simply the point from which the two branches **"fork off"**.
+
+## Creating a local version of a remote branch after fetching its changes
+
+Once you have fetched a remote branch and it has been created locally as a tracking branch, you can check it out and make changes to it just like any other local branch. Here are the steps to checkout a remote branch that has been fetched locally and commit on it:
+
+- Fetch the remote branch using git fetch:
+
+  ```console
+  git fetch origin remote-branch-name
+  ```
+
+  This will fetch the remote branch named `remote-branch-name` from the `origin` remote repository.
+
+- Create a local tracking branch for the remote branch using git checkout with the -b option:
+
+  ```console
+  git checkout -b local-branch-name origin/remote-branch-name
+  ```
+
+  This will create a new local branch named `local-branch-name` that tracks the remote branch `remote-branch-name`.
+
+- Make changes to the local branch as usual using `git add` and `git commit`:
+
+  ```console
+  git add .
+  git commit -m "my changes"
+  ```
+
+  This will stage and commit your changes to the local branch.
+
+- Push the changes to the remote branch using `git push`:
+
+  ```console
+  git push origin local-branch-name:remote-branch-name
+  ```
+
+  This will push your changes from the local branch `local-branch-name` to the remote branch `remote-branch-name` on the `origin` remote repository.
+
+  Note that you will need write access to the remote repository to be able to push changes to a remote branch.
 
 # Steps for merging a branch 
 
