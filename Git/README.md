@@ -5,6 +5,7 @@
 - [Commits in git](#commits-in-git)
   - [Identifying commits (using *hash IDs*)](#identifying-commits-using-hash-ids)
   - [Modifying commits](#modifying-commits)
+- [Upstream and Downstream](#upstream-and-downstream)
 - [Branches in git](#branches-in-git)
   - [Example to understand branches in git](#example-to-understand-branches-in-git)
   - [What is the HEAD pointer in Git?](#what-is-the-head-pointer-in-git)
@@ -23,6 +24,13 @@
   - [`git remote --verbose` OR `git remote -v`](#git-remote---verbose-or-git-remote--v)
 - [Initializing a repository](#initializing-a-repository)
   - [Cloning a repository](#cloning-a-repository)
+- [Git commands explained](#git-commands-explained)
+  - [`git pull` and `git push`](#git-pull-and-git-push)
+    - [Brief description](#brief-description)
+    - [In-depth explanation of working](#in-depth-explanation-of-working)
+    - [About the names of branches in `git pull` and `git push`](#about-the-names-of-branches-in-git-pull-and-git-push)
+      - [In `git pull`](#in-git-pull)
+      - [In `git push`](#in-git-push)
 - [Format for commit messages](#format-for-commit-messages)
 
 
@@ -76,6 +84,20 @@ The most rigorous name for a commit is its ***hash identifier***.
 But, all of this applies only to commits, hence the rule of thumb: "commit early and often". 
 
 Anything actually committed, Git will try to let one retrieve again later, usually for up to 30 or 90 days.
+
+# Upstream and Downstream
+
+In the context of Git, "upstream" and "downstream" are typically used to refer to the direction of data flow between repositories or branches.
+
+- "Upstream" refers to the remote repository that a local repository is forked from, or the branch that a local branch is tracking. In other words, it is the repository or branch that a local repository or branch is synchronized with when pushing or pulling changes.
+
+- "Downstream" refers to the local repository or branch that is derived from the upstream repository or branch. In other words, it is the repository or branch that receives updates from the upstream repository or branch, and potentially incorporates those changes into its own codebase.
+
+> To give an example, suppose you have a forked repository on your local machine that you cloned from a remote repository on GitHub. In this case, the remote repository on GitHub is the upstream repository, and your local repository is the downstream repository. 
+> 
+> When you make changes to the code in your local repository and want to update the upstream repository with those changes, you would push your changes upstream. 
+> 
+> Conversely, if there are updates to the code in the upstream repository that you want to incorporate into your local repository, you would pull those changes downstream.
 
 # Branches in git
 
@@ -351,6 +373,81 @@ The branches which are to be compared should have same origination point.
 Commits
 
 Git commit -m “commit message” -m “commit description”
+
+# Git commands explained
+
+## `git pull` and `git push`
+
+### Brief description
+
+- A `git pull` is what you would do to bring a local branch up-to-date with its remote version, while also updating your other remote-tracking branches.
+
+  In other words: `git pull` will always merge into the current branch. So you select which branch you want to pull from, and it pulls it into the current branch. 
+
+- `git push` is roughly the inverse of `git pull`. 
+
+  By default, it updates the remote branch of the same name with any local changes.
+
+  
+Read this article for more info:
+https://koukia.ca/difference-between-git-pull-and-git-fetch-16e30c3849c9
+
+### In-depth explanation of working
+
+The `git pull` command is actually a combination of two other commands, `git fetch` followed by `git merge`. 
+
+1. In the first stage of operation `git pull` will execute a `git fetch` scoped to the local branch that HEAD is pointed at. 
+
+    By default, git fetch updates all of your remote-tracking branches, which are local copies of the remote branches in the remote repository.
+
+    However, when `git pull` is executed, the `git fetch` command is scoped to the local branch that HEAD is pointing to. 
+    
+    This means that `git fetch` only retrieves the latest changes for the current branch, rather than for all branches in the remote repository.
+
+    By scoping the `git fetch` command to the current branch, the `git pull` command ensures that only the changes that are relevant to the current branch are downloaded from the remote repository. This can help to minimize the amount of data that needs to be downloaded and can make the git pull operation more efficient.
+
+2. Once the content is downloaded, `git pull` will enter a `merge` workflow. A new merge commit will be-created if auto-merging is successful (manual resolution of merge conflicts might be required) and HEAD updated to point at the new commit.
+
+
+### About the names of branches in `git pull` and `git push`
+
+#### In `git pull`
+
+The remote and local branch names do not have to be the same. When you use `git pull` to update a local branch with changes from its remote counterpart, Git will look for the corresponding remote branch based on the configuration of the local branch.
+
+- By default, if just `git pull origin` is executed, Git will use a branch with the same name on the remote repository as the remote branch for the local branch. 
+
+  However, you can specify a different remote branch to pull changes from by providing the remote name and branch name as an argument to the `git pull` command. For example, you can pull changes from a remote branch called `feature-branch` in the `origin` remote repository into your local branch (which you are currently on) called `my-branch` using the following command:
+
+  ```console
+  git pull origin feature-branch
+  ```
+
+- Alternatively, you can configure your local branch to track a specific remote branch using the git branch `--set-upstream-to` command. This allows you to use `git pull` without specifying the remote branch name each time. 
+
+  For example, to set up tracking between your local `my-branch` and the `feature-branch` on the `origin` remote repository, you can run:
+
+  ```console
+  git branch --set-upstream-to=origin/feature-branch my-branch
+  ```
+
+  After setting up tracking, you can simply use git pull to update your local branch with changes from the remote `feature-branch`.
+
+#### In `git push`
+
+You will usually push your local branch to a remote branch of the same name—but not always.
+
+- Executing `git push` without any arguments pushes changes to a remote branch of the same name; creating it if it doesn't exist. 
+  
+  Or, if you've used the `--set-upstream-command` to change your upstream branch, it will push to that branch.
+
+- In order to push to a branch of a different name without changing your upstream branch, you just need to specify the branch you want to push and the name of the branch you want to push to separated by a colon (:).
+
+  For example, if you want to push a branch called `some-branch` to `my-feature`:
+  
+  ```console
+  git push origin some-branch:my-feature
+  ```
 
 # Format for commit messages
 
