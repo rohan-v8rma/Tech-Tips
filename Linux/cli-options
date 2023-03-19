@@ -1,0 +1,6 @@
+#!/bin/sh
+echo "This script's name is: $0"
+echo Argument 1: $1
+echo Argument 2: $2
+echo arg 1 and 2 concatenated using space: $*
+echo Exit code of last command: $?

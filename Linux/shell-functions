@@ -1,0 +1,8 @@
+#!/bin/sh
+
+hello() {
+	echo -n "Hello,"  # -n flag to `echo` prevents newline
+	echo $1 $2
+	echo $0
+}
+hello Rohan VM
