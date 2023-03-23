@@ -5,6 +5,8 @@
 - [Webpack](#webpack)
   - [What was the intended use of ESmodules before module bundling came along?](#what-was-the-intended-use-of-esmodules-before-module-bundling-came-along)
   - [Why do we install 2 packages (**webpack** and **webpack-cli**) to use Webpack?](#why-do-we-install-2-packages-webpack-and-webpack-cli-to-use-webpack)
+  - [What is a `loader` in Webpack?](#what-is-a-loader-in-webpack)
+    - [Example of a `loader` configuration](#example-of-a-loader-configuration)
 - [Babel](#babel)
   - [What is `@babel/preset-env`](#what-is-babelpreset-env)
     - [Caveats with Experimental JS features](#caveats-with-experimental-js-features)
@@ -52,7 +54,80 @@ ES modules were designed to address these issues and provide a standardized, bui
 
 In order to run Webpack builds from the command line, you will need to have both **webpack** and **webpack-cli** installed in your project.
 
+## What is a `loader` in Webpack?
 
+Refer the Webpack docs : https://webpack.js.org/guides/asset-management/ for more comprehensive information.
+
+A `loader` in Webpack is a module that enables Webpack to process files other than JavaScript, such as CSS, images, fonts, or even text files. 
+
+Loaders are used to transform files from one format to another, and they allow developers to use different languages or pre-processors in their code.
+
+- When a file is imported or required in a JavaScript file, Webpack uses the configured loader to transform the file into a module that can be included in the bundle. 
+
+- Loaders can be configured in the `module.rules` section of the Webpack configuration file.
+
+- Each loader has its own configuration options, and it is common to use multiple loaders in a single Webpack project. 
+
+  For example, a common setup for processing CSS files might include the `style-loader` and `css-loader` modules, which convert CSS code into JavaScript modules that can be included in the bundle and injected into the HTML file.
+
+- Loaders can also be chained together, with the output of one loader being passed as input to another loader. 
+  
+  This allows for more complex transformations and makes it possible to use different loaders for different parts of a file.
+
+  > Note: A chain is executed in **reverse order**. 
+  > 
+  > The first loader passes its result (resource with applied transformations) to the next one, and so forth. 
+  > 
+  > Finally, webpack expects JavaScript to be returned by the **last loader in the chain**.
+  >
+  > **This is why the order of loaders matters.**
+
+Overall, loaders are a powerful feature of Webpack that enable developers to customize and optimize their build process, and to use a wide range of languages and technologies in their projects.
+
+### Example of a `loader` configuration
+
+```js
+ module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
+  },
+```
+
+In this example, 
+- The `test` property specifies that the loader should be applied to all files with a `.css` extension. 
+- The `use` property specifies that the `css-loader` should be applied first, to convert the CSS code into a JavaScript module, and then the `style-loader` should be applied to inject the CSS code into the HTML file.
+
+If, for instance, we have the following CSS file:
+
+```css
+body {
+  background-color: #f5f5f5;
+  font-family: sans-serif;
+}
+
+h1 {
+  color: #333;
+  font-size: 24px;
+  font-weight: bold;
+}
+```
+
+When `style-loader` and `css-loader` are used together to process this file:
+
+- The `css-loader` converts the CSS code into a JavaScript module that exports the CSS as a string. Here's what the output might look like:
+
+  ```javascript
+  module.exports = "body {\n  background-color: #f5f5f5;\n  font-family: sans-serif;\n}\n\nh1 {\n  color: #333;\n  font-size: 24px;\n  font-weight: bold;\n}\n";
+  ```
+  
+  This JavaScript module exports the CSS code as a string, with each line of CSS separated by a newline character. 
+- The `style-loader` then takes this JavaScript module and injects it into the HTML file by appending a `<style>` element to the `<head>` element.
+
+---
 
 # Babel
 
