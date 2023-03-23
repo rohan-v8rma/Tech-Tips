@@ -1,6 +1,7 @@
 # INDEX
 
 - [INDEX](#index)
+- [TODO](#todo)
 - [Webpack](#webpack)
   - [What was the intended use of ESmodules before module bundling came along?](#what-was-the-intended-use-of-esmodules-before-module-bundling-came-along)
   - [Why do we install 2 packages (**webpack** and **webpack-cli**) to use Webpack?](#why-do-we-install-2-packages-webpack-and-webpack-cli-to-use-webpack)
@@ -26,6 +27,10 @@
     - [Difference b/w `raw` and `actual` size in `webpack-visualizer`](#difference-bw-raw-and-actual-size-in-webpack-visualizer)
     - [Difference b/w `stat`, `parsed` and `gzipped` size in `webpack-bundle-analyzer`](#difference-bw-stat-parsed-and-gzipped-size-in-webpack-bundle-analyzer)
 
+
+# TODO 
+
+Read the comments in the `webpack.config.js` file in my [testing--webpack-and-babel](https://github.com/rohan-v8rma/testing--webpack-and-babel) repo if you have less time.
 
 # Webpack
 
