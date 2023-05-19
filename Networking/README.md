@@ -75,7 +75,10 @@
   - [Process of reaching from host to destination (***Network \& Host Address***)](#process-of-reaching-from-host-to-destination-network--host-address)
   - [Unusable addresses in a network (all 0s \& all 1s)](#unusable-addresses-in-a-network-all-0s--all-1s)
   - [Global and Local IP Addresses](#global-and-local-ip-addresses)
-  - [`NAT` (Network Address Translation)](#nat-network-address-translation)
+  - [`NAPT` (Network Address and Port Translation). Previously `NAT` (Network Address Translation)](#napt-network-address-and-port-translation-previously-nat-network-address-translation)
+    - [Basic Idea (Full working just below)](#basic-idea-full-working-just-below)
+    - [How it works](#how-it-works)
+    - [What if two devices connected to the router make a network address to the same destination IP address and port?](#what-if-two-devices-connected-to-the-router-make-a-network-address-to-the-same-destination-ip-address-and-port)
     - [`NAT` types](#nat-types)
       - [`NAT` type 1](#nat-type-1)
       - [`NAT` type 2](#nat-type-2)
@@ -958,7 +961,9 @@ If suppose a device attempts to make a request to a particular website, the ISP 
 
 The website will only see the global IP address of the device. When the response comes to the modem, it forwards the data to the router which sends the data to the local IP address of the device that made the request, using `NAT` (Network Address Translation).
 
-## `NAT` (Network Address Translation)
+## `NAPT` (Network Address and Port Translation). Previously `NAT` (Network Address Translation)
+
+### Basic Idea (Full working just below)
 
 Network Address Translation (NAT) is a process that enables one, unique IP address to represent an entire group of computers. 
 
@@ -967,6 +972,56 @@ In network address translation, a router assigns a computer or computers inside 
 In this way, network address translation allows the single device to act as an intermediary or agent between the local, private network and the public network that is the internet. 
 
 NAT’s main purpose is to conserve the number of public IP addresses in use, for both security and economic goals.
+
+---
+
+### How it works
+
+- The device making a request just sends it, from its own internal address and some random port, to the address and port it got for whatever it is talking to on the Internet.
+- The `NAPT` is part of the router. It knows both inside and outside addresses. It sees the outgoing request, and it does several things:
+  - It decides **what port** it is going to use on the **outside address** *(public address of the router)* for this connection, and makes a note of that, and that it is connected to a particular **inside address** *(local address of the device)* and port.
+  - It edits the outgoing packet to have the **outside address** and **port number**.
+- Later, the response from the Internet comes back, and the NAPT looks to see if it has a **matching translation rule**. If it does, it rewrites the destination address and port number and passes it on to the device.
+- More outgoing and incoming packets keep flowing, and the device does what it wants to.
+- After a while, that connection stops, and the NAPT will clean up the translation rules after a while (usually two minutes of inactivity).
+
+---
+
+### What if two devices connected to the router make a network address to the same destination IP address and port?
+
+Suppose network requests originate from two devices, to the same destination IP address and port.
+
+1. First Device
+  - local IP address: 192.168.1.1
+  - port of the process making the request: 2
+2. Second Device
+  - local IP address: 192.168.1.2
+  - port of the process making the request: 2
+3. Router
+  - public IP addres: 233.12.12.1
+
+This is representing a realistic scenario where both the devices are running the client of the same game/cloud service. 
+
+This is why the port being used on each device, by the process in question, are same.
+
+Now, the router, before sending the request to the destination server, it decides that it will use:
+- port 47 on its public IP address for the requests of the first device.
+- port 54 on its public IP address for the requests of the second device.
+
+It modifies the source IP and port on each of the outgoing packets according to which device it came from in the following manner:
+
+NAPT Table
+
+| Device Number | Local IP address | Port of process | Public IP address | Assigned port of public IP |
+|-|-|-|-|-|
+| Device 1 | 192.168.1.1 | 2 | 233.12.12.1 | 47 |
+| Device 2 | 192.168.1.2 | 2 | 233.12.12.1 | 54 |
+
+Now, when the response comes to `233.12.12.1:47` and `233.12.12.1:54` for the first and second device respectively, it knows which device the particular response has to be sent to.
+
+So their is no problem with the destination IP and port being the same for both requests, as the public source IP and port have been modified to be different.
+
+---
 
 ### `NAT` types
 
@@ -985,6 +1040,7 @@ The issue with this is that only 1 device can be connected to the internet using
 #### `NAT` type 3
 
 
+---
 
 # Ports
 
