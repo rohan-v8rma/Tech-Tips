@@ -123,6 +123,9 @@
   - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
   - [Subdomain Takeover attack (TODO)](#subdomain-takeover-attack-todo)
+  - [Cross Site Request Forgery (TODO)](#cross-site-request-forgery-todo)
+  - [How is `referrer` information in web exploited (TODO)](#how-is-referrer-information-in-web-exploited-todo)
+  - [Time-based attacks involving `setTimeout`](#time-based-attacks-involving-settimeout)
 - [Network Waterfall (COMPLETE IN-DEPTH)](#network-waterfall-complete-in-depth)
   - [Basics](#basics)
   - [Stacked requests](#stacked-requests)
@@ -142,6 +145,9 @@
   - [subnet](#subnet)
   - [Learn how IP spoofing is done.](#learn-how-ip-spoofing-is-done)
   - [HTTP tunneling](#http-tunneling)
+- [Doubts](#doubts)
+  - [what if two devices on different network have same subnet mask value](#what-if-two-devices-on-different-network-have-same-subnet-mask-value)
+  - [](#)
 
 # What exactly is the World Wide Web?
 
@@ -423,6 +429,61 @@ The proxy server acts as a bridge between the client-side code and the target AP
 
 ---
 
+<!-- ### If no CORS headers are specified by the site creator, will the browser automatically assume some values?
+
+Yes, if no CORS headers are specified by the site creator, the browser will apply default CORS headers to the site's responses. These default headers are intended to provide basic security measures, and restrict cross-origin access to only same-origin requests. 
+
+The default values for the headers can vary between different browsers and versions, but generally they include:
+
+- `Access-Control-Allow-Origin`: Not set by default, which means the resource can only be accessed from the same origin as the requesting script.
+- `Access-Control-Allow-Credentials`: Not set by default, which means cookies and other authentication information will not be sent in cross-origin requests.
+- `Access-Control-Allow-Methods`: Not set by default, which means only simple `HTTP` methods (`GET`, `POST`, and `HEAD`) are allowed.
+- `Access-Control-Allow-Headers`: Not set by default, which means only simple request headers (such as `Accept`, `Accept-Language`, and `Content-Language`) are allowed.
+
+It's important to note that these default values may not provide sufficient security in all cases, and site creators should always set appropriate CORS headers based on their specific needs.
+
+---
+
+### CORS in the case of file origins (TODO)
+
+So far, according to my testing:
+
+1. If an HTML file is opened directly in the browser with path starting with `file:///`, and it references a JS file in the same or different file directory (also having a path starting with `file:///`), no CORS issue is faced.
+
+  According to these docs, they should be facing issues: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy#file_origins
+
+  
+2. Taking the same state of the HTML file (`file:///` path), even if it references a JS file that is being served from a live server hosted on `localhost`, no CORS issues is faced.
+
+Another reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp.
+
+This was the tested code:
+
+-->
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <p class="modifiable"></p>
+        
+        <!-- Both scripts load perfectly, even when HTML file is opened with `file:///` URL -->
+        <script src="/home/rohan-verma/Music/x/script1.js" defer></script>
+        <script src="http://127.0.0.1:5500/public/app.js" defer></script>
+    </body>
+</html>
+```
+
+
+
+---
+
 # Content Security Policy (CSP)
 
 ## What is CSP? 
@@ -515,6 +576,32 @@ Both CSP and CORS play an important role in securing web applications, they comp
 
 ---
 
+<!-- # Proxy Servers
+
+Read cloudfare's article on Proxies: https://www.cloudflare.com/en-gb/learning/cdn/glossary/reverse-proxy/
+
+## Clarification 1 
+
+```
+To avoid state or institutional browsing restrictions - Some governments, schools, and other organizations use firewalls to give their users access to a limited version of the Internet. A forward proxy can be used to get around these restrictions, as they let the user connect to the proxy rather than directly to the sites they are visiting.
+```
+*Does this mean that the limited version of the internet that the user has access to includes the proxy server?*
+
+Yes, typically the limited version of the internet that the user has access to includes the proxy server. The firewall that is used to restrict access will often only allow connections to certain IP addresses and ports, which includes the IP address and port number of the proxy server. By connecting to the proxy server, the user can then access websites and services that would otherwise be blocked by the firewall. It's important to note, however, that some organizations may also restrict access to known proxy servers, so it's not a foolproof solution.
+
+## Clarification 2 
+
+*Suppose requests that are intended for a website that doesn't support CORS; are made from a website to one of its own endpoints. A proxy server is setup at this endpoint (e.g.: A server running using the Node runtime). Would this proxy server be classified as a forward or reverse proxy?*
+
+
+The proxy server you mentioned would be classified as a forward proxy.
+
+A forward proxy is a server that acts as an intermediary between client requests and the websites or services that the client is trying to access. The client sends requests to the forward proxy, which then forwards them to the target website or service. The response from the target website or service is then sent back to the forward proxy, which in turn sends it back to the client.
+
+In your scenario, the proxy server is receiving requests from the client to a particular route on the website where the backend server is hosted. The proxy server then forwards these requests to the target website. This means that the proxy server is acting as an intermediary between the client and the target website, which is exactly how a forward proxy operates. Therefore, the proxy server you described would be considered a forward proxy.
+
+--- -->
+
 # Caching
 
 Caching is the ability to store copies of frequently accessed data in several places along the ***request-response path***.
@@ -535,7 +622,131 @@ Caching is the ability to store copies of frequently accessed data in several pl
 
 > ***Note***: For caching in REST APIs, visit [here](../APIs/README.md#caching-in-rest-apis).
 
----
+<!-- ## Content Delivery Networks and their role in caching (TODO)
+
+### Encryption of data stored in Content Delivery Networks (TODO)
+
+It is a security risk that CDN providers are able to see all the content you store.
+
+So is it possible to hide that data from them?
+
+Rohan Verma
+If I host my data using a CDN provider, will they be able to see mt data or can I encrypt it?
+When you use a Content Delivery Network (CDN) provider to host your data, it is possible that the provider can see your data. CDNs are designed to cache and distribute content as efficiently as possible, so they need access to your data in order to do their job effectively.
+
+However, many CDN providers offer the option to encrypt your data in transit, which can help to protect it from interception or tampering while it is being transmitted between your server and the CDN provider's network. This can be done by using a secure protocol such as HTTPS, which encrypts the data using SSL/TLS encryption.
+
+In addition, some CDN providers also offer the option to encrypt your data at rest, which can help to protect it from unauthorized access if the CDN provider's storage infrastructure is compromised. This is typically done by using advanced encryption algorithms to encrypt the data before it is stored on the CDN provider's servers.
+
+It's important to note that while encryption can help to protect your data, it is not a foolproof solution. If someone gains access to your encryption keys or passphrase, they may be able to decrypt your data and access it. Therefore, it's important to use strong encryption methods and to keep your encryption keys and passphrases secure.
+
+
+
+
+Rohan Verma
+CDNs are designed to cache and distribute content as efficiently as possible, so they need access to your data in order to do their job effectively.
+
+Can't they do their job if they get the encrypted version of my data?
+No, CDN providers cannot distribute and cache encrypted data efficiently because they cannot read or process the data in its encrypted form. In order for a CDN to distribute and cache content effectively, it needs to be able to read and understand the data.
+
+When you encrypt your data, it becomes unreadable to anyone who doesn't have the decryption key or passphrase. This means that the CDN provider would not be able to access or process the encrypted content, which would make it impossible for them to distribute and cache it.
+
+However, as I mentioned earlier, you can encrypt your data in transit using a secure protocol such as HTTPS, which can protect your data from interception or tampering while it is being transmitted between your server and the CDN provider's network. This means that while the CDN provider can still see your data, it is protected by encryption while it is in transit.
+
+If you want to encrypt your data at rest while using a CDN, you may need to consider using a different type of encryption, such as client-side encryption, where the data is encrypted on the client-side before being uploaded to the CDN. In this case, the CDN provider would not be able to read or access the data, but this may impact the ability of the CDN to cache and distribute the content efficiently.
+
+
+
+
+Rohan Verma
+This means that the CDN provider would not be able to access or process the encrypted content, which would make it impossible for them to distribute and cache it.
+
+Why do they need to process the data to distribute and cache it?
+CDN providers need to process the data in order to distribute and cache it efficiently. When you use a CDN, your content is replicated across multiple servers in different geographic locations. This is done so that when a user requests your content, the CDN can serve the content from the server that is closest to the user, which helps to reduce latency and improve performance.
+
+To achieve this, the CDN provider needs to be able to read and understand the content that is being distributed and cached. This is because the CDN provider needs to analyze the content and determine how it can be optimized for distribution, such as compressing images or minifying code, to reduce the file size and improve delivery speeds.
+
+If the content is encrypted, the CDN provider cannot analyze and optimize the content, which means it may not be delivered as efficiently as possible. Additionally, the CDN provider cannot cache the content in its encrypted form, because it cannot serve the content to other users without first decrypting it, which defeats the purpose of caching.
+
+Therefore, while encrypting your data can provide additional security, it may also impact the performance benefits of using a CDN. This is why it's important to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
+
+
+
+
+Rohan Verma
+Additionally, the CDN provider cannot cache the content in its encrypted form, because it cannot serve the content to other users without first decrypting it, which defeats the purpose of caching.
+
+
+Could you explain this a bit more 
+Sure! When a user requests content that is hosted on a CDN, the CDN tries to serve that content from the server that is geographically closest to the user. This is known as a "cache hit", because the content is already cached on that server and can be served quickly without having to fetch it from the original source.
+
+However, if the content is encrypted, the CDN cannot serve the encrypted content to other users, because it cannot be read or processed without first being decrypted. This means that every user who requests the content would need to wait for the content to be decrypted on the server before it can be served, which defeats the purpose of caching.
+
+To avoid this problem, CDN providers typically cache the decrypted content, which means that the content is stored in its unencrypted form on the CDN's servers. This allows the CDN to serve the content quickly to users who request it, without having to decrypt the content on every request.
+
+However, caching decrypted content can also create security risks, because it means that the content is stored in its unencrypted form on the CDN's servers. This means that if the CDN's servers are compromised, the content could be accessed by an attacker.
+
+So while encrypting your data can provide additional security, it may impact the performance benefits of using a CDN, and you may need to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
+
+
+
+
+Rohan Verma
+This means that every user who requests the content would need to wait for the content to be decrypted on the server before it can be served, which defeats the purpose of caching
+
+
+You are referring to the origin server?
+No, I'm referring to the CDN's edge servers. When a user requests content that is hosted on a CDN, the CDN tries to serve that content from the edge server that is geographically closest to the user.
+
+If the content is encrypted, the CDN's edge server cannot serve the encrypted content to the user, because it cannot be read or processed without first being decrypted. This means that the edge server would need to retrieve the content from the origin server, decrypt it, and then serve it to the user. This process would not be cached and would take longer than a typical cache hit, defeating the purpose of caching.
+
+To avoid this, CDN providers typically cache the decrypted content on their edge servers, which allows the content to be served quickly to users who request it without having to be decrypted every time. This allows for faster delivery of content and reduces the load on the origin server.
+
+However, as I mentioned earlier, caching decrypted content on the CDN's edge servers can create security risks if the servers are compromised, which is why it's important to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
+
+
+
+
+Rohan Verma
+In addition, some CDN providers also offer the option to encrypt your data at rest, which can help to protect it from unauthorized access if the CDN provider's storage infrastructure is compromised. This is typically done by using advanced encryption algorithms to encrypt the data before it is stored on the CDN provider's servers
+
+This is done by the CDN itself, right?
+Yes, that's correct. If a CDN provider offers the option to encrypt your data at rest, it is typically done by the CDN provider itself. The CDN provider would use advanced encryption algorithms to encrypt the data before it is stored on their servers. This ensures that even if an attacker gains access to the CDN provider's storage infrastructure, they would not be able to access the data in its unencrypted form.
+
+It's important to note that encrypting data at rest can add an additional layer of security, but it may also impact the performance of the CDN. This is because the CDN provider would need to decrypt the content every time it is accessed by a user, which could cause a slight delay in delivery times. However, the performance impact is generally considered to be minimal and outweighed by the added security benefits.
+
+
+
+
+Rohan Verma
+So where does the cdn store the decryption key in a case like this?
+When a CDN provider offers the option to encrypt data at rest, they typically store the decryption key separately from the encrypted data to further protect against unauthorized access.
+
+One common approach is to store the decryption key on separate hardware or in a separate storage system that is physically secured and access-controlled. This ensures that even if an attacker gains access to the storage infrastructure where the encrypted data is stored, they would still need to gain access to the hardware or storage system where the decryption key is stored in order to decrypt the data.
+
+In some cases, the CDN provider may also offer the option for customers to manage their own encryption keys, which means that the customer retains control over the keys used to encrypt and decrypt their data. In this case, the CDN provider would not have access to the encryption keys and would not be able to decrypt the data without the customer's authorization.
+
+Overall, the specifics of how a CDN provider stores and manages encryption keys may vary depending on the provider and the specific service offering, but the goal is always to ensure that the decryption key is kept separate from the encrypted data and is only accessible to authorized parties.
+
+
+
+
+Rohan Verma
+If you want to encrypt your data at rest while using a CDN, you may need to consider using a different type of encryption, such as client-side encryption, where the data is encrypted on the client-side before being uploaded to the CDN.
+
+
+Could you explain client side encryption with respect to this
+Sure, client-side encryption is a method of encrypting data before it is uploaded to a server or a CDN. In the context of using a CDN, client-side encryption means that you would encrypt your data on your own device or application before uploading it to the CDN.
+
+With client-side encryption, the CDN provider never sees the unencrypted data, and therefore does not have access to the decryption key. Instead, the encrypted data is uploaded to the CDN, which stores and distributes it like any other content. When a user requests the content, the CDN serves the encrypted content to the user, who then decrypts it using the decryption key on their own device.
+
+One advantage of client-side encryption is that it provides end-to-end encryption, which means that the data remains encrypted from the client device to the CDN and back to the client device again. This can provide an additional layer of security and privacy, as the data is protected even if the CDN's storage infrastructure is compromised.
+
+However, there are some trade-offs to consider when using client-side encryption. One is that it can be more complex to implement than other forms of encryption, as it requires the client application or device to handle the encryption and decryption of the data. This can also require more processing power and may impact performance, especially on lower-powered devices.
+
+Overall, client-side encryption can be a good option for those who want to ensure the highest level of security and privacy for their data while using a CDN, but it's important to weigh the benefits against the potential complexities and performance impacts.
+
+--- -->
 
 # Cookies
 
@@ -885,6 +1096,8 @@ But, if we restart our machine, the ARP cache would get reset. So, if we tried p
 
 ## `DHCP` (Dynamic Host Configuration Protocol)
 
+TODO
+
 ---
 
 # IP Addresses
@@ -1045,6 +1258,7 @@ The issue with this is that only 1 device can be connected to the internet using
 
 
 ---
+---
 
 # Ports
 
@@ -1084,7 +1298,7 @@ Port Forwarding is when a machine which is a part of another LAN is given the ab
 
 There is no need for this when we send a request and the server is sending the data back to us. The router allows the server to access the port on our machine since we initiated the connection.
 
-Note that it is particularly useful in the case where a connection is to be initiated from the outside, wherein routers usually block entities from accessing a specific port on a specific local IP address part of the local LAN. 
+Note that it is particularly useful in the case where a connection is to be initiated from the outside, wherein routers are set-up to block entities from accessing a specific port on a specific local IP address part of the local LAN. 
 
 Port Forwarding allows entities to use the public IP address associated with the router, along with the port that is to be accessed on the device. 
 
@@ -1265,6 +1479,42 @@ Also, they may come in slowly enough from each attacking host that you can't eve
 
 https://developer.mozilla.org/en-US/docs/Web/Security/Subdomain_takeovers
 
+## Cross Site Request Forgery (TODO)
+
+
+## How is `referrer` information in web exploited (TODO)
+
+> ***What does a website do with the referrer information?***
+> 
+> When you click on a link to visit a web page, your browser typically sends the URL of the previous web page you visited (the "referrer") along with the request to the new web page. This information is included in the HTTP request headers that the browser sends to the web server.
+> 
+> The referrer information can be used by web developers and site owners to track the source of traffic to their site, to identify which search terms are leading users to their site, and to understand how users are navigating through their site. Referrer information can also be used to implement security measures, such as preventing hotlinking (i.e., unauthorized use of images or other content hosted on a different site).
+> 
+> However, some users may be uncomfortable with sharing their browsing history and referrer information with sites they visit. The no-referrer-when-downgrade policy is one way for users to limit the amount of information shared with sites, by only sending referrer information when navigating from a secure (HTTPS) site to an insecure (HTTP) site.
+
+
+Yes, in some cases, the referrer information can be used in potentially malicious ways. For example:
+
+1. Privacy concerns: If sensitive information is present in the URL, such as in the case of authentication tokens, the referrer header can lead to potential security breaches.
+
+2. Clickjacking attacks: Clickjacking is an attack in which an attacker tricks a user into clicking on a link or button that is hidden or disguised as something else. In such attacks, the referrer header can reveal the identity of the original website, making it easier for the attacker to trick the user into believing they are visiting a legitimate website.
+
+3. Cross-site request forgery (CSRF): CSRF attacks occur when an attacker uses a user's session to perform actions on a website on behalf of the user. The referrer header can be used to verify that a request is coming from a legitimate source, which can be used to prevent CSRF attacks. However, if an attacker can manipulate the referrer header, they can bypass this protection and perform malicious actions on behalf of the user.
+
+For these reasons, it is often recommended to use the no-referrer or same-origin referrer policy to limit the information that is sent in the referrer header.
+
+## Time-based attacks involving `setTimeout`
+
+Time-based attacks are a class of security vulnerabilities that occur when an application relies on the accuracy of a timing mechanism to enforce security policies. With setTimeout, time-based attacks can be carried out by manipulating the time value passed to setTimeout to control the timing of certain actions.
+
+One example of a time-based attack using setTimeout is a Cross-Site Scripting (XSS) attack where an attacker uses a delay to hide the malicious script from automated detection tools. The attacker can use a long timeout value to delay the execution of the malicious script until after the automated detection tool has completed its scan, making it more difficult to detect.
+
+Another example is a timing attack where an attacker uses setTimeout to measure the time it takes for a particular operation to complete. The attacker can use this information to gain insights into the internal workings of an application and potentially discover sensitive information or exploit vulnerabilities.
+
+To prevent time-based attacks using setTimeout, it's important to ensure that any timeouts used in the application are carefully chosen and do not allow for the exploitation of any security vulnerabilities. Additionally, it's important to use other security measures such as input validation and output sanitization to prevent other types of attacks.
+
+Time-based attacks that rely on the accuracy of setTimeout are prevented by introducing a small amount of randomness or jitter into the timing of the setTimeout calls. This makes it harder for an attacker to predict exactly when the code will execute.
+
 ---
 
 # Network Waterfall (COMPLETE IN-DEPTH)
@@ -1375,3 +1625,10 @@ See networking TODO in edge
 ## HTTP tunneling
 
 See networking TODO in edge
+
+
+# Doubts
+
+## what if two devices on different network have same subnet mask value
+
+## 
