@@ -32,6 +32,9 @@
     - [Eval() and inline-code execution](#eval-and-inline-code-execution)
   - [Who is responsible for specifying the CSP rules of a particular website?](#who-is-responsible-for-specifying-the-csp-rules-of-a-particular-website)
 - [Whose interests are protected by CORS and CSP?](#whose-interests-are-protected-by-cors-and-csp)
+- [Proxy Servers](#proxy-servers)
+  - [Clarification 1](#clarification-1)
+  - [Clarification 2](#clarification-2)
 - [Caching](#caching)
 - [Cookies](#cookies)
   - [HTTP Cookies](#http-cookies)
@@ -576,7 +579,7 @@ Both CSP and CORS play an important role in securing web applications, they comp
 
 ---
 
-<!-- # Proxy Servers
+# Proxy Servers
 
 Read cloudfare's article on Proxies: https://www.cloudflare.com/en-gb/learning/cdn/glossary/reverse-proxy/
 
@@ -600,7 +603,7 @@ A forward proxy is a server that acts as an intermediary between client requests
 
 In your scenario, the proxy server is receiving requests from the client to a particular route on the website where the backend server is hosted. The proxy server then forwards these requests to the target website. This means that the proxy server is acting as an intermediary between the client and the target website, which is exactly how a forward proxy operates. Therefore, the proxy server you described would be considered a forward proxy.
 
---- -->
+---
 
 # Caching
 
