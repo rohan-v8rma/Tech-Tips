@@ -123,6 +123,10 @@
   - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
   - [Subdomain Takeover attack (TODO)](#subdomain-takeover-attack-todo)
+- [Network Waterfall (COMPLETE IN-DEPTH)](#network-waterfall-complete-in-depth)
+  - [Basics](#basics)
+  - [Stacked requests](#stacked-requests)
+  - [Identifying render blocking requests](#identifying-render-blocking-requests)
 - [Hosting](#hosting)
   - [Virtual Hosting](#virtual-hosting)
     - [IP-based virtual hosting](#ip-based-virtual-hosting)
@@ -1261,8 +1265,42 @@ Also, they may come in slowly enough from each attacking host that you can't eve
 
 https://developer.mozilla.org/en-US/docs/Web/Security/Subdomain_takeovers
 
-
 ---
+
+# Network Waterfall (COMPLETE IN-DEPTH)
+
+## Basics
+
+In a network waterfall, the requests are represented by rows, and the timeline is shown horizontally from left to right.
+
+The start of each request is marked by a vertical line, and the length of the line indicates the time taken for the request to complete. The end of the line indicates the time at which the response was received. The time is represented in milliseconds, with the scale usually shown at the top or bottom of the waterfall.
+
+In general, you should be looking for requests that take a long time to complete, as these can be a performance bottleneck for your website. You can also look at the grouping of requests, as related requests may be combined or optimized to reduce the total load time.
+
+The network waterfall can also show other information, such as the status code of the response, the size of the response, and the type of content being loaded. By looking at all of these details, you can get a better understanding of the performance of your website and identify areas that need improvement.
+
+## Stacked requests
+
+In a network waterfall, stacked requests refer to multiple requests that share the same timeline on the X-axis because they were issued by the browser at roughly the same time, and they're displayed one on top of the other. This is commonly the case for requests that were initiated by a single page or resource, such as an HTML document or an image, which triggered additional requests for subresources like CSS files, JavaScript files, and images.
+
+Stacked requests can provide insight into the dependencies between different resources, and can be useful for identifying bottlenecks and other performance issues. For example, if a large image and a JavaScript file are stacked together, it could indicate that the JavaScript file is dependent on the image, and that the page won't be fully functional until the image has finished loading.
+
+## Identifying render blocking requests
+
+Render blocking resources are those resources that block the rendering of the web page, which means the browser has to wait for them to download and parse before it can render the page. This can slow down the loading of the web page and make it appear unresponsive to the user.
+
+To identify render blocking resources:
+
+- Use a performance analysis tool such as the Chrome DevTools or WebPageTest. These tools will show you a waterfall diagram of the resources that are being loaded by the web page, along with their load times.
+
+- Look for resources that have a high "blocking time". This is the amount of time that the browser has to wait for the resource to download and parse before it can continue rendering the page. Resources with a high blocking time are typically render blocking resources.
+
+You can also look for resources that are being loaded in the head section of the HTML document, as these resources can also be render blocking. For example, stylesheets that are included in the head section can block the rendering of the page until they are downloaded and parsed.
+
+Once you have identified the render blocking resources, you can take steps to optimize their loading. This might involve deferring the loading of some resources, using async or defer attributes for scripts, or inlining critical CSS in the head section of the HTML document.
+ 
+---
+
 # Hosting
 
 Hosting, in its most generic sense, is a service through which storage and computing resources are providing to an individual or organization for the accommodation and maintenance of one or more websites and related services.
