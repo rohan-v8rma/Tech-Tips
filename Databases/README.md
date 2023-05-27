@@ -4,10 +4,23 @@
 - [Vertical vs. Horizontal Scaling in Databases](#vertical-vs-horizontal-scaling-in-databases)
   - [Vertical Scaling](#vertical-scaling)
   - [Horizontal Scaling](#horizontal-scaling)
+- [Types of DBMS](#types-of-dbms)
+  - [Relational DBMS (RDBMS)](#relational-dbms-rdbms)
+  - [Object-Oriented DBMS (OODBMS)](#object-oriented-dbms-oodbms)
+  - [Hierarchical DBMS](#hierarchical-dbms)
+  - [Network DBMS](#network-dbms)
+  - [Object-Relational DBMS (ORDBMS)](#object-relational-dbms-ordbms)
+  - [Key-Value DBMS](#key-value-dbms)
+  - [Columnar DBMS](#columnar-dbms)
+  - [In-Memory DBMS](#in-memory-dbms)
+  - [Time-Series DBMS](#time-series-dbms)
 - [Relational Database](#relational-database)
   - [Tables](#tables)
-  - [Primary Key](#primary-key)
-  - [Foreign Key](#foreign-key)
+  - [Primary Key (PK)](#primary-key-pk)
+  - [Candidate Key](#candidate-key)
+  - [Composite Key](#composite-key)
+  - [Foreign Key (FK)](#foreign-key-fk)
+  - [Super Key](#super-key)
   - [Indexes](#indexes)
   - [Views](#views)
   - [Stored Procedures](#stored-procedures)
@@ -57,25 +70,79 @@ When it comes to vertical scaling, it is usually more expensive and has limits, 
 
 In general, the best approach for scaling a database depends on the specific use case, the amount of data, the number of users and the budget. A combination of both methods can be used to achieve the desired level of performance and scalability.
 
+# Types of DBMS
+
+There are several types of DBMS (Database Management Systems) based on their data model, architecture, and usage. Here are some common types of DBMS:
+
+## Relational DBMS (RDBMS)
+
+Relational DBMS is based on the relational data model. It organizes data into tables with rows and columns, and it establishes relationships between tables using keys. Examples include Oracle, MySQL, Microsoft SQL Server, PostgreSQL, and SQLite.
+
+## Object-Oriented DBMS (OODBMS)
+
+Object-Oriented DBMS stores data in the form of objects, which encapsulate both data and behavior. It supports inheritance, polymorphism, and other object-oriented concepts. Examples include MongoDB, Apache Cassandra, and db4o.
+
+## Hierarchical DBMS
+
+Hierarchical DBMS organizes data in a tree-like structure, where each record has a parent-child relationship. It is suitable for representing hierarchical data, such as file systems. Examples include IBM's Information Management System (IMS) and Windows Registry.
+
+## Network DBMS
+
+Network DBMS is similar to hierarchical DBMS but allows for more complex relationships between records. It uses a network data model, where records are connected in a graph-like structure. Examples include Integrated Data Store (IDS) and Integrated Database Management System (IDMS).
+
+## Object-Relational DBMS (ORDBMS)
+
+Object-Relational DBMS combines the features of relational and object-oriented databases. It extends the relational model to support object-oriented concepts, such as user-defined types, inheritance, and methods. Examples include Oracle, PostgreSQL, and IBM DB2.
+
+## Key-Value DBMS
+
+Key-Value DBMS stores data as a collection of key-value pairs, where each value is associated with a unique key. It provides simple storage and retrieval mechanisms and is often used for caching, session management, and high-speed data access. Examples include Redis, Amazon DynamoDB, and Riak.
+
+## Columnar DBMS
+
+Columnar DBMS stores data in columns rather than rows, which allows for efficient compression, indexing, and analytics on large datasets. It is commonly used for data warehousing and analytical processing. Examples include Apache Cassandra, Vertica, and Google BigQuery.
+
+## In-Memory DBMS
+
+In-Memory DBMS stores data primarily in memory rather than on disk, which provides faster data access and processing. It is designed for high-performance applications and real-time analytics. Examples include SAP HANA, VoltDB, and MemSQL.
+
+## Time-Series DBMS
+
+Time-Series DBMS specializes in storing and analyzing time-series data, such as sensor data, log files, and financial market data. It offers optimized storage and query capabilities for time-ordered data. Examples include InfluxDB, TimescaleDB, and Prometheus.
+
+These are just some of the common types of DBMS. Each type has its own strengths, weaknesses, and specific use cases, and organizations choose the appropriate type based on their data requirements and application needs.
+
+---
+
 # Relational Database
 
 A SQL (Structured Query Language) database is a type of relational database that uses a structured approach to store and manage data. It is organized into a set of tables, each table consisting of rows (records) and columns (fields).
 
 The structure of a SQL database typically includes the following components:
 
----
-
 ## Tables
 
 The main component of a SQL database, tables are used to store data in a structured format. Each table is composed of rows (records) and columns (fields). Each row represents a unique instance of data, and each column represents a specific piece of data for that instance.
 
-## Primary Key
+## Primary Key (PK) 
 
-A primary key is a unique identifier for each row in a table. It ensures that no two rows have the same key and it is used to identify a specific row in the table.
+A primary key is a unique identifier for each record in a table. It ensures that each record has a unique value for the primary key attribute. Primary keys are used to enforce entity integrity and provide a means to uniquely identify records. In most cases, a primary key is composed of one or more attributes.
 
-## Foreign Key 
+## Candidate Key 
 
-A foreign key is used to establish a link between two tables. It is a column in one table that references the primary key of another table. This creates a relationship between the tables, allowing data to be queried and joined across multiple tables.
+A candidate key is a set of attributes that can uniquely identify records in a table. It means that no two records can have the same values for all the attributes in the candidate key. A relation can have multiple candidate keys, but one of them is selected as the primary key.
+
+## Composite Key 
+
+A composite key is a primary key that consists of two or more attributes. It is used when a single attribute is not sufficient to uniquely identify records. The combination of multiple attributes in the composite key ensures uniqueness.
+
+## Foreign Key (FK) 
+
+A foreign key is an attribute or a set of attributes in one table that refers to the primary key in another table. It establishes a relationship between two tables, called a referential integrity constraint. The foreign key in one table references the primary key of another table, creating a link between them.
+
+## Super Key 
+
+A super key is a set of attributes that can uniquely identify records in a table. It may contain more attributes than required to form a candidate key. In other words, a super key is a superset of a candidate key. It can have additional attributes that are not necessary for uniqueness.
 
 ## Indexes 
 
