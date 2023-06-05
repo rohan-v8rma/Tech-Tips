@@ -33,9 +33,12 @@
   - [Who is responsible for specifying the CSP rules of a particular website?](#who-is-responsible-for-specifying-the-csp-rules-of-a-particular-website)
 - [Whose interests are protected by CORS and CSP?](#whose-interests-are-protected-by-cors-and-csp)
 - [Proxy Servers](#proxy-servers)
+  - [Forward Proxy](#forward-proxy)
+  - [Reverse Proxy](#reverse-proxy)
   - [Clarification 1](#clarification-1)
   - [Clarification 2](#clarification-2)
 - [Caching](#caching)
+  - [Content Delivery Networks and their role in caching (TODO)](#content-delivery-networks-and-their-role-in-caching-todo)
 - [Cookies](#cookies)
   - [HTTP Cookies](#http-cookies)
     - [Todo (Watch Hussein Nasser's video on HTTP cookies, in networking TODO in edge)](#todo-watch-hussein-nassers-video-on-http-cookies-in-networking-todo-in-edge)
@@ -57,6 +60,8 @@
   - [Stateful Protocol](#stateful-protocol)
   - [Stateless and Stateful Protocols (TODO)](#stateless-and-stateful-protocols-todo)
   - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
+    - [Format of a TCP segment](#format-of-a-tcp-segment)
+    - [Resources](#resources)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
     - [What are "Resources"?](#what-are-resources)
@@ -73,6 +78,9 @@
     - [ARP Cache](#arp-cache)
     - [Taking an example to understand...](#taking-an-example-to-understand)
   - [`DHCP` (Dynamic Host Configuration Protocol)](#dhcp-dynamic-host-configuration-protocol)
+- [MAC Addresses](#mac-addresses)
+  - [If we have a globally unique identifier, why do we further need IP addresses?](#if-we-have-a-globally-unique-identifier-why-do-we-further-need-ip-addresses)
+  - [Why not get rid of MAC addresses then?](#why-not-get-rid-of-mac-addresses-then)
 - [IP Addresses](#ip-addresses)
   - [IPv4](#ipv4)
   - [Process of reaching from host to destination (***Network \& Host Address***)](#process-of-reaching-from-host-to-destination-network--host-address)
@@ -114,9 +122,23 @@
 - [What is the difference between a Modem and a Router?](#what-is-the-difference-between-a-modem-and-a-router)
   - [What is a Modem?](#what-is-a-modem)
   - [What is a Router?](#what-is-a-router)
-- [OSI (Open Systems Interconnection) Model (complete)](#osi-open-systems-interconnection-model-complete)
+- [More network devices...](#more-network-devices)
+  - [What is a Hub?](#what-is-a-hub)
+  - [What is a Switch?](#what-is-a-switch)
+  - [What is a Firewall?](#what-is-a-firewall)
+    - [Network Level Firewall OR Transparent Firewall (performs Packet Filtering)](#network-level-firewall-or-transparent-firewall-performs-packet-filtering)
+    - [Stateful Firewall (performs Stateful Inspection)](#stateful-firewall-performs-stateful-inspection)
+    - [Application Level Firewall (performs Application Layer Filtering OR Deep Packet Inspection)](#application-level-firewall-performs-application-layer-filtering-or-deep-packet-inspection)
+- [OSI (Open Systems Interconnection) Model](#osi-open-systems-interconnection-model)
+  - [Practical Example of OSI Model](#practical-example-of-osi-model)
+    - [Sender](#sender)
+    - [Receiver](#receiver)
+    - [Do we always have to go up to layer 7 on both sides during some communication?](#do-we-always-have-to-go-up-to-layer-7-on-both-sides-during-some-communication)
+  - [Building Logic in a Particular Layer](#building-logic-in-a-particular-layer)
   - [7. Application Layer](#7-application-layer)
   - [6. Presentation Layer](#6-presentation-layer)
+    - [Is it necessary for data to be serialized from  and deserialized into same programming language?](#is-it-necessary-for-data-to-be-serialized-from--and-deserialized-into-same-programming-language)
+    - [Why is it debatable whether encryption \& decryption fall into layer 7 of OSI model?](#why-is-it-debatable-whether-encryption--decryption-fall-into-layer-7-of-osi-model)
   - [5. Session Layer](#5-session-layer)
   - [4. Transport Layer](#4-transport-layer)
   - [3. Network Layer](#3-network-layer)
@@ -149,7 +171,7 @@
   - [Learn how IP spoofing is done.](#learn-how-ip-spoofing-is-done)
   - [HTTP tunneling](#http-tunneling)
 - [Doubts](#doubts)
-  - [what if two devices on different network have same subnet mask value](#what-if-two-devices-on-different-network-have-same-subnet-mask-value)
+  - [What if two devices on different network have same subnet mask value](#what-if-two-devices-on-different-network-have-same-subnet-mask-value)
   - [](#)
 
 # What exactly is the World Wide Web?
@@ -583,6 +605,20 @@ Both CSP and CORS play an important role in securing web applications, they comp
 
 Read cloudfare's article on Proxies: https://www.cloudflare.com/en-gb/learning/cdn/glossary/reverse-proxy/
 
+## Forward Proxy
+
+This is a machine which all clients on a local network make requests to for accessing any resource on the internet.
+
+It serves to protect the identities of 
+
+## Reverse Proxy
+
+A reverse proxy is a machine that clients all over the internet make requests to. They don't make requests directly to backend servers, rather the reverse proxy serves as an intermediary, for interfacing with the backend servers.
+
+A reverse proxy load balancer can receive incoming client requests and forward them to backend servers. It can also perform functions such as SSL termination, content caching, and request/response manipulation. 
+
+In this context, the load balancer acts as a proxy by intercepting and managing the communication between clients and servers.
+
 ## Clarification 1 
 
 ```
@@ -625,8 +661,11 @@ Caching is the ability to store copies of frequently accessed data in several pl
 
 > ***Note***: For caching in REST APIs, visit [here](../APIs/README.md#caching-in-rest-apis).
 
-<!-- ## Content Delivery Networks and their role in caching (TODO)
+## Content Delivery Networks and their role in caching (TODO)
 
+- By definition CDNs need to cache the data retrieved from the backend server and to do that it needs to fully decrypt the content and understand it so it has to be a Layer 7 application.
+
+<!-- 
 ### Encryption of data stored in Content Delivery Networks (TODO)
 
 It is a security risk that CDN providers are able to see all the content you store.
@@ -935,13 +974,22 @@ It is a protocol that has the ability to recollect and reserve the attributes of
 
 https://www.mygreatlearning.com/blog/stateful-vs-stateless/
 
+---
+
 ## `TCP` (Transmission Control Protocol)
 
 All data reaches the destination uncorrupted. For documents etc.
 
-https://www.educative.io/answers/what-is-tcp 
+### Format of a TCP segment
 
-<!-- TODO: See diagram of this on educative -->
+![](./tcp-segment.webp)
+
+### Resources
+
+1. https://www.educative.io/answers/what-is-tcp 
+2. See notes for in-depth understanding.
+
+---
 
 ## `UDP` (User Datagram Protocol)
 
@@ -1087,6 +1135,8 @@ Every time there is a communication between two devices IP and MAC addresses are
 
 ARP cache holds data for both wireless and ethernet connections. This data is stored in ARP cache which is in memory for each computer so that it can reduce the time required for an ARP process every time.
 
+
+
 ### Taking an example to understand...
 
 If suppose we try pinging our own device using its local IP address (assigned to it by our [Router](#what-is-a-router), which creates a LAN for this process), the request would be sent to our **Router**, to resolve which device has that specific local IP address, and we would get our own MAC address or the information that the device is `localhost` i.e., our own device.
@@ -1100,6 +1150,44 @@ But, if we restart our machine, the ARP cache would get reset. So, if we tried p
 ## `DHCP` (Dynamic Host Configuration Protocol)
 
 TODO
+
+---
+
+# MAC Addresses
+
+- This is a unique identifier associated with the network card of a device. 
+
+- It has 6 groups of 8-bits/2 hexadecimal digits, giving a total of 2<sup>48</sup> possible addresses.
+
+## If we have a globally unique identifier, why do we further need IP addresses?
+
+Let us take a hypothetical world where just MAC addresses exist. 
+
+In order to determine which device has the corresponding destination MAC address that was provided to us, each and every device world wide would need to be checked.
+
+This means of millions/billions of devices, which would also be a security risk as malicious devices could send a false positive MAC address and obtain sensitive data not intended for them.
+
+IP addresses help rule out devices and provide data routing capabilities.
+
+## Why not get rid of MAC addresses then?
+
+- MAC addresses are used at a lower level (Data Link layer) as compared to IP addresses (Network Layer). 
+  
+  Not every MAC addresses device exclusively speaks IP, and not every IP device has a MAC address.
+
+  This is the very essence of layer separation in networking.
+
+- MAC is used within a network to find the device to which the packet is to be forwarded. 
+
+  - No hierarchy is needed because it is simple enough to find the device to send data to, without any significant performance disadvantage.
+
+  - If we were to use IP addresses instead of these, there would be the unnecessary burden of configuring IP addresses for each device (MAC addresses are hard-coded at the time of manufacture).
+  
+  - Local IP addresses (that are dynamic) are still used, but they are resolved to MAC addresses using ARP.
+
+- While IP is an hierarchical addressing system which is used by a distant node to locate the network to which its communicating node is located. 
+  
+- So both addressing schemes are required and works in parallel to provide effective communication.
 
 ---
 
@@ -1418,35 +1506,155 @@ To put it simply, a modem connects your home to the Internet, while a router cre
 
 ## What is a Modem?
 
-Modem is short for "modulator demodulator".
+- Modem is short for "modulator demodulator".
 
-It is a device that receives an analog signal from your Internet Service Provider (ISP) and the converts it into a digital signal your devices can understand and vice versa.
+- It is a device that receives an analog signal from your Internet Service Provider (ISP) and the converts it into a digital signal your devices can understand and vice versa.
 
-Modems help convert digital signals to analog electrical signals.
+  Modems help convert digital signals to analog electrical signals.
+
+- It functions at Layer 1 of the OSI model as it is directly interacting with the physical medium.
 
 ## What is a Router?
 
-A router helps in associating a single public IP address with multiple devices. It does this by setting up a private LAN/WLAN and assigning local IP addresses to each device connected to it.
+- A router helps in associating a single public IP address with multiple devices. It does this by setting up a private LAN/WLAN and assigning local IP addresses to each device connected to it.
 
-These local IP addresses are usually dynamic in nature but can be kept static as well.
+  These local IP addresses are usually dynamic in nature but can be kept static as well.
 
-Whenever data is received by the modem, it is passed on to the router, which uses [`NAT`](#nat-network-address-translation) to determine which device the data is meant for.
+- Whenever data is received by the modem, it is passed on to the router, which uses [`NAT`](#nat-network-address-translation) to determine which device the data is meant for.
 
-A router allows a single modem to be used for connecting mutiple devices to the internet.
+  A router allows a single modem to be used for connecting mutiple devices to the internet.
 
-# OSI (Open Systems Interconnection) Model (complete)
+- Routers by default inspect IP Packets for the IP address and that lives in Layer 3. 
 
-Standard way about how computers communicate with each other.
+  Occasionally routers may inspect ports to do NAT which makes them both Layer 3 and Layer 4 devices. 
+  
+  Local Routers can also be considered a Layer 2 device when they act like a switch, specially when you send packets between two devices in the same network. The router in that case looks at the MAC addresses too.
 
-The OSI Model can be seen as a universal language for computer networking. It’s based on the concept of splitting up a communication system into seven abstract layers, each one stacked upon the last.
+---
 
-The seven abstraction layers of the OSI model can be defined as follows, from top to bottom:
+# More network devices...
 
-![](./osi-model.svg)
+## What is a Hub?
+
+- It simply sends the incoming data to all machines connected to it.
+
+- So, it operates at Layer 1 of the OSI model, since it does NOT take a look at any addressing information in the upper layers and simply forwards the string of bytes to all machines.
+
+## What is a Switch?
+
+- Operating at the data link layer (Layer 2) of the network, switches can inspect incoming data frames and make forwarding decisions based on
+the MAC addresses they contain.
+
+- It can be used to connect:
+  - Hosts in the same subnet.
+  - Two different subnets.
+
+## What is a Firewall?
+
+### Network Level Firewall OR Transparent Firewall (performs Packet Filtering)
+
+- Operates on Layer 4 of the OSI model, and it blocks access to resources based on IP addresses and port numbers.
+- It is called ***transparent*** because it makes use of data that is never encrypted (IP addresses and ports), since these pieces of data are needed at each hop to determine the routing logic for the data.
+- For going up to application layer, firewalls need the decryption key, which is not available unless intended by the sender.
+
+### Stateful Firewall (performs Stateful Inspection)
+
+A step ahead of simple Packet Filtering. 
+
+In Stateful Inspection, a state table is maintained and packets are rejected from a machine depending on current connection state.
+
+### Application Level Firewall (performs Application Layer Filtering OR Deep Packet Inspection)
+
+This type of firewall analyzes contents of application level protocol (HTTP, etc) to identify and block specific types of traffic or detect malicious activity that wasn't obvious from regular filtering.
+
+---
+
+# OSI (Open Systems Interconnection) Model
+
+- Standard way about how computers communicate with each other.
+
+- The OSI Model can be seen as a universal language for computer networking. It’s based on the concept of splitting up a communication system into seven abstract layers, each one stacked upon the last.
+
+- The seven abstraction layers of the OSI model can be defined as follows, from top to bottom:
+
+  ![](./osi-model.png)
+
+- If we take a look at the OSI model from Layer 1 to 7, it can fundamentally depict the history of incremental inventions in the field of networking, starting from:
+  - Sending bits across a physical medium (Layer 1)
+  - Addressing specific machines using MAC addresses on a Local Network, and splitting the data into manageable sections called frames (Layer 2)
+  - And so on...
+
+## Practical Example of OSI Model
+
+### Sender
+
+![](./osi-model-sender.png)
+
+---
+
+### Receiver
+
+![](./osi-model-receiver.png)
+
+---
+
+### Do we always have to go up to layer 7 on both sides during some communication?
+
+No, it is not necessary to do so. 
+
+For example, when the TCP connection is not already establised, the 3-way handshake must take place before any further communication can take place.
+
+So, upon execution of an HTTPS request from the application layer of the receiver, as the request travels down the stack, the session layer identifies that there is no current active TCP session.
+
+So, it requests the transport layer to send a `SYN` request in the TCP segment being sent. 
+
+On the other side (receiver), the request travels up the layers and upon reaching the session layer, it sees that a `SYN` request has come, so it sends back a `SYN ACK` request.
+
+Again, on the sender side, it receives the `SYN ACK` request at layer 5 and responds with an `ACK` request.
+
+The response stops at layer 5 of the receiver.
+
+As observed, not all layers were traversed each time.
+
+---
+
+## Building Logic in a Particular Layer
+
+Engineers can chose to build logic on any specific layer.
+
+For example: An app can display different information based on the current session. This would, in turn, be called, a **Layer 5 App**.
+
+Some network devices belong to a particular layer. E.g: 
+- [What is a Modem?](#what-is-a-modem)
+- [What is a Router?](#what-is-a-router)
+- [What is a Hub?](#what-is-a-hub)
+- [What is a Switch?](#what-is-a-switch) 
 
 ## 7. Application Layer
 
 ## 6. Presentation Layer
+
+### Is it necessary for data to be serialized from  and deserialized into same programming language?
+
+No, it is entirely possible for JSON data to be serialized from a web application in Javascript, which executes a POST request. The JSON data can potentially be deserialized in a backend application built using Python.
+
+This leads to the debate that the job of the presentation layer is actually being done by the application layer.
+
+### Why is it debatable whether encryption & decryption fall into layer 7 of OSI model?
+
+The debate regarding whether encryption and decryption fall into Layer 7 of the OSI model stems from the different interpretations and perspectives on where these processes should be categorized. The OSI model is a conceptual framework that aims to standardize and categorize the various functions and protocols involved in network communication.
+
+Encryption and decryption are security mechanisms that involve transforming data into a secure and unreadable format (encryption) and converting it back to its original form (decryption). These processes are typically associated with ensuring data confidentiality, integrity, and authentication.
+
+Layer 7 of the OSI model, known as the Application Layer, deals with protocols and services that directly interact with the end-user applications and provide application-level functionalities. It includes protocols like HTTP, FTP, DNS, and SMTP. The focus of Layer 7 is on the representation, formatting, and interpretation of data exchanged between applications.
+
+While encryption and decryption are essential for securing data transmission, they are not inherently tied to a specific application or protocol. Encryption and decryption can be implemented at various layers of the OSI model, depending on the specific security requirements and design choices.
+
+Some arguments suggest that encryption and decryption should be considered as part of Layer 7 since they are often implemented as part of application-level security protocols or services. For example, SSL/TLS protocols used in secure web communication operate at Layer 7 and involve encryption and decryption.
+
+On the other hand, proponents of a different perspective argue that encryption and decryption are more fundamental processes that can be used across multiple layers of the OSI model. These processes can be implemented at lower layers, such as the Transport Layer (Layer 4) or even the Network Layer (Layer 3), to secure data at a lower level of the network stack.
+
+Ultimately, the classification of encryption and decryption within the OSI model is not universally agreed upon, and it can vary based on different interpretations and contexts. The important aspect is to ensure that appropriate security measures, including encryption and decryption, are implemented at the necessary layers to protect data confidentiality and integrity.
 
 ## 5. Session Layer
 
@@ -1632,6 +1840,12 @@ See networking TODO in edge
 
 # Doubts
 
-## what if two devices on different network have same subnet mask value
+## What if two devices on different network have same subnet mask value
+
+- The subnet mask value of an IP address can be applied to the IP address, getting the network part of the IP address.
+
+- Upon the sender comparing the network part of its own IP address, and the network part of the destination IP address, it will conclude that the sender and the receiver are on different networks.
+
+- So, the sender will forward the request to the default gateway of the network, which will decide the routing logic to make the request reach the intended receiver. 
 
 ## 
