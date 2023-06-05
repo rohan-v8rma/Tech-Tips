@@ -37,8 +37,17 @@
   - [Reverse Proxy](#reverse-proxy)
   - [Clarification 1](#clarification-1)
   - [Clarification 2](#clarification-2)
+- [Load Balancers (Intelligent Reverse Proxies)](#load-balancers-intelligent-reverse-proxies)
+  - [What are Load Balancers?](#what-are-load-balancers)
+  - [Why do Load Balancers need layer 7 information?](#why-do-load-balancers-need-layer-7-information)
+    - [1. Content-Based Routing](#1-content-based-routing)
+    - [2. Application-Specific Routing](#2-application-specific-routing)
+    - [3. Security and Access Control (Reverse Proxy Characteristic)](#3-security-and-access-control-reverse-proxy-characteristic)
+    - [4. Session Persistence](#4-session-persistence)
+    - [5. Efficient Resource Allocation (TODO: ML in this?)](#5-efficient-resource-allocation-todo-ml-in-this)
+    - [6. Load Distribution and Scalability](#6-load-distribution-and-scalability)
 - [Caching](#caching)
-  - [Content Delivery Networks and their role in caching (TODO)](#content-delivery-networks-and-their-role-in-caching-todo)
+- [Content Delivery Networks and their role in caching (TODO)](#content-delivery-networks-and-their-role-in-caching-todo)
 - [Cookies](#cookies)
   - [HTTP Cookies](#http-cookies)
     - [Todo (Watch Hussein Nasser's video on HTTP cookies, in networking TODO in edge)](#todo-watch-hussein-nassers-video-on-http-cookies-in-networking-todo-in-edge)
@@ -641,6 +650,82 @@ In your scenario, the proxy server is receiving requests from the client to a pa
 
 ---
 
+# Load Balancers (Intelligent Reverse Proxies)
+
+## What are Load Balancers?
+
+A load balancer is a network device or software that distributes incoming network traffic across multiple servers or resources. 
+
+Its primary purpose is to ensure efficient utilization of resources, improve performance, and provide high availability and scalability to applications or services.
+
+Load balancers work by acting as an intermediary between clients (such as web browsers) and backend servers. When a client sends a request to access an application or service, it is routed through the load balancer, which then determines the most appropriate server to handle the request. 
+
+The load balancer considers various factors such as server availability, server performance, and current workload to make the routing decision.
+
+They are quite slow due to them functioning at Layer 7, as opposed to other network devices like a Router (Layer 3/4) or a transparent firewall (Layer 4).
+
+## Why do Load Balancers need layer 7 information?
+
+HTTP parameters, along with other Layer 7 information, play a crucial role in load balancing decisions beyond just resource allocation. 
+
+While resource allocation is indeed a fundamental aspect of load balancing, Layer 7 information allows load balancers to make more intelligent routing decisions based on specific application requirements and user behavior. Here's how these HTTP parameters matter:
+
+### 1. Content-Based Routing 
+
+Load balancers can inspect HTTP parameters, request content, or URL patterns to route requests to specific backend servers based on the content of the request. 
+
+Routing information is application-level information, and is encrypted. For Load Balancers to have access to this information, they need to work at the **Application Layer of the OSI model**. 
+
+> ***Example I*** 
+> 
+> Requests for static content (e.g., images, CSS files) can be directed to dedicated servers optimized for serving static files.
+>
+> ***Example II*** 
+> 
+> We can send requests made to the `/images` route to a specific server and the ones made to `/documents` to another.
+
+### 2. Application-Specific Routing 
+
+Layer 7 information enables load balancers to route requests based on application-specific requirements. 
+
+This includes routing requests to specific application versions, regions, or APIs based on the provided parameters, headers, or URL paths.
+
+### 3. Security and Access Control (Reverse Proxy Characteristic)
+
+Load balancers can inspect HTTP parameters to enforce security policies and access control. 
+
+They can block or allow specific requests based on parameters like client IP address, user-agent, or custom headers, protecting the application from malicious traffic or unauthorized access attempts.
+
+> ***Example*** 
+> 
+> When we make requests to Google's front-end server, it is essentially an intermediary load balancer in most cases, which makes requests to other servers on the back-end.
+>
+> The load balancer makes a request for you.
+>
+> This increases security by not letting clients have direct access to the server holding the data.
+
+### 4. Session Persistence 
+
+HTTP parameters, such as session IDs or cookies, are used to maintain session persistence. 
+
+Load balancers can route **subsequent requests from the same client to the same backend server**, ensuring that the session state is preserved and eliminating the need for session reestablishment on each request.
+
+### 5. Efficient Resource Allocation (TODO: ML in this?)
+
+By analyzing Layer 7 information, load balancers can distribute incoming requests across multiple backend servers to ensure efficient resource utilization. 
+
+This helps prevent overloading of individual servers and improves overall application performance.
+
+### 6. Load Distribution and Scalability 
+
+HTTP parameters help load balancers distribute the workload evenly across backend servers. 
+
+By considering factors like user location, session data, or user preferences, load balancers can direct requests to the most appropriate server, ensuring optimal performance and scalability.
+
+
+
+---
+
 # Caching
 
 Caching is the ability to store copies of frequently accessed data in several places along the ***request-response path***.
@@ -661,7 +746,7 @@ Caching is the ability to store copies of frequently accessed data in several pl
 
 > ***Note***: For caching in REST APIs, visit [here](../APIs/README.md#caching-in-rest-apis).
 
-## Content Delivery Networks and their role in caching (TODO)
+# Content Delivery Networks and their role in caching (TODO)
 
 - By definition CDNs need to cache the data retrieved from the backend server and to do that it needs to fully decrypt the content and understand it so it has to be a Layer 7 application.
 
