@@ -167,6 +167,8 @@
 - [Types of Cyber Attacks \& Vulnerabilities](#types-of-cyber-attacks--vulnerabilities)
   - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
+  - [Man-in-the-Middle Attacks](#man-in-the-middle-attacks)
+    - [ARP spoofing attack](#arp-spoofing-attack)
   - [Subdomain Takeover attack (TODO)](#subdomain-takeover-attack-todo)
   - [Cross Site Request Forgery (TODO)](#cross-site-request-forgery-todo)
   - [How is `referrer` information in web exploited (TODO)](#how-is-referrer-information-in-web-exploited-todo)
@@ -1070,10 +1072,10 @@ binary --> decimal --> hexadecimal
 
 3. After the packet is delivered to the destination's network, the packet is delivered to the appropriate host.
 
-For this process to work, an IP address has two parts. 
+For this process to work, an IP address has two parts:
 
-- ### Network Part
-- ### Host part
+- **Network Part**
+- **Host part**
 
 The first part of an IP address is used as a *network address*, the last part as a *host address*.
 
@@ -1206,6 +1208,13 @@ The issue with this is that only 1 device can be connected to the internet using
 
 Subnet is a portion of a larger network that has been divided to create smaller, more manageable networks. Subnetting allows for efficient allocation of IP addresses and helps in organizing and controlling network traffic.
 
+- Host A can directly talk to Host B, if they belong to the same subnet; using MAC addresses.
+- If they don't belong to the same subnet, Host A sends the communication to the the Gateway of the subnet, which is reponsible for connecting the subnet to other parts of the network.
+
+  The Gateway of a network always has an IP address and each host should know the subnet gateway.
+
+  In most cases, a [Router](#what-is-a-router) plays the role of the Gateway, which uses Routing Algorithms for determining the path to the destination subnet.
+
 Subnetting provides several benefits, including:
 
 ### 1. Efficient IP address allocation 
@@ -1263,16 +1272,16 @@ Since the subnetting system is same, the subnet mask used for determining the ne
 So, let us assume that 24 bits of the IP are dedicated for the network/subnet, meaning the subnet mask has a value of `255.255.255.0`.
 
 **IP Addresses**:
-1. First machine: `192.168.0.1`
-2. Second machine: `192.168.0.2`
-3. Third machine: `192.168.1.1`
+1. First machine: `192.168.1.3`
+2. Second machine: `192.168.1.2`
+3. Third machine: `192.168.2.2.`
 
 The **Subnets** of each machine can be determined by performing bitwise AND operation between the IP and the Subnet Mask.
 
 **Network Addresses**:
-1. First machine: `192.168.0.0`
-2. Second machine: `192.168.0.0`
-3. Third machine: `192.168.1.0`
+1. First machine: `192.168.1.0`
+2. Second machine: `192.168.1.0`
+3. Third machine: `192.168.2.0`
 
 As we can see: 
 - The Network address of the first and second machine is same, so they *belong to the same subnet*. 
@@ -1284,17 +1293,31 @@ Since communication has to take place between the first device and the other two
 
 The communication logic will see that the destination is in the same subnet. 
   
-So, the communication can be done directly using MAC addresses, because the devices in a subnet are connected using Switches (Layer 2 Device).
+No routing is required, and the communication can be done directly using MAC addresses. 
+
+Note that devices in a subnet are connected using [Switches](#what-is-a-switch) (Layer 2 Device) OR Routers playing as Switches.
+
+![](subnet-same.png)
 
 This results in FASTER communication.
+
+
 
 #### First TO Third Device (Different Subnet)
 
 The communication logic will see that the destination is in a different subnet.
 
-So, the communication will be done to the Gateway IP address, which is the address of the Router managing the connection of the subnet to other parts of the network.
+So, the communication will be done to the Gateway IP address, which is the address of the [Router](#what-is-a-router) managing the connection of the subnet to other parts of the network.
 
-The Router will use Routing Algorithms to determine the optimal path to the subnet the destination machine belongs to.
+![](subnet-different.png)
+
+The [Router](#what-is-a-router) will use Routing Algorithms to determine the optimal path to the subnet the destination machine belongs to.
+
+> ***Note***: Observe how the Router is assigned 2 IP addresses. 
+> 
+> One as the default gateway of the first network, and the other as the default gateway of the second network.
+
+Take a look at the [ARP spoofing attack](#arp-spoofing-attack) to understand how the default gateway can be misused.
 
 ---
 
@@ -1886,6 +1909,20 @@ Instead of coming from one machine, it comes from a large number; hundreds, thou
 This sort of attack is more difficult to mitigate than the usual type because there's often no good choke point at which to drop the incoming attack packets.
 
 Also, they may come in slowly enough from each attacking host that you can't even tell they're an attack; they may be valid requests, just in UNSUPPORTABLE numbers.
+
+## Man-in-the-Middle Attacks
+
+### ARP spoofing attack
+
+In a subnet, there is a protocol called ARP (Address Resolution Protocol) that allows devices to map IP addresses to MAC addresses in order to communicate with each other. However, in an ARP spoofing attack, a malicious device manipulates this protocol to deceive other devices on the network.
+
+In this attack, the malicious device overrides or falsifies the ARP responses, pretending to be the legitimate default gateway on the network. It responds to ARP requests from other devices, providing its own MAC address instead of the actual MAC address of the default gateway. This means that when a device wants to send communication to the router or any device outside the local network, it unknowingly sends it to the malicious device.
+
+By manipulating the ARP tables of other devices, the malicious device intercepts and controls the network traffic, becoming a man-in-the-middle. It can monitor or modify the communication between devices, potentially capturing sensitive information or launching further attacks.
+
+The goal of the ARP spoofing attack is to redirect network traffic through the attacker's device, giving them unauthorized access to the data being transmitted. This attack can be particularly harmful if the attacker is able to intercept and manipulate sensitive information, such as login credentials or financial transactions.
+
+To mitigate ARP spoofing attacks, network administrators can implement security measures such as ARP spoofing detection and prevention techniques. This may include using tools or protocols that monitor ARP traffic and detect abnormalities, implementing secure network configurations, and employing techniques like static ARP entries or ARP spoofing protection mechanisms.
 
 ## Subdomain Takeover attack (TODO)
 
