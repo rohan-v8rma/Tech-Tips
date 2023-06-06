@@ -32,22 +32,7 @@
     - [Eval() and inline-code execution](#eval-and-inline-code-execution)
   - [Who is responsible for specifying the CSP rules of a particular website?](#who-is-responsible-for-specifying-the-csp-rules-of-a-particular-website)
 - [Whose interests are protected by CORS and CSP?](#whose-interests-are-protected-by-cors-and-csp)
-- [Proxy Servers](#proxy-servers)
-  - [Forward Proxy](#forward-proxy)
-  - [Reverse Proxy](#reverse-proxy)
-  - [Clarification 1](#clarification-1)
-  - [Clarification 2](#clarification-2)
-- [Load Balancers (Intelligent Reverse Proxies)](#load-balancers-intelligent-reverse-proxies)
-  - [What are Load Balancers?](#what-are-load-balancers)
-  - [Why do Load Balancers need layer 7 information?](#why-do-load-balancers-need-layer-7-information)
-    - [1. Content-Based Routing](#1-content-based-routing)
-    - [2. Application-Specific Routing](#2-application-specific-routing)
-    - [3. Security and Access Control (Reverse Proxy Characteristic)](#3-security-and-access-control-reverse-proxy-characteristic)
-    - [4. Session Persistence](#4-session-persistence)
-    - [5. Efficient Resource Allocation (TODO: ML in this?)](#5-efficient-resource-allocation-todo-ml-in-this)
-    - [6. Load Distribution and Scalability](#6-load-distribution-and-scalability)
 - [Caching](#caching)
-- [Content Delivery Networks and their role in caching (TODO)](#content-delivery-networks-and-their-role-in-caching-todo)
 - [Cookies](#cookies)
   - [HTTP Cookies](#http-cookies)
     - [Todo (Watch Hussein Nasser's video on HTTP cookies, in networking TODO in edge)](#todo-watch-hussein-nassers-video-on-http-cookies-in-networking-todo-in-edge)
@@ -86,7 +71,6 @@
   - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
     - [ARP Cache](#arp-cache)
     - [Taking an example to understand...](#taking-an-example-to-understand)
-  - [`DHCP` (Dynamic Host Configuration Protocol)](#dhcp-dynamic-host-configuration-protocol)
 - [MAC Addresses](#mac-addresses)
   - [If we have a globally unique identifier, why do we further need IP addresses?](#if-we-have-a-globally-unique-identifier-why-do-we-further-need-ip-addresses)
   - [Why not get rid of MAC addresses then?](#why-not-get-rid-of-mac-addresses-then)
@@ -95,6 +79,7 @@
   - [Process of reaching from host to destination (***Network \& Host Address***)](#process-of-reaching-from-host-to-destination-network--host-address)
   - [Unusable addresses in a network (all 0s \& all 1s)](#unusable-addresses-in-a-network-all-0s--all-1s)
   - [Global and Local IP Addresses](#global-and-local-ip-addresses)
+  - [Static \& Dynamic IP Addresses (`DHCP`: Dynamic Host Configuration Protocol) (TODO)](#static--dynamic-ip-addresses-dhcp-dynamic-host-configuration-protocol-todo)
   - [`NAPT` (Network Address and Port Translation). Previously `NAT` (Network Address Translation)](#napt-network-address-and-port-translation-previously-nat-network-address-translation)
     - [Basic Idea (Full working just below)](#basic-idea-full-working-just-below)
     - [How it works](#how-it-works)
@@ -103,6 +88,15 @@
       - [`NAT` type 1](#nat-type-1)
       - [`NAT` type 2](#nat-type-2)
       - [`NAT` type 3](#nat-type-3)
+  - [Subnets](#subnets)
+    - [1. Efficient IP address allocation](#1-efficient-ip-address-allocation)
+    - [2. Improved network performance](#2-improved-network-performance)
+    - [3. Enhanced network security](#3-enhanced-network-security)
+    - [4. Scalability](#4-scalability)
+    - [Subnet Mask (Used to identify Subnets)](#subnet-mask-used-to-identify-subnets)
+    - [Practical Instance when Subnet Masks are used](#practical-instance-when-subnet-masks-are-used)
+      - [First TO Second Device (Same Subnet)](#first-to-second-device-same-subnet)
+      - [First TO Third Device (Different Subnet)](#first-to-third-device-different-subnet)
 - [Ports](#ports)
   - [Types of Ports](#types-of-ports)
     - [Reserved Ports (0 - 1023)](#reserved-ports-0---1023)
@@ -153,6 +147,23 @@
   - [3. Network Layer](#3-network-layer)
   - [2. Data-Link Layer](#2-data-link-layer)
   - [1. Physical Layer](#1-physical-layer)
+- [TCP-IP Model](#tcp-ip-model)
+- [Proxy Servers](#proxy-servers)
+  - [Forward Proxy](#forward-proxy)
+  - [Reverse Proxy](#reverse-proxy)
+  - [Clarification 1](#clarification-1)
+  - [Clarification 2](#clarification-2)
+- [Load Balancers (Intelligent Reverse Proxies)](#load-balancers-intelligent-reverse-proxies)
+  - [What are Load Balancers?](#what-are-load-balancers)
+  - [Why do Load Balancers need layer 7 information?](#why-do-load-balancers-need-layer-7-information)
+    - [1. Content-Based Routing](#1-content-based-routing)
+    - [2. Application-Specific Routing](#2-application-specific-routing)
+    - [3. Security and Access Control (Reverse Proxy Characteristic)](#3-security-and-access-control-reverse-proxy-characteristic)
+    - [4. Session Persistence](#4-session-persistence)
+    - [5. Efficient Resource Allocation (TODO: ML in this?)](#5-efficient-resource-allocation-todo-ml-in-this)
+    - [6. Load Distribution and Scalability](#6-load-distribution-and-scalability)
+- [Content Delivery Networks (glorified Reverse Proxies)](#content-delivery-networks-glorified-reverse-proxies)
+  - [Their role in caching (TODO)](#their-role-in-caching-todo)
 - [Types of Cyber Attacks \& Vulnerabilities](#types-of-cyber-attacks--vulnerabilities)
   - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
@@ -174,7 +185,7 @@
   - [What is a Bot?](#what-is-a-bot)
     - [Botnet](#botnet)
 - [TODO](#todo)
-- [Web Socket](#web-socket)
+  - [Web Socket](#web-socket)
   - [Firewall](#firewall)
   - [subnet](#subnet)
   - [Learn how IP spoofing is done.](#learn-how-ip-spoofing-is-done)
@@ -610,122 +621,6 @@ Both CSP and CORS play an important role in securing web applications, they comp
 
 ---
 
-# Proxy Servers
-
-Read cloudfare's article on Proxies: https://www.cloudflare.com/en-gb/learning/cdn/glossary/reverse-proxy/
-
-## Forward Proxy
-
-This is a machine which all clients on a local network make requests to for accessing any resource on the internet.
-
-It serves to protect the identities of 
-
-## Reverse Proxy
-
-A reverse proxy is a machine that clients all over the internet make requests to. They don't make requests directly to backend servers, rather the reverse proxy serves as an intermediary, for interfacing with the backend servers.
-
-A reverse proxy load balancer can receive incoming client requests and forward them to backend servers. It can also perform functions such as SSL termination, content caching, and request/response manipulation. 
-
-In this context, the load balancer acts as a proxy by intercepting and managing the communication between clients and servers.
-
-## Clarification 1 
-
-```
-To avoid state or institutional browsing restrictions - Some governments, schools, and other organizations use firewalls to give their users access to a limited version of the Internet. A forward proxy can be used to get around these restrictions, as they let the user connect to the proxy rather than directly to the sites they are visiting.
-```
-*Does this mean that the limited version of the internet that the user has access to includes the proxy server?*
-
-Yes, typically the limited version of the internet that the user has access to includes the proxy server. The firewall that is used to restrict access will often only allow connections to certain IP addresses and ports, which includes the IP address and port number of the proxy server. By connecting to the proxy server, the user can then access websites and services that would otherwise be blocked by the firewall. It's important to note, however, that some organizations may also restrict access to known proxy servers, so it's not a foolproof solution.
-
-## Clarification 2 
-
-*Suppose requests that are intended for a website that doesn't support CORS; are made from a website to one of its own endpoints. A proxy server is setup at this endpoint (e.g.: A server running using the Node runtime). Would this proxy server be classified as a forward or reverse proxy?*
-
-
-The proxy server you mentioned would be classified as a forward proxy.
-
-A forward proxy is a server that acts as an intermediary between client requests and the websites or services that the client is trying to access. The client sends requests to the forward proxy, which then forwards them to the target website or service. The response from the target website or service is then sent back to the forward proxy, which in turn sends it back to the client.
-
-In your scenario, the proxy server is receiving requests from the client to a particular route on the website where the backend server is hosted. The proxy server then forwards these requests to the target website. This means that the proxy server is acting as an intermediary between the client and the target website, which is exactly how a forward proxy operates. Therefore, the proxy server you described would be considered a forward proxy.
-
----
-
-# Load Balancers (Intelligent Reverse Proxies)
-
-## What are Load Balancers?
-
-A load balancer is a network device or software that distributes incoming network traffic across multiple servers or resources. 
-
-Its primary purpose is to ensure efficient utilization of resources, improve performance, and provide high availability and scalability to applications or services.
-
-Load balancers work by acting as an intermediary between clients (such as web browsers) and backend servers. When a client sends a request to access an application or service, it is routed through the load balancer, which then determines the most appropriate server to handle the request. 
-
-The load balancer considers various factors such as server availability, server performance, and current workload to make the routing decision.
-
-They are quite slow due to them functioning at Layer 7, as opposed to other network devices like a Router (Layer 3/4) or a transparent firewall (Layer 4).
-
-## Why do Load Balancers need layer 7 information?
-
-HTTP parameters, along with other Layer 7 information, play a crucial role in load balancing decisions beyond just resource allocation. 
-
-While resource allocation is indeed a fundamental aspect of load balancing, Layer 7 information allows load balancers to make more intelligent routing decisions based on specific application requirements and user behavior. Here's how these HTTP parameters matter:
-
-### 1. Content-Based Routing 
-
-Load balancers can inspect HTTP parameters, request content, or URL patterns to route requests to specific backend servers based on the content of the request. 
-
-Routing information is application-level information, and is encrypted. For Load Balancers to have access to this information, they need to work at the **Application Layer of the OSI model**. 
-
-> ***Example I*** 
-> 
-> Requests for static content (e.g., images, CSS files) can be directed to dedicated servers optimized for serving static files.
->
-> ***Example II*** 
-> 
-> We can send requests made to the `/images` route to a specific server and the ones made to `/documents` to another.
-
-### 2. Application-Specific Routing 
-
-Layer 7 information enables load balancers to route requests based on application-specific requirements. 
-
-This includes routing requests to specific application versions, regions, or APIs based on the provided parameters, headers, or URL paths.
-
-### 3. Security and Access Control (Reverse Proxy Characteristic)
-
-Load balancers can inspect HTTP parameters to enforce security policies and access control. 
-
-They can block or allow specific requests based on parameters like client IP address, user-agent, or custom headers, protecting the application from malicious traffic or unauthorized access attempts.
-
-> ***Example*** 
-> 
-> When we make requests to Google's front-end server, it is essentially an intermediary load balancer in most cases, which makes requests to other servers on the back-end.
->
-> The load balancer makes a request for you.
->
-> This increases security by not letting clients have direct access to the server holding the data.
-
-### 4. Session Persistence 
-
-HTTP parameters, such as session IDs or cookies, are used to maintain session persistence. 
-
-Load balancers can route **subsequent requests from the same client to the same backend server**, ensuring that the session state is preserved and eliminating the need for session reestablishment on each request.
-
-### 5. Efficient Resource Allocation (TODO: ML in this?)
-
-By analyzing Layer 7 information, load balancers can distribute incoming requests across multiple backend servers to ensure efficient resource utilization. 
-
-This helps prevent overloading of individual servers and improves overall application performance.
-
-### 6. Load Distribution and Scalability 
-
-HTTP parameters help load balancers distribute the workload evenly across backend servers. 
-
-By considering factors like user location, session data, or user preferences, load balancers can direct requests to the most appropriate server, ensuring optimal performance and scalability.
-
-
-
----
-
 # Caching
 
 Caching is the ability to store copies of frequently accessed data in several places along the ***request-response path***.
@@ -745,135 +640,6 @@ Caching is the ability to store copies of frequently accessed data in several pl
   - Hide network failures
 
 > ***Note***: For caching in REST APIs, visit [here](../APIs/README.md#caching-in-rest-apis).
-
-# Content Delivery Networks and their role in caching (TODO)
-
-- By definition CDNs need to cache the data retrieved from the backend server and to do that it needs to fully decrypt the content and understand it so it has to be a Layer 7 application.
-
-<!-- 
-### Encryption of data stored in Content Delivery Networks (TODO)
-
-It is a security risk that CDN providers are able to see all the content you store.
-
-So is it possible to hide that data from them?
-
-Rohan Verma
-If I host my data using a CDN provider, will they be able to see mt data or can I encrypt it?
-When you use a Content Delivery Network (CDN) provider to host your data, it is possible that the provider can see your data. CDNs are designed to cache and distribute content as efficiently as possible, so they need access to your data in order to do their job effectively.
-
-However, many CDN providers offer the option to encrypt your data in transit, which can help to protect it from interception or tampering while it is being transmitted between your server and the CDN provider's network. This can be done by using a secure protocol such as HTTPS, which encrypts the data using SSL/TLS encryption.
-
-In addition, some CDN providers also offer the option to encrypt your data at rest, which can help to protect it from unauthorized access if the CDN provider's storage infrastructure is compromised. This is typically done by using advanced encryption algorithms to encrypt the data before it is stored on the CDN provider's servers.
-
-It's important to note that while encryption can help to protect your data, it is not a foolproof solution. If someone gains access to your encryption keys or passphrase, they may be able to decrypt your data and access it. Therefore, it's important to use strong encryption methods and to keep your encryption keys and passphrases secure.
-
-
-
-
-Rohan Verma
-CDNs are designed to cache and distribute content as efficiently as possible, so they need access to your data in order to do their job effectively.
-
-Can't they do their job if they get the encrypted version of my data?
-No, CDN providers cannot distribute and cache encrypted data efficiently because they cannot read or process the data in its encrypted form. In order for a CDN to distribute and cache content effectively, it needs to be able to read and understand the data.
-
-When you encrypt your data, it becomes unreadable to anyone who doesn't have the decryption key or passphrase. This means that the CDN provider would not be able to access or process the encrypted content, which would make it impossible for them to distribute and cache it.
-
-However, as I mentioned earlier, you can encrypt your data in transit using a secure protocol such as HTTPS, which can protect your data from interception or tampering while it is being transmitted between your server and the CDN provider's network. This means that while the CDN provider can still see your data, it is protected by encryption while it is in transit.
-
-If you want to encrypt your data at rest while using a CDN, you may need to consider using a different type of encryption, such as client-side encryption, where the data is encrypted on the client-side before being uploaded to the CDN. In this case, the CDN provider would not be able to read or access the data, but this may impact the ability of the CDN to cache and distribute the content efficiently.
-
-
-
-
-Rohan Verma
-This means that the CDN provider would not be able to access or process the encrypted content, which would make it impossible for them to distribute and cache it.
-
-Why do they need to process the data to distribute and cache it?
-CDN providers need to process the data in order to distribute and cache it efficiently. When you use a CDN, your content is replicated across multiple servers in different geographic locations. This is done so that when a user requests your content, the CDN can serve the content from the server that is closest to the user, which helps to reduce latency and improve performance.
-
-To achieve this, the CDN provider needs to be able to read and understand the content that is being distributed and cached. This is because the CDN provider needs to analyze the content and determine how it can be optimized for distribution, such as compressing images or minifying code, to reduce the file size and improve delivery speeds.
-
-If the content is encrypted, the CDN provider cannot analyze and optimize the content, which means it may not be delivered as efficiently as possible. Additionally, the CDN provider cannot cache the content in its encrypted form, because it cannot serve the content to other users without first decrypting it, which defeats the purpose of caching.
-
-Therefore, while encrypting your data can provide additional security, it may also impact the performance benefits of using a CDN. This is why it's important to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
-
-
-
-
-Rohan Verma
-Additionally, the CDN provider cannot cache the content in its encrypted form, because it cannot serve the content to other users without first decrypting it, which defeats the purpose of caching.
-
-
-Could you explain this a bit more 
-Sure! When a user requests content that is hosted on a CDN, the CDN tries to serve that content from the server that is geographically closest to the user. This is known as a "cache hit", because the content is already cached on that server and can be served quickly without having to fetch it from the original source.
-
-However, if the content is encrypted, the CDN cannot serve the encrypted content to other users, because it cannot be read or processed without first being decrypted. This means that every user who requests the content would need to wait for the content to be decrypted on the server before it can be served, which defeats the purpose of caching.
-
-To avoid this problem, CDN providers typically cache the decrypted content, which means that the content is stored in its unencrypted form on the CDN's servers. This allows the CDN to serve the content quickly to users who request it, without having to decrypt the content on every request.
-
-However, caching decrypted content can also create security risks, because it means that the content is stored in its unencrypted form on the CDN's servers. This means that if the CDN's servers are compromised, the content could be accessed by an attacker.
-
-So while encrypting your data can provide additional security, it may impact the performance benefits of using a CDN, and you may need to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
-
-
-
-
-Rohan Verma
-This means that every user who requests the content would need to wait for the content to be decrypted on the server before it can be served, which defeats the purpose of caching
-
-
-You are referring to the origin server?
-No, I'm referring to the CDN's edge servers. When a user requests content that is hosted on a CDN, the CDN tries to serve that content from the edge server that is geographically closest to the user.
-
-If the content is encrypted, the CDN's edge server cannot serve the encrypted content to the user, because it cannot be read or processed without first being decrypted. This means that the edge server would need to retrieve the content from the origin server, decrypt it, and then serve it to the user. This process would not be cached and would take longer than a typical cache hit, defeating the purpose of caching.
-
-To avoid this, CDN providers typically cache the decrypted content on their edge servers, which allows the content to be served quickly to users who request it without having to be decrypted every time. This allows for faster delivery of content and reduces the load on the origin server.
-
-However, as I mentioned earlier, caching decrypted content on the CDN's edge servers can create security risks if the servers are compromised, which is why it's important to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
-
-
-
-
-Rohan Verma
-In addition, some CDN providers also offer the option to encrypt your data at rest, which can help to protect it from unauthorized access if the CDN provider's storage infrastructure is compromised. This is typically done by using advanced encryption algorithms to encrypt the data before it is stored on the CDN provider's servers
-
-This is done by the CDN itself, right?
-Yes, that's correct. If a CDN provider offers the option to encrypt your data at rest, it is typically done by the CDN provider itself. The CDN provider would use advanced encryption algorithms to encrypt the data before it is stored on their servers. This ensures that even if an attacker gains access to the CDN provider's storage infrastructure, they would not be able to access the data in its unencrypted form.
-
-It's important to note that encrypting data at rest can add an additional layer of security, but it may also impact the performance of the CDN. This is because the CDN provider would need to decrypt the content every time it is accessed by a user, which could cause a slight delay in delivery times. However, the performance impact is generally considered to be minimal and outweighed by the added security benefits.
-
-
-
-
-Rohan Verma
-So where does the cdn store the decryption key in a case like this?
-When a CDN provider offers the option to encrypt data at rest, they typically store the decryption key separately from the encrypted data to further protect against unauthorized access.
-
-One common approach is to store the decryption key on separate hardware or in a separate storage system that is physically secured and access-controlled. This ensures that even if an attacker gains access to the storage infrastructure where the encrypted data is stored, they would still need to gain access to the hardware or storage system where the decryption key is stored in order to decrypt the data.
-
-In some cases, the CDN provider may also offer the option for customers to manage their own encryption keys, which means that the customer retains control over the keys used to encrypt and decrypt their data. In this case, the CDN provider would not have access to the encryption keys and would not be able to decrypt the data without the customer's authorization.
-
-Overall, the specifics of how a CDN provider stores and manages encryption keys may vary depending on the provider and the specific service offering, but the goal is always to ensure that the decryption key is kept separate from the encrypted data and is only accessible to authorized parties.
-
-
-
-
-Rohan Verma
-If you want to encrypt your data at rest while using a CDN, you may need to consider using a different type of encryption, such as client-side encryption, where the data is encrypted on the client-side before being uploaded to the CDN.
-
-
-Could you explain client side encryption with respect to this
-Sure, client-side encryption is a method of encrypting data before it is uploaded to a server or a CDN. In the context of using a CDN, client-side encryption means that you would encrypt your data on your own device or application before uploading it to the CDN.
-
-With client-side encryption, the CDN provider never sees the unencrypted data, and therefore does not have access to the decryption key. Instead, the encrypted data is uploaded to the CDN, which stores and distributes it like any other content. When a user requests the content, the CDN serves the encrypted content to the user, who then decrypts it using the decryption key on their own device.
-
-One advantage of client-side encryption is that it provides end-to-end encryption, which means that the data remains encrypted from the client device to the CDN and back to the client device again. This can provide an additional layer of security and privacy, as the data is protected even if the CDN's storage infrastructure is compromised.
-
-However, there are some trade-offs to consider when using client-side encryption. One is that it can be more complex to implement than other forms of encryption, as it requires the client application or device to handle the encryption and decryption of the data. This can also require more processing power and may impact performance, especially on lower-powered devices.
-
-Overall, client-side encryption can be a good option for those who want to ensure the highest level of security and privacy for their data while using a CDN, but it's important to weigh the benefits against the potential complexities and performance impacts.
-
---- -->
 
 # Cookies
 
@@ -1232,9 +998,7 @@ So now, even if we disconnect from the LAN of our Router and try pinging our pre
 
 But, if we restart our machine, the ARP cache would get reset. So, if we tried pinging the address while not connected to the Router, we would no longer get a response.
 
-## `DHCP` (Dynamic Host Configuration Protocol)
 
-TODO
 
 ---
 
@@ -1354,6 +1118,10 @@ If suppose a device attempts to make a request to a particular website, the ISP 
 
 The website will only see the global IP address of the device. When the response comes to the modem, it forwards the data to the router which sends the data to the local IP address of the device that made the request, using `NAT` (Network Address Translation).
 
+## Static \& Dynamic IP Addresses (`DHCP`: Dynamic Host Configuration Protocol) (TODO)
+
+DHCP is reponsible for assigning IP addresses.
+
 ## `NAPT` (Network Address and Port Translation). Previously `NAT` (Network Address Translation)
 
 ### Basic Idea (Full working just below)
@@ -1432,8 +1200,102 @@ The issue with this is that only 1 device can be connected to the internet using
 
 #### `NAT` type 3
 
+---
+
+## Subnets
+
+Subnet is a portion of a larger network that has been divided to create smaller, more manageable networks. Subnetting allows for efficient allocation of IP addresses and helps in organizing and controlling network traffic.
+
+Subnetting provides several benefits, including:
+
+### 1. Efficient IP address allocation 
+
+By dividing a network into subnets, you can allocate IP addresses based on the specific needs of each subnet, reducing wastage of IP addresses.
+
+### 2. Improved network performance 
+
+Subnetting helps in organizing network traffic by grouping hosts into smaller subnets. This reduces the amount of broadcast traffic and allows for more efficient routing and management of network traffic.
+
+### 3. Enhanced network security 
+
+Subnets provide a way to isolate and segment different parts of a network. By separating hosts into subnets, you can implement network security measures, such as firewall rules and access controls, to restrict access between subnets and protect sensitive data.
+
+### 4. Scalability 
+
+Subnetting allows for the growth and expansion of networks by providing a flexible way to add new subnets and allocate IP addresses.
+
+To summarize, subnets and subnet masks are fundamental components of IP networking. They enable efficient IP address allocation, help in organizing network traffic, enhance network security, and provide scalability to networks.
 
 ---
+
+### Subnet Mask (Used to identify Subnets)
+
+Subnets are identified by their subnet mask, which determines the range of IP addresses available within the subnet.
+
+A subnet mask is a 32-bit value that is used to divide an IP address into network and host portions. It is applied to an IP address to determine which part of the address represents the network and which part represents the host.
+
+The subnet mask consists of a series of binary 1s followed by a series of binary 0s. The binary 1s in the mask indicate the network portion, while the binary 0s represent the host portion. 
+
+When the subnet mask is applied to an IP address using a **bitwise AND operation**, it isolates the network address from the host address.
+
+> ***Example***
+> 
+> Consider an IP address of `192.168.0.100` with a subnet mask of `255.255.255.0`. 
+> 
+> In binary representation, the IP address is `11000000.10101000.00000000.01100100` and the subnet mask is `11111111.11111111.11111111.00000000`. 
+> 
+> By performing a bitwise AND operation between the IP address and the subnet mask, you get the network address `192.168.0.0`.
+
+A larger subnet mask (more binary 1s) allows for fewer host addresses but more subnets, while a smaller subnet mask (fewer binary 1s) allows for more host addresses but fewer subnets.
+
+---
+
+### Practical Instance when Subnet Masks are used
+
+The concept of subnets helps in simplifying communication between devices belonging to the same Subnet/LAN. 
+
+Depending on whether the destination machine belongs to the same subnet as the sender or NOT, it usually results in a forking of the logic for handling how the communication will take place.
+
+***Consider 3 machines, which all belong to the same system of subnetting. The first machine needs to communicate with the other two.*** 
+
+Since the subnetting system is same, the subnet mask used for determining the network/subnet portion of an IP address will be the same. 
+
+So, let us assume that 24 bits of the IP are dedicated for the network/subnet, meaning the subnet mask has a value of `255.255.255.0`.
+
+**IP Addresses**:
+1. First machine: `192.168.0.1`
+2. Second machine: `192.168.0.2`
+3. Third machine: `192.168.1.1`
+
+The **Subnets** of each machine can be determined by performing bitwise AND operation between the IP and the Subnet Mask.
+
+**Network Addresses**:
+1. First machine: `192.168.0.0`
+2. Second machine: `192.168.0.0`
+3. Third machine: `192.168.1.0`
+
+As we can see: 
+- The Network address of the first and second machine is same, so they *belong to the same subnet*. 
+- The Network address of the first and third machine is same, so they *belong to different subnets*. 
+
+Since communication has to take place between the first device and the other two devices, it will first apply the subnet mask to either destination IP address, to find out if the destination machine is in the same subnet or not.
+
+#### First TO Second Device (Same Subnet)
+
+The communication logic will see that the destination is in the same subnet. 
+  
+So, the communication can be done directly using MAC addresses, because the devices in a subnet are connected using Switches (Layer 2 Device).
+
+This results in FASTER communication.
+
+#### First TO Third Device (Different Subnet)
+
+The communication logic will see that the destination is in a different subnet.
+
+So, the communication will be done to the Gateway IP address, which is the address of the Router managing the connection of the subnet to other parts of the network.
+
+The Router will use Routing Algorithms to determine the optimal path to the subnet the destination machine belongs to.
+
 ---
 
 # Ports
@@ -1654,6 +1516,7 @@ This type of firewall analyzes contents of application level protocol (HTTP, etc
 
 ---
 
+
 # OSI (Open Systems Interconnection) Model
 
 - Standard way about how computers communicate with each other.
@@ -1750,6 +1613,259 @@ Ultimately, the classification of encryption and decryption within the OSI model
 ## 2. Data-Link Layer
 
 ## 1. Physical Layer
+
+---
+
+# TCP-IP Model
+
+![](./tcp-ip-model.png)
+
+---
+
+# Proxy Servers
+
+Read cloudfare's article on Proxies: https://www.cloudflare.com/en-gb/learning/cdn/glossary/reverse-proxy/
+
+## Forward Proxy
+
+This is a machine which all clients on a local network make requests to for accessing any resource on the internet.
+
+It serves to protect the identities of 
+
+## Reverse Proxy
+
+A reverse proxy is a machine that clients all over the internet make requests to. They don't make requests directly to backend servers, rather the reverse proxy serves as an intermediary, for interfacing with the backend servers.
+
+A reverse proxy load balancer can receive incoming client requests and forward them to backend servers. It can also perform functions such as SSL termination, content caching, and request/response manipulation. 
+
+In this context, the load balancer acts as a proxy by intercepting and managing the communication between clients and servers.
+
+## Clarification 1 
+
+```
+To avoid state or institutional browsing restrictions - Some governments, schools, and other organizations use firewalls to give their users access to a limited version of the Internet. A forward proxy can be used to get around these restrictions, as they let the user connect to the proxy rather than directly to the sites they are visiting.
+```
+*Does this mean that the limited version of the internet that the user has access to includes the proxy server?*
+
+Yes, typically the limited version of the internet that the user has access to includes the proxy server. The firewall that is used to restrict access will often only allow connections to certain IP addresses and ports, which includes the IP address and port number of the proxy server. By connecting to the proxy server, the user can then access websites and services that would otherwise be blocked by the firewall. It's important to note, however, that some organizations may also restrict access to known proxy servers, so it's not a foolproof solution.
+
+## Clarification 2 
+
+*Suppose requests that are intended for a website that doesn't support CORS; are made from a website to one of its own endpoints. A proxy server is setup at this endpoint (e.g.: A server running using the Node runtime). Would this proxy server be classified as a forward or reverse proxy?*
+
+
+The proxy server you mentioned would be classified as a forward proxy.
+
+A forward proxy is a server that acts as an intermediary between client requests and the websites or services that the client is trying to access. The client sends requests to the forward proxy, which then forwards them to the target website or service. The response from the target website or service is then sent back to the forward proxy, which in turn sends it back to the client.
+
+In your scenario, the proxy server is receiving requests from the client to a particular route on the website where the backend server is hosted. The proxy server then forwards these requests to the target website. This means that the proxy server is acting as an intermediary between the client and the target website, which is exactly how a forward proxy operates. Therefore, the proxy server you described would be considered a forward proxy.
+
+---
+
+# Load Balancers (Intelligent Reverse Proxies)
+
+## What are Load Balancers?
+
+A load balancer is a network device or software that distributes incoming network traffic across multiple servers or resources. 
+
+Its primary purpose is to ensure efficient utilization of resources, improve performance, and provide high availability and scalability to applications or services.
+
+Load balancers work by acting as an intermediary between clients (such as web browsers) and backend servers. When a client sends a request to access an application or service, it is routed through the load balancer, which then determines the most appropriate server to handle the request. 
+
+The load balancer considers various factors such as server availability, server performance, and current workload to make the routing decision.
+
+They are quite slow due to them functioning at Layer 7, as opposed to other network devices like a Router (Layer 3/4) or a transparent firewall (Layer 4).
+
+## Why do Load Balancers need layer 7 information?
+
+HTTP parameters, along with other Layer 7 information, play a crucial role in load balancing decisions beyond just resource allocation. 
+
+While resource allocation is indeed a fundamental aspect of load balancing, Layer 7 information allows load balancers to make more intelligent routing decisions based on specific application requirements and user behavior. Here's how these HTTP parameters matter:
+
+### 1. Content-Based Routing 
+
+Load balancers can inspect HTTP parameters, request content, or URL patterns to route requests to specific backend servers based on the content of the request. 
+
+Routing information is application-level information, and is encrypted. For Load Balancers to have access to this information, they need to work at the **Application Layer of the OSI model**. 
+
+> ***Example I*** 
+> 
+> Requests for static content (e.g., images, CSS files) can be directed to dedicated servers optimized for serving static files.
+>
+> ***Example II*** 
+> 
+> We can send requests made to the `/images` route to a specific server and the ones made to `/documents` to another.
+
+### 2. Application-Specific Routing 
+
+Layer 7 information enables load balancers to route requests based on application-specific requirements. 
+
+This includes routing requests to specific application versions, regions, or APIs based on the provided parameters, headers, or URL paths.
+
+### 3. Security and Access Control (Reverse Proxy Characteristic)
+
+Load balancers can inspect HTTP parameters to enforce security policies and access control. 
+
+They can block or allow specific requests based on parameters like client IP address, user-agent, or custom headers, protecting the application from malicious traffic or unauthorized access attempts.
+
+> ***Example*** 
+> 
+> When we make requests to Google's front-end server, it is essentially an intermediary load balancer in most cases, which makes requests to other servers on the back-end.
+>
+> The load balancer makes a request for you.
+>
+> This increases security by not letting clients have direct access to the server holding the data.
+
+### 4. Session Persistence 
+
+HTTP parameters, such as session IDs or cookies, are used to maintain session persistence. 
+
+Load balancers can route **subsequent requests from the same client to the same backend server**, ensuring that the session state is preserved and eliminating the need for session reestablishment on each request.
+
+### 5. Efficient Resource Allocation (TODO: ML in this?)
+
+By analyzing Layer 7 information, load balancers can distribute incoming requests across multiple backend servers to ensure efficient resource utilization. 
+
+This helps prevent overloading of individual servers and improves overall application performance.
+
+### 6. Load Distribution and Scalability 
+
+HTTP parameters help load balancers distribute the workload evenly across backend servers. 
+
+By considering factors like user location, session data, or user preferences, load balancers can direct requests to the most appropriate server, ensuring optimal performance and scalability.
+
+# Content Delivery Networks (glorified Reverse Proxies)
+
+## Their role in caching (TODO)
+
+- By definition CDNs need to cache the data retrieved from the backend server and to do that it needs to fully decrypt the content and understand it so it has to be a Layer 7 application.
+
+<!-- 
+### Encryption of data stored in Content Delivery Networks (TODO)
+
+It is a security risk that CDN providers are able to see all the content you store.
+
+So is it possible to hide that data from them?
+
+Rohan Verma
+If I host my data using a CDN provider, will they be able to see mt data or can I encrypt it?
+When you use a Content Delivery Network (CDN) provider to host your data, it is possible that the provider can see your data. CDNs are designed to cache and distribute content as efficiently as possible, so they need access to your data in order to do their job effectively.
+
+However, many CDN providers offer the option to encrypt your data in transit, which can help to protect it from interception or tampering while it is being transmitted between your server and the CDN provider's network. This can be done by using a secure protocol such as HTTPS, which encrypts the data using SSL/TLS encryption.
+
+In addition, some CDN providers also offer the option to encrypt your data at rest, which can help to protect it from unauthorized access if the CDN provider's storage infrastructure is compromised. This is typically done by using advanced encryption algorithms to encrypt the data before it is stored on the CDN provider's servers.
+
+It's important to note that while encryption can help to protect your data, it is not a foolproof solution. If someone gains access to your encryption keys or passphrase, they may be able to decrypt your data and access it. Therefore, it's important to use strong encryption methods and to keep your encryption keys and passphrases secure.
+
+
+
+
+Rohan Verma
+CDNs are designed to cache and distribute content as efficiently as possible, so they need access to your data in order to do their job effectively.
+
+Can't they do their job if they get the encrypted version of my data?
+No, CDN providers cannot distribute and cache encrypted data efficiently because they cannot read or process the data in its encrypted form. In order for a CDN to distribute and cache content effectively, it needs to be able to read and understand the data.
+
+When you encrypt your data, it becomes unreadable to anyone who doesn't have the decryption key or passphrase. This means that the CDN provider would not be able to access or process the encrypted content, which would make it impossible for them to distribute and cache it.
+
+However, as I mentioned earlier, you can encrypt your data in transit using a secure protocol such as HTTPS, which can protect your data from interception or tampering while it is being transmitted between your server and the CDN provider's network. This means that while the CDN provider can still see your data, it is protected by encryption while it is in transit.
+
+If you want to encrypt your data at rest while using a CDN, you may need to consider using a different type of encryption, such as client-side encryption, where the data is encrypted on the client-side before being uploaded to the CDN. In this case, the CDN provider would not be able to read or access the data, but this may impact the ability of the CDN to cache and distribute the content efficiently.
+
+
+
+
+Rohan Verma
+This means that the CDN provider would not be able to access or process the encrypted content, which would make it impossible for them to distribute and cache it.
+
+Why do they need to process the data to distribute and cache it?
+CDN providers need to process the data in order to distribute and cache it efficiently. When you use a CDN, your content is replicated across multiple servers in different geographic locations. This is done so that when a user requests your content, the CDN can serve the content from the server that is closest to the user, which helps to reduce latency and improve performance.
+
+To achieve this, the CDN provider needs to be able to read and understand the content that is being distributed and cached. This is because the CDN provider needs to analyze the content and determine how it can be optimized for distribution, such as compressing images or minifying code, to reduce the file size and improve delivery speeds.
+
+If the content is encrypted, the CDN provider cannot analyze and optimize the content, which means it may not be delivered as efficiently as possible. Additionally, the CDN provider cannot cache the content in its encrypted form, because it cannot serve the content to other users without first decrypting it, which defeats the purpose of caching.
+
+Therefore, while encrypting your data can provide additional security, it may also impact the performance benefits of using a CDN. This is why it's important to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
+
+
+
+
+Rohan Verma
+Additionally, the CDN provider cannot cache the content in its encrypted form, because it cannot serve the content to other users without first decrypting it, which defeats the purpose of caching.
+
+
+Could you explain this a bit more 
+Sure! When a user requests content that is hosted on a CDN, the CDN tries to serve that content from the server that is geographically closest to the user. This is known as a "cache hit", because the content is already cached on that server and can be served quickly without having to fetch it from the original source.
+
+However, if the content is encrypted, the CDN cannot serve the encrypted content to other users, because it cannot be read or processed without first being decrypted. This means that every user who requests the content would need to wait for the content to be decrypted on the server before it can be served, which defeats the purpose of caching.
+
+To avoid this problem, CDN providers typically cache the decrypted content, which means that the content is stored in its unencrypted form on the CDN's servers. This allows the CDN to serve the content quickly to users who request it, without having to decrypt the content on every request.
+
+However, caching decrypted content can also create security risks, because it means that the content is stored in its unencrypted form on the CDN's servers. This means that if the CDN's servers are compromised, the content could be accessed by an attacker.
+
+So while encrypting your data can provide additional security, it may impact the performance benefits of using a CDN, and you may need to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
+
+
+
+
+Rohan Verma
+This means that every user who requests the content would need to wait for the content to be decrypted on the server before it can be served, which defeats the purpose of caching
+
+
+You are referring to the origin server?
+No, I'm referring to the CDN's edge servers. When a user requests content that is hosted on a CDN, the CDN tries to serve that content from the edge server that is geographically closest to the user.
+
+If the content is encrypted, the CDN's edge server cannot serve the encrypted content to the user, because it cannot be read or processed without first being decrypted. This means that the edge server would need to retrieve the content from the origin server, decrypt it, and then serve it to the user. This process would not be cached and would take longer than a typical cache hit, defeating the purpose of caching.
+
+To avoid this, CDN providers typically cache the decrypted content on their edge servers, which allows the content to be served quickly to users who request it without having to be decrypted every time. This allows for faster delivery of content and reduces the load on the origin server.
+
+However, as I mentioned earlier, caching decrypted content on the CDN's edge servers can create security risks if the servers are compromised, which is why it's important to consider the trade-offs between security and performance when deciding whether to encrypt your data while using a CDN.
+
+
+
+
+Rohan Verma
+In addition, some CDN providers also offer the option to encrypt your data at rest, which can help to protect it from unauthorized access if the CDN provider's storage infrastructure is compromised. This is typically done by using advanced encryption algorithms to encrypt the data before it is stored on the CDN provider's servers
+
+This is done by the CDN itself, right?
+Yes, that's correct. If a CDN provider offers the option to encrypt your data at rest, it is typically done by the CDN provider itself. The CDN provider would use advanced encryption algorithms to encrypt the data before it is stored on their servers. This ensures that even if an attacker gains access to the CDN provider's storage infrastructure, they would not be able to access the data in its unencrypted form.
+
+It's important to note that encrypting data at rest can add an additional layer of security, but it may also impact the performance of the CDN. This is because the CDN provider would need to decrypt the content every time it is accessed by a user, which could cause a slight delay in delivery times. However, the performance impact is generally considered to be minimal and outweighed by the added security benefits.
+
+
+
+
+Rohan Verma
+So where does the cdn store the decryption key in a case like this?
+When a CDN provider offers the option to encrypt data at rest, they typically store the decryption key separately from the encrypted data to further protect against unauthorized access.
+
+One common approach is to store the decryption key on separate hardware or in a separate storage system that is physically secured and access-controlled. This ensures that even if an attacker gains access to the storage infrastructure where the encrypted data is stored, they would still need to gain access to the hardware or storage system where the decryption key is stored in order to decrypt the data.
+
+In some cases, the CDN provider may also offer the option for customers to manage their own encryption keys, which means that the customer retains control over the keys used to encrypt and decrypt their data. In this case, the CDN provider would not have access to the encryption keys and would not be able to decrypt the data without the customer's authorization.
+
+Overall, the specifics of how a CDN provider stores and manages encryption keys may vary depending on the provider and the specific service offering, but the goal is always to ensure that the decryption key is kept separate from the encrypted data and is only accessible to authorized parties.
+
+
+
+
+Rohan Verma
+If you want to encrypt your data at rest while using a CDN, you may need to consider using a different type of encryption, such as client-side encryption, where the data is encrypted on the client-side before being uploaded to the CDN.
+
+
+Could you explain client side encryption with respect to this
+Sure, client-side encryption is a method of encrypting data before it is uploaded to a server or a CDN. In the context of using a CDN, client-side encryption means that you would encrypt your data on your own device or application before uploading it to the CDN.
+
+With client-side encryption, the CDN provider never sees the unencrypted data, and therefore does not have access to the decryption key. Instead, the encrypted data is uploaded to the CDN, which stores and distributes it like any other content. When a user requests the content, the CDN serves the encrypted content to the user, who then decrypts it using the decryption key on their own device.
+
+One advantage of client-side encryption is that it provides end-to-end encryption, which means that the data remains encrypted from the client device to the CDN and back to the client device again. This can provide an additional layer of security and privacy, as the data is protected even if the CDN's storage infrastructure is compromised.
+
+However, there are some trade-offs to consider when using client-side encryption. One is that it can be more complex to implement than other forms of encryption, as it requires the client application or device to handle the encryption and decryption of the data. This can also require more processing power and may impact performance, especially on lower-powered devices.
+
+Overall, client-side encryption can be a good option for those who want to ensure the highest level of security and privacy for their data while using a CDN, but it's important to weigh the benefits against the potential complexities and performance impacts.
+
+--- -->
+
+---
 
 # Types of Cyber Attacks & Vulnerabilities
 
@@ -1907,8 +2023,7 @@ Botnets can be used to perform Distributed Denial-of-Service (DDoS) attacks, ste
 
 # TODO
 
-# Web Socket
-
+## Web Socket
 
 ## Firewall 
 
