@@ -16,11 +16,21 @@
   - [Time-Series DBMS](#time-series-dbms)
 - [Relational Database](#relational-database)
   - [Tables](#tables)
-  - [Primary Key (PK)](#primary-key-pk)
-  - [Candidate Key](#candidate-key)
-  - [Composite Key](#composite-key)
-  - [Foreign Key (FK)](#foreign-key-fk)
-  - [Super Key](#super-key)
+  - [Keys](#keys)
+    - [Primary Key (PK)](#primary-key-pk)
+    - [Candidate Key](#candidate-key)
+    - [Composite Key](#composite-key)
+    - [Foreign Key (FK)](#foreign-key-fk)
+    - [Super Key](#super-key)
+  - [Joins](#joins)
+    - [Inner Join](#inner-join)
+    - [Equi Join](#equi-join)
+    - [Natural Join](#natural-join)
+    - [Cross Join (Cartesian Product)](#cross-join-cartesian-product)
+    - [Outer Join](#outer-join)
+      - [Left Outer Join](#left-outer-join)
+      - [Right Outer Join](#right-outer-join)
+      - [Full Outer Join](#full-outer-join)
   - [Indexes](#indexes)
   - [Views](#views)
   - [Stored Procedures](#stored-procedures)
@@ -28,7 +38,7 @@
 - [Non-Relational Database](#non-relational-database)
   - [Collections](#collections)
   - [Documents](#documents)
-  - [Keys](#keys)
+  - [Keys](#keys-1)
   - [Indexes](#indexes-1)
   - [Embedding](#embedding)
   - [Sharding](#sharding)
@@ -124,25 +134,65 @@ The structure of a SQL database typically includes the following components:
 
 The main component of a SQL database, tables are used to store data in a structured format. Each table is composed of rows (records) and columns (fields). Each row represents a unique instance of data, and each column represents a specific piece of data for that instance.
 
-## Primary Key (PK) 
+## Keys
+
+### Primary Key (PK) 
 
 A primary key is a unique identifier for each record in a table. It ensures that each record has a unique value for the primary key attribute. Primary keys are used to enforce entity integrity and provide a means to uniquely identify records. In most cases, a primary key is composed of one or more attributes.
 
-## Candidate Key 
+### Candidate Key 
 
 A candidate key is a set of attributes that can uniquely identify records in a table. It means that no two records can have the same values for all the attributes in the candidate key. A relation can have multiple candidate keys, but one of them is selected as the primary key.
 
-## Composite Key 
+### Composite Key 
 
 A composite key is a primary key that consists of two or more attributes. It is used when a single attribute is not sufficient to uniquely identify records. The combination of multiple attributes in the composite key ensures uniqueness.
 
-## Foreign Key (FK) 
+### Foreign Key (FK) 
 
 A foreign key is an attribute or a set of attributes in one table that refers to the primary key in another table. It establishes a relationship between two tables, called a referential integrity constraint. The foreign key in one table references the primary key of another table, creating a link between them.
 
-## Super Key 
+### Super Key 
 
 A super key is a set of attributes that can uniquely identify records in a table. It may contain more attributes than required to form a candidate key. In other words, a super key is a superset of a candidate key. It can have additional attributes that are not necessary for uniqueness.
+
+## Joins
+
+### Inner Join
+
+An inner join returns only the matching rows from both tables involved in the join. It combines rows from two tables based on a related column between them, known as the join condition. The result includes only the rows where the join condition is satisfied.
+
+### Equi Join
+
+An equi join is a specific type of inner join that uses the equality operator (=) to match rows between two tables based on a common column. It retrieves the rows where the values in the join columns of both tables are equal.
+
+### Natural Join
+
+A natural join is a type of inner join that matches rows between two tables based on columns with the same name and compatible data types. It automatically determines the join condition by looking for the common column names.
+
+### Cross Join (Cartesian Product)
+
+A cross join, also known as a Cartesian product, combines all rows from one table with all rows from another table. It results in a combination of every row from the first table with every row from the second table, resulting in a total number of rows equal to the product of the row counts in both tables.
+
+### Outer Join
+
+#### Left Outer Join
+
+A left outer join returns all rows from the left table (the table mentioned before the LEFT OUTER JOIN keyword) and the matching rows from the right table. If there is no match in the right table, NULL values are included for the right table columns.
+
+#### Right Outer Join
+
+A right outer join returns all rows from the right table (the table mentioned before the RIGHT OUTER JOIN keyword) and the matching rows from the left table. If there is no match in the left table, NULL values are included for the left table columns.
+
+> ***Note***: Suppose we have two tables, `A` and `B`. 
+> 
+> `A LEFT OUTER JOIN B` and `B RIGHT OUTER JOIN A` will yield us the same result.
+
+#### Full Outer Join
+
+A full outer join returns all rows from both tables, matching rows from each table, and including NULL values for non-matching rows on both sides. It combines the results of both the left outer join and the right outer join.
+
+---
 
 ## Indexes 
 
