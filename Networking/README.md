@@ -57,6 +57,18 @@
     - [Format of a TCP segment](#format-of-a-tcp-segment)
     - [Resources](#resources)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
+  - [`ICMP` (Internet Control Message Protocol)](#icmp-internet-control-message-protocol)
+    - [Host Unreachable](#host-unreachable)
+    - [Port Unreachable](#port-unreachable)
+    - [Fragmentation Needed](#fragmentation-needed)
+    - [Packet expired](#packet-expired)
+      - [Maximum Segment Lifetime (MSL)](#maximum-segment-lifetime-msl)
+      - [Time to Live (TTL)](#time-to-live-ttl)
+      - [TraceRoute (intuitive use of TTL)](#traceroute-intuitive-use-of-ttl)
+        - [1. Increased Probe Count](#1-increased-probe-count)
+        - [2. Timeout Adjustment](#2-timeout-adjustment)
+        - [3. Disable Reverse DNS Lookups](#3-disable-reverse-dns-lookups)
+    - [Packets Getting Dropped due to Buffer Overflow](#packets-getting-dropped-due-to-buffer-overflow)
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
     - [What are "Resources"?](#what-are-resources)
     - [`HTTP` request methods](#http-request-methods)
@@ -188,7 +200,6 @@
     - [Botnet](#botnet)
 - [TODO](#todo)
   - [Web Socket](#web-socket)
-  - [Firewall](#firewall)
   - [subnet](#subnet)
   - [Learn how IP spoofing is done.](#learn-how-ip-spoofing-is-done)
   - [HTTP tunneling](#http-tunneling)
@@ -848,6 +859,100 @@ All data reaches the destination uncorrupted. For documents etc.
 
 All data need not reach the other end. For video conferencing where some frame drops don't matter.
 
+## `ICMP` (Internet Control Message Protocol)
+
+- This protocol functions at Layer 3 (Network Layer) so it directly uses IP addresses for communication. 
+- No port or listener is required for this communication to take place.
+- `ping` and `traceroute` use this protocol.
+- Some firewalls block ICMP for security reasons, resulting in `ping` not working.
+
+It is designed for **informational messages**:
+
+### Host Unreachable
+
+### Port Unreachable 
+
+Suppose, you try to access a specific port on a server using an everyday protocol like `HTTP`, but that port either doesn't exist or is already in-use. 
+
+Subsequently, the server uses `ICMP` to send back a message telling the client that the port is unreachable. 
+
+In this, port is NOT used in `ICMP`. Only IP address of client is used for sending the message.
+
+### Fragmentation Needed
+
+This message indicates that a packet or datagram is too large to be transmitted over the network without being fragmented into smaller units.
+
+When a device wants to send a packet larger than the ***Maximum Transmission Unit (MTU)*** size supported by a network segment or link, it needs to fragment the packet into smaller units that fit within the MTU. 
+
+> ***Note***: The MTU represents the maximum size of a packet that can be transmitted over a particular network link without being fragmented.
+
+---
+
+### Packet expired
+
+A packet can expire due to a couple of reasons:
+
+#### Maximum Segment Lifetime (MSL) 
+
+MSL is a timer used in TCP (Transmission Control Protocol) connections. 
+
+It represents the maximum amount of time a segment can remain in the network. If the MSL timer expires for a particular segment, it is assumed to be lost or discarded, and the sender retransmits the segment.
+
+#### Time to Live (TTL) 
+
+TTL is a field in the IP header that specifies the maximum number of hops a packet can traverse. 
+
+Each router decrements the TTL value, and if it reaches zero: 
+1. The router discards the IP packet.
+2. It sends an ICMP Time Exceeded message back to the source, which also in the form of an IP packet, albeit with a different data header.
+3. The original host **can figure out where exactly the packet was dropped**, by taking a look at the source IP of the ICMP message enclosed in the IP packet.
+
+> ***Note***: Apart from routers, 
+> - [Firewalls](#what-is-a-firewall)
+> - [NAT](#napt-network-address-and-port-translation-previously-nat-network-address-translation) Devices
+> - [Load Balancers](#load-balancers-intelligent-reverse-proxies)
+> may also be responsible for decrementing TTL value.
+
+This is useful in the case of INFINITE LOOP in routers, where due to certain routing configurations or network conditions, packets are forwarded endlessly without reaching their intended destination.
+
+#### TraceRoute (intuitive use of TTL)
+
+In order to identify the entire path an IP packet takes, we send an ICMP echo request repeatedly; incrementing TTL one unit at a time and we will obtain the router IP address for each hop, ending the increments once destination is reached.
+
+However, it is not always reliable/accurate as:
+- Paths can change, depending on network conditions.
+- A firewall might allow the sent IP packet to pass through, but block the ICMP message sent back to the host when TTL raches 0.
+
+To combat this, a few measures can be put in place:
+
+##### 1. Increased Probe Count
+
+Increasing the number of probes sent by traceroute can provide a better representation of the network behavior. 
+
+Sending more than one packet per TTL value can allow us to see which router is more frequently used.
+
+By default, traceroute sends three probes per TTL value , but you can increase this count to obtain more reliable results.
+
+##### 2. Timeout Adjustment
+
+Adjusting the timeout value for each probe can help handle situations where intermediate routers may have longer response times. Increasing the timeout value allows more time for the probes to reach the destination and receive responses.
+
+##### 3. Disable Reverse DNS Lookups
+
+Traceroute performs reverse DNS lookups to display hostnames for IP addresses. However, reverse DNS lookups can introduce additional delays and inaccuracies. 
+
+Disabling reverse DNS lookups can reduce the impact of these inaccuracies and provide more consistent results.
+
+---
+
+### Packets Getting Dropped due to Buffer Overflow 
+
+Routers have limited buffer capacity to temporarily store incoming packets before forwarding them. 
+
+If the incoming packet rate exceeds the capacity of the router's buffers, packets may be dropped to prevent buffer overflow. 
+
+---
+
 ## `HTTP` (HyperText Transfer Protocol)
 
 This is used by web browsers.
@@ -860,7 +965,7 @@ HTTP is used to transmit *resources*, not just files.
 
 A *resource* is some chunk of information that can be identified by a URL (it's the **R** in **URL**). 
 
-The most common kind of *resource* is a file, but a *resource* may also be a dynamically-generated query result, the output of a CGI script, a document that is available in several languages, database records, or something else.
+The most common kind of *resource* is a file, but a *resource* may also be a dynamically generated query result, the output of a CGI script, a document that is available in several languages, database records, or something else.
 
 While learning HTTP, it may help to think of a *resource* as similar to a file, but more general.
 
@@ -2061,10 +2166,6 @@ Botnets can be used to perform Distributed Denial-of-Service (DDoS) attacks, ste
 # TODO
 
 ## Web Socket
-
-## Firewall 
-
-See networking TODO in edge  
 
 ## subnet
 
