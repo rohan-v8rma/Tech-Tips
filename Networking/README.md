@@ -49,40 +49,6 @@
     - [Better alternative to REST : GraphQL (TODO)](#better-alternative-to-rest--graphql-todo)
   - [Session State](#session-state)
 - [REST (Representational State Transfer)](#rest-representational-state-transfer)
-- [Network Protocols](#network-protocols)
-  - [What is a Network Protocol?](#what-is-a-network-protocol)
-  - [Stateful Protocol](#stateful-protocol)
-  - [Stateless and Stateful Protocols (TODO)](#stateless-and-stateful-protocols-todo)
-  - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
-    - [Format of a TCP segment](#format-of-a-tcp-segment)
-    - [Resources](#resources)
-  - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
-  - [`ICMP` (Internet Control Message Protocol)](#icmp-internet-control-message-protocol)
-    - [Host Unreachable](#host-unreachable)
-    - [Port Unreachable](#port-unreachable)
-    - [Fragmentation Needed](#fragmentation-needed)
-    - [Packet expired](#packet-expired)
-      - [Maximum Segment Lifetime (MSL)](#maximum-segment-lifetime-msl)
-      - [Time to Live (TTL)](#time-to-live-ttl)
-      - [TraceRoute (intuitive use of TTL)](#traceroute-intuitive-use-of-ttl)
-        - [1. Increased Probe Count](#1-increased-probe-count)
-        - [2. Timeout Adjustment](#2-timeout-adjustment)
-        - [3. Disable Reverse DNS Lookups](#3-disable-reverse-dns-lookups)
-    - [Packets Getting Dropped due to Buffer Overflow](#packets-getting-dropped-due-to-buffer-overflow)
-  - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
-    - [What are "Resources"?](#what-are-resources)
-    - [`HTTP` request methods](#http-request-methods)
-      - [Safe](#safe)
-      - [Idempotent](#idempotent)
-      - [Cacheable Responses](#cacheable-responses)
-    - [Descriptions of HTTP methods](#descriptions-of-http-methods)
-      - [`POST` method](#post-method)
-      - [`DELETE` method](#delete-method)
-  - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
-  - [`SSL` (Secure Socket Layer)](#ssl-secure-socket-layer)
-  - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
-    - [ARP Cache](#arp-cache)
-    - [Taking an example to understand...](#taking-an-example-to-understand)
 - [MAC Addresses](#mac-addresses)
   - [If we have a globally unique identifier, why do we further need IP addresses?](#if-we-have-a-globally-unique-identifier-why-do-we-further-need-ip-addresses)
   - [Why not get rid of MAC addresses then?](#why-not-get-rid-of-mac-addresses-then)
@@ -117,6 +83,40 @@
   - [What is Port Forwarding?](#what-is-port-forwarding)
     - [Setting up Port Forwarding](#setting-up-port-forwarding)
     - [Uses of Port Forwarding](#uses-of-port-forwarding)
+- [Network Protocols](#network-protocols)
+  - [What is a Network Protocol?](#what-is-a-network-protocol)
+  - [Stateful Protocol](#stateful-protocol)
+  - [Stateless and Stateful Protocols (TODO)](#stateless-and-stateful-protocols-todo)
+  - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
+    - [Format of a TCP segment](#format-of-a-tcp-segment)
+    - [Resources](#resources)
+  - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
+  - [`ICMP` (Internet Control Message Protocol)](#icmp-internet-control-message-protocol)
+    - [Host Unreachable](#host-unreachable)
+    - [Port Unreachable](#port-unreachable)
+    - [Fragmentation Needed](#fragmentation-needed)
+    - [Packet expired](#packet-expired)
+      - [Maximum Segment Lifetime (MSL)](#maximum-segment-lifetime-msl)
+      - [Time to Live (TTL)](#time-to-live-ttl)
+      - [TraceRoute (intuitive use of TTL)](#traceroute-intuitive-use-of-ttl)
+        - [1. Increased Probe Count](#1-increased-probe-count)
+        - [2. Timeout Adjustment](#2-timeout-adjustment)
+        - [3. Disable Reverse DNS Lookups](#3-disable-reverse-dns-lookups)
+    - [Packets Getting Dropped due to Buffer Overflow](#packets-getting-dropped-due-to-buffer-overflow)
+  - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
+    - [What are "Resources"?](#what-are-resources)
+    - [`HTTP` request methods](#http-request-methods)
+      - [Safe](#safe)
+      - [Idempotent](#idempotent)
+      - [Cacheable Responses](#cacheable-responses)
+    - [Descriptions of HTTP methods](#descriptions-of-http-methods)
+      - [`POST` method](#post-method)
+      - [`DELETE` method](#delete-method)
+  - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
+  - [`SSL` (Secure Socket Layer)](#ssl-secure-socket-layer)
+  - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
+    - [ARP Cache](#arp-cache)
+    - [Taking an example to understand...](#taking-an-example-to-understand)
 - [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
   - [What are hostnames?](#what-are-hostnames)
     - [Why do we use `www` in front of a hostname (TODO)](#why-do-we-use-www-in-front-of-a-hostname-todo)
@@ -824,6 +824,383 @@ To read about **RESTful APIs**, go [here](../APIs/README.md#restful-apis).
 
 ---
 
+# MAC Addresses
+
+- This is a unique identifier associated with the network card of a device. 
+
+- It has 6 groups of 8-bits/2 hexadecimal digits, giving a total of 2<sup>48</sup> possible addresses.
+
+## If we have a globally unique identifier, why do we further need IP addresses?
+
+Let us take a hypothetical world where just MAC addresses exist. 
+
+In order to determine which device has the corresponding destination MAC address that was provided to us, each and every device world wide would need to be checked.
+
+This means of millions/billions of devices, which would also be a security risk as malicious devices could send a false positive MAC address and obtain sensitive data not intended for them.
+
+IP addresses help rule out devices and provide data routing capabilities.
+
+## Why not get rid of MAC addresses then?
+
+- MAC addresses are used at a lower level (Data Link layer) as compared to IP addresses (Network Layer). 
+  
+  Not every MAC addresses device exclusively speaks IP, and not every IP device has a MAC address.
+
+  This is the very essence of layer separation in networking.
+
+- MAC is used within a network to find the device to which the packet is to be forwarded. 
+
+  - No hierarchy is needed because it is simple enough to find the device to send data to, without any significant performance disadvantage.
+
+  - If we were to use IP addresses instead of these, there would be the unnecessary burden of configuring IP addresses for each device (MAC addresses are hard-coded at the time of manufacture).
+  
+  - Local IP addresses (that are dynamic) are still used, but they are resolved to MAC addresses using ARP.
+
+- While IP is an hierarchical addressing system which is used by a distant node to locate the network to which its communicating node is located. 
+  
+- So both addressing schemes are required and works in parallel to provide effective communication.
+
+---
+
+# IP Addresses
+
+An IP address is a 32-bit number. It uniquely identifies a host (computer or other device, such as a printer or router) on a TCP/IP network.
+
+IP address typically still refers to 32-bit `IPv4` addresses until `IPv6` is deployed more broadly.
+
+## IPv4
+
+IPv4 addresses are normally expressed in dotted-decimal format, with four decimal numbers separated by periods, such as 192.168.123.132. 
+
+Each 8-bit number (also known as ***octet***) can be written with base-2, base-10 or base-16. For example:
+
+```
+binary --> decimal --> hexadecimal
+
+11011101.10000001.11010000.00000100 --> 221.129.208.4 -> DD.81.D0.04
+```
+
+---
+
+## Process of reaching from host to destination (***Network & Host Address***)
+
+1. For a `TCP/IP` [wide area network](#wide-area-network) (WAN) to work efficiently as a collection of networks, the routers that pass packets of data between networks do NOT know the exact location of a host for which a packet of information is destined. 
+
+    > ***Note***: This is more efficient since otherwise addresses for a lot of devices would have to be stored, increasing the required amount of memory.
+
+2. Routers only know ***what network the host is a member of*** and use information stored in their *route table* to determine how to get the packet to the ***destination host's network***. 
+
+3. After the packet is delivered to the destination's network, the packet is delivered to the appropriate host.
+
+For this process to work, an IP address has two parts:
+
+- **Network Part**
+- **Host part**
+
+The first part of an IP address is used as a *network address*, the last part as a *host address*.
+
+If you take the example **`192.168.123.132`** and divide it into these two parts, you get:
+- `192.168.123.` as the ***Network Part***; 
+
+  where `192.168.123.0` would be the ***Network Address*** (making host bits as 0).
+- `.132` as the ***Host Part***; 
+
+  where `0.0.0.132` would be the ***Host Address*** (making the network bits as 0).
+  
+> ***Note***: For each host on your network, the ***network part*** of the address is the same, but the ***host part*** must be different.
+
+---
+
+## Unusable addresses in a network (all 0s & all 1s)
+
+Suppose we have a network with *Network Address* as `192.168.123.0`.
+
+Two addresses that can't be used for hosts in this network are `192.168.123.0` and `192.168.123.255` because binary addresses with a host portion of **all ones** and **all zeros** are *invalid*. 
+
+- The zero address is invalid because it's used to specify a network without specifying a host i.e., *Network Address*. 
+- The 255 address (in binary notation, ***a host address of all ones***, not necessarily 255) is used to broadcast a message to every host on a network. 
+
+Just remember that the first and last address in any network or subnet can't be assigned to any individual host.
+
+So, in the case of the network with Network Address `192.168.123.0`, we can assign IP addresses to a maximum of 254 hosts.
+
+---
+
+## Global and Local IP Addresses
+
+Your ISP gives you a [modem](#what-is-a-modem) which has a global IP address. It helps us connect to a [Wide Area Network](#wide-area-network).
+
+We use a [router](#what-is-a-router) in combination with the modem in order to connect multiple devices to the internet.
+
+The router gives distinct IP addresses to the devices connected as well, which are known as Local IP Addresses. This process of assigning local IP addresses is carried out using [`DHCP`](#dhcp-dynamic-host-configuration-protocol).
+
+![](./ip-addresses.png)
+
+If suppose a device attempts to make a request to a particular website, the ISP will forward that request to the website. 
+
+The website will only see the global IP address of the device. When the response comes to the modem, it forwards the data to the router which sends the data to the local IP address of the device that made the request, using `NAT` (Network Address Translation).
+
+## Static \& Dynamic IP Addresses (`DHCP`: Dynamic Host Configuration Protocol) (TODO)
+
+DHCP is reponsible for assigning IP addresses.
+
+## `NAPT` (Network Address and Port Translation). Previously `NAT` (Network Address Translation)
+
+### Basic Idea (Full working just below)
+
+Network Address Translation (NAT) is a process that enables one, unique IP address to represent an entire group of computers. 
+
+In network address translation, a router assigns a computer or computers inside a private network having private IP addresses, a common public address.
+
+In this way, network address translation allows the single device to act as an intermediary or agent between the local, private network and the public network that is the internet. 
+
+NAT’s main purpose is to conserve the number of public IP addresses in use, for both security and economic goals.
+
+---
+
+### How it works
+
+> ***Note***: Read up on [ports](#ports) below, if needed, before reading this.
+
+- The device making a request just sends it, from its own internal address and some random port, to the address and port it got for whatever it is talking to on the Internet.
+- The `NAPT` is part of the router. It knows both inside and outside addresses. It sees the outgoing request, and it does several things:
+  - It decides **what port** it is going to use on the **outside address** *(public address of the router)* for this connection, and makes a note of that, and that it is connected to a particular **inside address** *(local address of the device)* and port.
+  - It edits the outgoing packet to have the **outside address** and **port number**.
+- Later, the response from the Internet comes back, and the NAPT looks to see if it has a **matching translation rule**. If it does, it rewrites the destination address and port number and passes it on to the device.
+- More outgoing and incoming packets keep flowing, and the device does what it wants to.
+- After a while, that connection stops, and the NAPT will clean up the translation rules after a while (usually two minutes of inactivity).
+
+---
+
+### What if two devices connected to the router make a network address to the same destination IP address and port?
+
+Suppose network requests originate from two devices, to the same destination IP address and port.
+
+1. First Device
+  - local IP address: 192.168.1.1
+  - port of the process making the request: 2
+2. Second Device
+  - local IP address: 192.168.1.2
+  - port of the process making the request: 2
+3. Router
+  - public IP addres: 233.12.12.1
+
+This is representing a realistic scenario where both the devices are running the client of the same game/cloud service. 
+
+This is why the port being used on each device, by the process in question, are same.
+
+Now, the router, before sending the request to the destination server, it decides that it will use:
+- port 47 on its public IP address for the requests of the first device.
+- port 54 on its public IP address for the requests of the second device.
+
+It modifies the source IP and port on each of the outgoing packets according to which device it came from in the following manner:
+
+NAPT Table
+
+| Device Number | Local IP address | Port of process | Public IP address | Assigned port of public IP |
+|-|-|-|-|-|
+| Device 1 | 192.168.1.1 | 2 | 233.12.12.1 | 47 |
+| Device 2 | 192.168.1.2 | 2 | 233.12.12.1 | 54 |
+
+Now, when the response comes to `233.12.12.1:47` and `233.12.12.1:54` for the first and second device respectively, it knows which device the particular response has to be sent to.
+
+So their is no problem with the destination IP and port being the same for both requests, as the public source IP and port have been modified to be different.
+
+---
+
+### `NAT` types
+
+These `NAT` types are a result of the type of connection setup on your machine. 
+
+#### `NAT` type 1
+
+Machine is directly connected to the internet i.e., it is not a part of a private LAN, where it has a local IP address. Rather, it only has a public IP address, which refers directly to that specific machine.
+
+The issue with this is that only 1 device can be connected to the internet using that modem since there is no private LAN where different devices can have various private IP addresses. Also, it is incredibly unsafe because every port on the device is directly accessible using the public IP address.
+
+#### `NAT` type 2
+
+
+
+#### `NAT` type 3
+
+---
+
+## Subnets
+
+Subnet is a portion of a larger network that has been divided to create smaller, more manageable networks. Subnetting allows for efficient allocation of IP addresses and helps in organizing and controlling network traffic.
+
+- Host A can directly talk to Host B, if they belong to the same subnet; using MAC addresses.
+- If they don't belong to the same subnet, Host A sends the communication to the the Gateway of the subnet, which is reponsible for connecting the subnet to other parts of the network.
+
+  The Gateway of a network always has an IP address and each host should know the subnet gateway.
+
+  In most cases, a [Router](#what-is-a-router) plays the role of the Gateway, which uses Routing Algorithms for determining the path to the destination subnet.
+
+Subnetting provides several benefits, including:
+
+### 1. Efficient IP address allocation 
+
+By dividing a network into subnets, you can allocate IP addresses based on the specific needs of each subnet, reducing wastage of IP addresses.
+
+### 2. Improved network performance 
+
+Subnetting helps in organizing network traffic by grouping hosts into smaller subnets. This reduces the amount of broadcast traffic and allows for more efficient routing and management of network traffic.
+
+### 3. Enhanced network security 
+
+Subnets provide a way to isolate and segment different parts of a network. By separating hosts into subnets, you can implement network security measures, such as firewall rules and access controls, to restrict access between subnets and protect sensitive data.
+
+### 4. Scalability 
+
+Subnetting allows for the growth and expansion of networks by providing a flexible way to add new subnets and allocate IP addresses.
+
+To summarize, subnets and subnet masks are fundamental components of IP networking. They enable efficient IP address allocation, help in organizing network traffic, enhance network security, and provide scalability to networks.
+
+---
+
+### Subnet Mask (Used to identify Subnets)
+
+Subnets are identified by their subnet mask, which determines the range of IP addresses available within the subnet.
+
+A subnet mask is a 32-bit value that is used to divide an IP address into network and host portions. It is applied to an IP address to determine which part of the address represents the network and which part represents the host.
+
+The subnet mask consists of a series of binary 1s followed by a series of binary 0s. The binary 1s in the mask indicate the network portion, while the binary 0s represent the host portion. 
+
+When the subnet mask is applied to an IP address using a **bitwise AND operation**, it isolates the network address from the host address.
+
+> ***Example***
+> 
+> Consider an IP address of `192.168.0.100` with a subnet mask of `255.255.255.0`. 
+> 
+> In binary representation, the IP address is `11000000.10101000.00000000.01100100` and the subnet mask is `11111111.11111111.11111111.00000000`. 
+> 
+> By performing a bitwise AND operation between the IP address and the subnet mask, you get the network address `192.168.0.0`.
+
+A larger subnet mask (more binary 1s) allows for fewer host addresses but more subnets, while a smaller subnet mask (fewer binary 1s) allows for more host addresses but fewer subnets.
+
+---
+
+### Practical Instance when Subnet Masks are used
+
+The concept of subnets helps in simplifying communication between devices belonging to the same Subnet/LAN. 
+
+Depending on whether the destination machine belongs to the same subnet as the sender or NOT, it usually results in a forking of the logic for handling how the communication will take place.
+
+***Consider 3 machines, which all belong to the same system of subnetting. The first machine needs to communicate with the other two.*** 
+
+Since the subnetting system is same, the subnet mask used for determining the network/subnet portion of an IP address will be the same. 
+
+So, let us assume that 24 bits of the IP are dedicated for the network/subnet, meaning the subnet mask has a value of `255.255.255.0`.
+
+**IP Addresses**:
+1. First machine: `192.168.1.3`
+2. Second machine: `192.168.1.2`
+3. Third machine: `192.168.2.2.`
+
+The **Subnets** of each machine can be determined by performing bitwise AND operation between the IP and the Subnet Mask.
+
+**Network Addresses**:
+1. First machine: `192.168.1.0`
+2. Second machine: `192.168.1.0`
+3. Third machine: `192.168.2.0`
+
+As we can see: 
+- The Network address of the first and second machine is same, so they *belong to the same subnet*. 
+- The Network address of the first and third machine is same, so they *belong to different subnets*. 
+
+Since communication has to take place between the first device and the other two devices, it will first apply the subnet mask to either destination IP address, to find out if the destination machine is in the same subnet or not.
+
+#### First TO Second Device (Same Subnet)
+
+The communication logic will see that the destination is in the same subnet. 
+  
+No routing is required, and the communication can be done directly using MAC addresses. 
+
+Note that devices in a subnet are connected using [Switches](#what-is-a-switch) (Layer 2 Device) OR Routers playing as Switches.
+
+![](subnet-same.png)
+
+This results in FASTER communication.
+
+
+
+#### First TO Third Device (Different Subnet)
+
+The communication logic will see that the destination is in a different subnet.
+
+So, the communication will be done to the Gateway IP address, which is the address of the [Router](#what-is-a-router) managing the connection of the subnet to other parts of the network.
+
+![](subnet-different.png)
+
+The [Router](#what-is-a-router) will use Routing Algorithms to determine the optimal path to the subnet the destination machine belongs to.
+
+> ***Note***: Observe how the Router is assigned 2 IP addresses. 
+> 
+> One as the default gateway of the first network, and the other as the default gateway of the second network.
+
+Take a look at the [ARP spoofing attack](#arp-spoofing-attack) to understand how the default gateway can be misused.
+
+---
+
+# Ports
+
+Note that the local IP address helps decide which device to send the data to. 
+
+But a single device can be running many internet applications (browser, game, text-editor, etc), each of which could have made the request.
+
+To eliminate this confusion, each application has its own port number.
+
+Port number is a 16 bit number so there are a total of 2^16 = 65536 port numbers. 
+
+## Types of Ports
+
+### Reserved Ports (0 - 1023)
+
+Reserved Ports are assigned to privileged services and controlled. They are designated as well-known ports. 
+
+Ports from 0 to 1023 are Reserved Ports. For example, for HTTP, port 80 is reserved.
+
+### Registered Ports (1024 - 49151)
+
+Ports in the range 1024 to 49151 are not assigned or controlled, but they can be assigned to specific applications to prevent duplication. 
+
+They are known as Registered Ports.
+
+### Dynamic Ports (49152 - 65535)
+
+Dynamic Ports are not assigned, controlled, or registered. They are used for temporary or private ports. They are also known as private or non-reserved ports.
+
+Ports in the range 49152 to 65535 are Dynamic Ports.
+
+## What is Port Forwarding?
+
+As we know, a port is the number associated with a specific internet application running locally on our machine. 
+
+Port Forwarding is when a machine which is a part of another LAN is given the ability to access an application associated with a specific port, running on your system, even though the two machines are not a part of the same LAN.
+
+There is no need for this when we send a request and the server is sending the data back to us. The router allows the server to access the port on our machine since we initiated the connection.
+
+Note that it is particularly useful in the case where a connection is to be initiated from the outside, wherein routers are set-up to block entities from accessing a specific port on a specific local IP address part of the local LAN. 
+
+Port Forwarding allows entities to use the public IP address associated with the router, along with the port that is to be accessed on the device. 
+
+### Setting up Port Forwarding
+
+To set this up, it is important for the device in question to have a static local IP address. Otherwise, if the router changed the local IP address after port forwarding has been set up, the connection would stop working.
+
+Changes must be made in the settings of the router such that the static local IP address and the port number of the application to be forwarded must be specified. 
+
+The permissions given to people accessing the application using Forwarding is controlled by the application itself, not by the router.
+
+### Uses of Port Forwarding
+
+- Providing public access to a web server
+- Providing public access to a game server
+- Accessing your computers/network remotely
+
+---
+
 # Network Protocols
 
 ## What is a Network Protocol?
@@ -1105,382 +1482,7 @@ So now, even if we disconnect from the LAN of our Router and try pinging our pre
 
 But, if we restart our machine, the ARP cache would get reset. So, if we tried pinging the address while not connected to the Router, we would no longer get a response.
 
-
-
 ---
-
-# MAC Addresses
-
-- This is a unique identifier associated with the network card of a device. 
-
-- It has 6 groups of 8-bits/2 hexadecimal digits, giving a total of 2<sup>48</sup> possible addresses.
-
-## If we have a globally unique identifier, why do we further need IP addresses?
-
-Let us take a hypothetical world where just MAC addresses exist. 
-
-In order to determine which device has the corresponding destination MAC address that was provided to us, each and every device world wide would need to be checked.
-
-This means of millions/billions of devices, which would also be a security risk as malicious devices could send a false positive MAC address and obtain sensitive data not intended for them.
-
-IP addresses help rule out devices and provide data routing capabilities.
-
-## Why not get rid of MAC addresses then?
-
-- MAC addresses are used at a lower level (Data Link layer) as compared to IP addresses (Network Layer). 
-  
-  Not every MAC addresses device exclusively speaks IP, and not every IP device has a MAC address.
-
-  This is the very essence of layer separation in networking.
-
-- MAC is used within a network to find the device to which the packet is to be forwarded. 
-
-  - No hierarchy is needed because it is simple enough to find the device to send data to, without any significant performance disadvantage.
-
-  - If we were to use IP addresses instead of these, there would be the unnecessary burden of configuring IP addresses for each device (MAC addresses are hard-coded at the time of manufacture).
-  
-  - Local IP addresses (that are dynamic) are still used, but they are resolved to MAC addresses using ARP.
-
-- While IP is an hierarchical addressing system which is used by a distant node to locate the network to which its communicating node is located. 
-  
-- So both addressing schemes are required and works in parallel to provide effective communication.
-
----
-
-# IP Addresses
-
-An IP address is a 32-bit number. It uniquely identifies a host (computer or other device, such as a printer or router) on a TCP/IP network.
-
-IP address typically still refers to 32-bit `IPv4` addresses until `IPv6` is deployed more broadly.
-
-## IPv4
-
-IPv4 addresses are normally expressed in dotted-decimal format, with four decimal numbers separated by periods, such as 192.168.123.132. 
-
-Each 8-bit number (also known as ***octet***) can be written with base-2, base-10 or base-16. For example:
-
-```
-binary --> decimal --> hexadecimal
-
-11011101.10000001.11010000.00000100 --> 221.129.208.4 -> DD.81.D0.04
-```
-
----
-
-## Process of reaching from host to destination (***Network & Host Address***)
-
-1. For a `TCP/IP` [wide area network](#wide-area-network) (WAN) to work efficiently as a collection of networks, the routers that pass packets of data between networks do NOT know the exact location of a host for which a packet of information is destined. 
-
-    > ***Note***: This is more efficient since otherwise addresses for a lot of devices would have to be stored, increasing the required amount of memory.
-
-2. Routers only know ***what network the host is a member of*** and use information stored in their *route table* to determine how to get the packet to the ***destination host's network***. 
-
-3. After the packet is delivered to the destination's network, the packet is delivered to the appropriate host.
-
-For this process to work, an IP address has two parts:
-
-- **Network Part**
-- **Host part**
-
-The first part of an IP address is used as a *network address*, the last part as a *host address*.
-
-If you take the example **`192.168.123.132`** and divide it into these two parts, you get:
-- `192.168.123.` as the ***Network Part***; 
-
-  where `192.168.123.0` would be the ***Network Address*** (making host bits as 0).
-- `.132` as the ***Host Part***; 
-
-  where `0.0.0.132` would be the ***Host Address*** (making the network bits as 0).
-  
-> ***Note***: For each host on your network, the ***network part*** of the address is the same, but the ***host part*** must be different.
-
----
-
-## Unusable addresses in a network (all 0s & all 1s)
-
-Suppose we have a network with *Network Address* as `192.168.123.0`.
-
-Two addresses that can't be used for hosts in this network are `192.168.123.0` and `192.168.123.255` because binary addresses with a host portion of **all ones** and **all zeros** are *invalid*. 
-
-- The zero address is invalid because it's used to specify a network without specifying a host i.e., *Network Address*. 
-- The 255 address (in binary notation, ***a host address of all ones***, not necessarily 255) is used to broadcast a message to every host on a network. 
-
-Just remember that the first and last address in any network or subnet can't be assigned to any individual host.
-
-So, in the case of the network with Network Address `192.168.123.0`, we can assign IP addresses to a maximum of 254 hosts.
-
----
-
-## Global and Local IP Addresses
-
-Your ISP gives you a [modem](#what-is-a-modem) which has a global IP address. It helps us connect to a [Wide Area Network](#wide-area-network).
-
-We use a [router](#what-is-a-router) in combination with the modem in order to connect multiple devices to the internet.
-
-The router gives distinct IP addresses to the devices connected as well, which are known as Local IP Addresses. This process of assigning local IP addresses is carried out using [`DHCP`](#dhcp-dynamic-host-configuration-protocol).
-
-![](./ip-addresses.png)
-
-If suppose a device attempts to make a request to a particular website, the ISP will forward that request to the website. 
-
-The website will only see the global IP address of the device. When the response comes to the modem, it forwards the data to the router which sends the data to the local IP address of the device that made the request, using `NAT` (Network Address Translation).
-
-## Static \& Dynamic IP Addresses (`DHCP`: Dynamic Host Configuration Protocol) (TODO)
-
-DHCP is reponsible for assigning IP addresses.
-
-## `NAPT` (Network Address and Port Translation). Previously `NAT` (Network Address Translation)
-
-### Basic Idea (Full working just below)
-
-Network Address Translation (NAT) is a process that enables one, unique IP address to represent an entire group of computers. 
-
-In network address translation, a router assigns a computer or computers inside a private network having private IP addresses, a common public address.
-
-In this way, network address translation allows the single device to act as an intermediary or agent between the local, private network and the public network that is the internet. 
-
-NAT’s main purpose is to conserve the number of public IP addresses in use, for both security and economic goals.
-
----
-
-### How it works
-
-- The device making a request just sends it, from its own internal address and some random port, to the address and port it got for whatever it is talking to on the Internet.
-- The `NAPT` is part of the router. It knows both inside and outside addresses. It sees the outgoing request, and it does several things:
-  - It decides **what port** it is going to use on the **outside address** *(public address of the router)* for this connection, and makes a note of that, and that it is connected to a particular **inside address** *(local address of the device)* and port.
-  - It edits the outgoing packet to have the **outside address** and **port number**.
-- Later, the response from the Internet comes back, and the NAPT looks to see if it has a **matching translation rule**. If it does, it rewrites the destination address and port number and passes it on to the device.
-- More outgoing and incoming packets keep flowing, and the device does what it wants to.
-- After a while, that connection stops, and the NAPT will clean up the translation rules after a while (usually two minutes of inactivity).
-
----
-
-### What if two devices connected to the router make a network address to the same destination IP address and port?
-
-Suppose network requests originate from two devices, to the same destination IP address and port.
-
-1. First Device
-  - local IP address: 192.168.1.1
-  - port of the process making the request: 2
-2. Second Device
-  - local IP address: 192.168.1.2
-  - port of the process making the request: 2
-3. Router
-  - public IP addres: 233.12.12.1
-
-This is representing a realistic scenario where both the devices are running the client of the same game/cloud service. 
-
-This is why the port being used on each device, by the process in question, are same.
-
-Now, the router, before sending the request to the destination server, it decides that it will use:
-- port 47 on its public IP address for the requests of the first device.
-- port 54 on its public IP address for the requests of the second device.
-
-It modifies the source IP and port on each of the outgoing packets according to which device it came from in the following manner:
-
-NAPT Table
-
-| Device Number | Local IP address | Port of process | Public IP address | Assigned port of public IP |
-|-|-|-|-|-|
-| Device 1 | 192.168.1.1 | 2 | 233.12.12.1 | 47 |
-| Device 2 | 192.168.1.2 | 2 | 233.12.12.1 | 54 |
-
-Now, when the response comes to `233.12.12.1:47` and `233.12.12.1:54` for the first and second device respectively, it knows which device the particular response has to be sent to.
-
-So their is no problem with the destination IP and port being the same for both requests, as the public source IP and port have been modified to be different.
-
----
-
-### `NAT` types
-
-These `NAT` types are a result of the type of connection setup on your machine. 
-
-#### `NAT` type 1
-
-Machine is directly connected to the internet i.e., it is not a part of a private LAN, where it has a local IP address. Rather, it only has a public IP address, which refers directly to that specific machine.
-
-The issue with this is that only 1 device can be connected to the internet using that modem since there is no private LAN where different devices can have various private IP addresses. Also, it is incredibly unsafe because every port on the device is directly accessible using the public IP address.
-
-#### `NAT` type 2
-
-
-
-#### `NAT` type 3
-
----
-
-## Subnets
-
-Subnet is a portion of a larger network that has been divided to create smaller, more manageable networks. Subnetting allows for efficient allocation of IP addresses and helps in organizing and controlling network traffic.
-
-- Host A can directly talk to Host B, if they belong to the same subnet; using MAC addresses.
-- If they don't belong to the same subnet, Host A sends the communication to the the Gateway of the subnet, which is reponsible for connecting the subnet to other parts of the network.
-
-  The Gateway of a network always has an IP address and each host should know the subnet gateway.
-
-  In most cases, a [Router](#what-is-a-router) plays the role of the Gateway, which uses Routing Algorithms for determining the path to the destination subnet.
-
-Subnetting provides several benefits, including:
-
-### 1. Efficient IP address allocation 
-
-By dividing a network into subnets, you can allocate IP addresses based on the specific needs of each subnet, reducing wastage of IP addresses.
-
-### 2. Improved network performance 
-
-Subnetting helps in organizing network traffic by grouping hosts into smaller subnets. This reduces the amount of broadcast traffic and allows for more efficient routing and management of network traffic.
-
-### 3. Enhanced network security 
-
-Subnets provide a way to isolate and segment different parts of a network. By separating hosts into subnets, you can implement network security measures, such as firewall rules and access controls, to restrict access between subnets and protect sensitive data.
-
-### 4. Scalability 
-
-Subnetting allows for the growth and expansion of networks by providing a flexible way to add new subnets and allocate IP addresses.
-
-To summarize, subnets and subnet masks are fundamental components of IP networking. They enable efficient IP address allocation, help in organizing network traffic, enhance network security, and provide scalability to networks.
-
----
-
-### Subnet Mask (Used to identify Subnets)
-
-Subnets are identified by their subnet mask, which determines the range of IP addresses available within the subnet.
-
-A subnet mask is a 32-bit value that is used to divide an IP address into network and host portions. It is applied to an IP address to determine which part of the address represents the network and which part represents the host.
-
-The subnet mask consists of a series of binary 1s followed by a series of binary 0s. The binary 1s in the mask indicate the network portion, while the binary 0s represent the host portion. 
-
-When the subnet mask is applied to an IP address using a **bitwise AND operation**, it isolates the network address from the host address.
-
-> ***Example***
-> 
-> Consider an IP address of `192.168.0.100` with a subnet mask of `255.255.255.0`. 
-> 
-> In binary representation, the IP address is `11000000.10101000.00000000.01100100` and the subnet mask is `11111111.11111111.11111111.00000000`. 
-> 
-> By performing a bitwise AND operation between the IP address and the subnet mask, you get the network address `192.168.0.0`.
-
-A larger subnet mask (more binary 1s) allows for fewer host addresses but more subnets, while a smaller subnet mask (fewer binary 1s) allows for more host addresses but fewer subnets.
-
----
-
-### Practical Instance when Subnet Masks are used
-
-The concept of subnets helps in simplifying communication between devices belonging to the same Subnet/LAN. 
-
-Depending on whether the destination machine belongs to the same subnet as the sender or NOT, it usually results in a forking of the logic for handling how the communication will take place.
-
-***Consider 3 machines, which all belong to the same system of subnetting. The first machine needs to communicate with the other two.*** 
-
-Since the subnetting system is same, the subnet mask used for determining the network/subnet portion of an IP address will be the same. 
-
-So, let us assume that 24 bits of the IP are dedicated for the network/subnet, meaning the subnet mask has a value of `255.255.255.0`.
-
-**IP Addresses**:
-1. First machine: `192.168.1.3`
-2. Second machine: `192.168.1.2`
-3. Third machine: `192.168.2.2.`
-
-The **Subnets** of each machine can be determined by performing bitwise AND operation between the IP and the Subnet Mask.
-
-**Network Addresses**:
-1. First machine: `192.168.1.0`
-2. Second machine: `192.168.1.0`
-3. Third machine: `192.168.2.0`
-
-As we can see: 
-- The Network address of the first and second machine is same, so they *belong to the same subnet*. 
-- The Network address of the first and third machine is same, so they *belong to different subnets*. 
-
-Since communication has to take place between the first device and the other two devices, it will first apply the subnet mask to either destination IP address, to find out if the destination machine is in the same subnet or not.
-
-#### First TO Second Device (Same Subnet)
-
-The communication logic will see that the destination is in the same subnet. 
-  
-No routing is required, and the communication can be done directly using MAC addresses. 
-
-Note that devices in a subnet are connected using [Switches](#what-is-a-switch) (Layer 2 Device) OR Routers playing as Switches.
-
-![](subnet-same.png)
-
-This results in FASTER communication.
-
-
-
-#### First TO Third Device (Different Subnet)
-
-The communication logic will see that the destination is in a different subnet.
-
-So, the communication will be done to the Gateway IP address, which is the address of the [Router](#what-is-a-router) managing the connection of the subnet to other parts of the network.
-
-![](subnet-different.png)
-
-The [Router](#what-is-a-router) will use Routing Algorithms to determine the optimal path to the subnet the destination machine belongs to.
-
-> ***Note***: Observe how the Router is assigned 2 IP addresses. 
-> 
-> One as the default gateway of the first network, and the other as the default gateway of the second network.
-
-Take a look at the [ARP spoofing attack](#arp-spoofing-attack) to understand how the default gateway can be misused.
-
----
-
-# Ports
-
-Note that the local IP address helps decide which device to send the data to. 
-
-But a single device can be running many internet applications (browser, game, text-editor, etc), each of which could have made the request.
-
-To eliminate this confusion, each application has its own port number.
-
-Port number is a 16 bit number so there are a total of 2^16 = 65536 port numbers. 
-
-## Types of Ports
-
-### Reserved Ports (0 - 1023)
-
-Reserved Ports are assigned to privileged services and controlled. They are designated as well-known ports. 
-
-Ports from 0 to 1023 are Reserved Ports. For example, for HTTP, port 80 is reserved.
-
-### Registered Ports (1024 - 49151)
-
-Ports in the range 1024 to 49151 are not assigned or controlled, but they can be assigned to specific applications to prevent duplication. 
-
-They are known as Registered Ports.
-
-### Dynamic Ports (49152 - 65535)
-
-Dynamic Ports are not assigned, controlled, or registered. They are used for temporary or private ports. They are also known as private or non-reserved ports.
-
-Ports in the range 49152 to 65535 are Dynamic Ports.
-
-## What is Port Forwarding?
-
-As we know, a port is the number associated with a specific internet application running locally on our machine. 
-
-Port Forwarding is when a machine which is a part of another LAN is given the ability to access an application associated with a specific port, running on your system, even though the two machines are not a part of the same LAN.
-
-There is no need for this when we send a request and the server is sending the data back to us. The router allows the server to access the port on our machine since we initiated the connection.
-
-Note that it is particularly useful in the case where a connection is to be initiated from the outside, wherein routers are set-up to block entities from accessing a specific port on a specific local IP address part of the local LAN. 
-
-Port Forwarding allows entities to use the public IP address associated with the router, along with the port that is to be accessed on the device. 
-
-### Setting up Port Forwarding
-
-To set this up, it is important for the device in question to have a static local IP address. Otherwise, if the router changed the local IP address after port forwarding has been set up, the connection would stop working.
-
-Changes must be made in the settings of the router such that the static local IP address and the port number of the application to be forwarded must be specified. 
-
-The permissions given to people accessing the application using Forwarding is controlled by the application itself, not by the router.
-
-### Uses of Port Forwarding
-
-- Providing public access to a web server
-- Providing public access to a game server
-- Accessing your computers/network remotely
 
 # How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS
 
