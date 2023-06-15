@@ -104,6 +104,7 @@
         - [3. Disable Reverse DNS Lookups](#3-disable-reverse-dns-lookups)
     - [Packets Getting Dropped due to Buffer Overflow](#packets-getting-dropped-due-to-buffer-overflow)
   - [`IP` (Internet Protocol)](#ip-internet-protocol)
+    - [Basic Description (TODO)](#basic-description-todo)
     - [Introduction to `IP` packets](#introduction-to-ip-packets)
     - [Structure of `IP` packets](#structure-of-ip-packets)
       - [1. Version field](#1-version-field)
@@ -129,8 +130,10 @@
   - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
   - [`SSL` (Secure Socket Layer)](#ssl-secure-socket-layer)
   - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
-    - [ARP Cache](#arp-cache)
-    - [Taking an example to understand...](#taking-an-example-to-understand)
+    - [ARP Cache OR ARP Table](#arp-cache-or-arp-table)
+    - [Example 1 : Pinging another machine in the same subnet](#example-1--pinging-another-machine-in-the-same-subnet)
+    - [Example 2 : Pinging another machine in a different network](#example-2--pinging-another-machine-in-a-different-network)
+    - [Example 3 : Pinging your own machine](#example-3--pinging-your-own-machine)
 - [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
   - [What are hostnames?](#what-are-hostnames)
     - [Why do we use `www` in front of a hostname (TODO)](#why-do-we-use-www-in-front-of-a-hostname-todo)
@@ -194,7 +197,7 @@
   - [Denial-of-Service (DoS) attack](#denial-of-service-dos-attack)
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
   - [Man-in-the-Middle Attacks](#man-in-the-middle-attacks)
-    - [ARP spoofing attack](#arp-spoofing-attack)
+    - [ARP poisoning attack](#arp-poisoning-attack)
   - [Subdomain Takeover attack (TODO)](#subdomain-takeover-attack-todo)
   - [Cross Site Request Forgery (TODO)](#cross-site-request-forgery-todo)
   - [How is `referrer` information in web exploited (TODO)](#how-is-referrer-information-in-web-exploited-todo)
@@ -1347,6 +1350,8 @@ If the incoming packet rate exceeds the capacity of the router's buffers, packet
 
 ## `IP` (Internet Protocol)
 
+### Basic Description (TODO)
+
 ### Introduction to `IP` packets
 
 - It has headers and data sections.
@@ -1627,15 +1632,37 @@ Address Resolution Protocol is used to keep track of the IP address of a device 
 
 Whenever you request any data or communicate with other devices, it always looks for MAC address associated with an incoming IP address in [ARP cache](#arp-cache). 
 
-### ARP Cache
+### ARP Cache OR ARP Table
 
 Every time there is a communication between two devices IP and MAC addresses are stored in ARP cache if not already there.
 
 ARP cache holds data for both wireless and ethernet connections. This data is stored in ARP cache which is in memory for each computer so that it can reduce the time required for an ARP process every time.
 
+### Example 1 : Pinging another machine in the same subnet
 
+- IP `10.0.0.2` (2) wants to connect to IP `10.0.0.5` (5).
+- Host 2 checks if host 5 is within its subnet (it is).
+- Host 2 needs the MAC address of host 5.
+- Host 2 checks its ARP tables and its not there.
+- Host 2 sends an ARP request broadcast to all achines in its network (Who has IP address `10.0.0.5`?).
+- Host 5 replies with `dd`.
+- Host 5 updates its ARP table.
 
-### Taking an example to understand...
+![](./arp-example-1.png)
+
+### Example 2 : Pinging another machine in a different network
+
+- IP `10.0.0.2` (2) wants to connect to IP `1.2.3.4` (X).
+- Host 2 checks if `1.2.3.4` is within its subnet (it is NOT).
+- So, host 2 needs to talk to its gateway (IP address of gateway is always known).
+- Host 2 checks its local ARP table, IP of gateway (`10.0.0.1`) is NOT in it.
+- Host 2 sends an ARP request to everybody in the network.
+
+  It is essentially asking who has `10.0.0.1`, which is dangerous, because a malicious device can pretend to be the gateway, and respond with its MAC address.
+
+![](./arp-example-2.png)
+
+### Example 3 : Pinging your own machine
 
 If suppose we try pinging our own device using its local IP address (assigned to it by our [Router](#what-is-a-router), which creates a LAN for this process), the request would be sent to our **Router**, to resolve which device has that specific local IP address, and we would get our own MAC address or the information that the device is `localhost` i.e., our own device.
 
@@ -2182,17 +2209,17 @@ Also, they may come in slowly enough from each attacking host that you can't eve
 
 ## Man-in-the-Middle Attacks
 
-### ARP spoofing attack
+### ARP poisoning attack
 
-In a subnet, there is a protocol called ARP (Address Resolution Protocol) that allows devices to map IP addresses to MAC addresses in order to communicate with each other. However, in an ARP spoofing attack, a malicious device manipulates this protocol to deceive other devices on the network.
+In a subnet, there is a protocol called ARP (Address Resolution Protocol) that allows devices to map IP addresses to MAC addresses in order to communicate with each other. However, in an ARP poisoning attack, a malicious device manipulates this protocol to deceive other devices on the network.
 
 In this attack, the malicious device overrides or falsifies the ARP responses, pretending to be the legitimate default gateway on the network. It responds to ARP requests from other devices, providing its own MAC address instead of the actual MAC address of the default gateway. This means that when a device wants to send communication to the router or any device outside the local network, it unknowingly sends it to the malicious device.
 
 By manipulating the ARP tables of other devices, the malicious device intercepts and controls the network traffic, becoming a man-in-the-middle. It can monitor or modify the communication between devices, potentially capturing sensitive information or launching further attacks.
 
-The goal of the ARP spoofing attack is to redirect network traffic through the attacker's device, giving them unauthorized access to the data being transmitted. This attack can be particularly harmful if the attacker is able to intercept and manipulate sensitive information, such as login credentials or financial transactions.
+The goal of the ARP poisoning attack is to redirect network traffic through the attacker's device, giving them unauthorized access to the data being transmitted. This attack can be particularly harmful if the attacker is able to intercept and manipulate sensitive information, such as login credentials or financial transactions.
 
-To mitigate ARP spoofing attacks, network administrators can implement security measures such as ARP spoofing detection and prevention techniques. This may include using tools or protocols that monitor ARP traffic and detect abnormalities, implementing secure network configurations, and employing techniques like static ARP entries or ARP spoofing protection mechanisms.
+To mitigate ARP poisoning attacks, network administrators can implement security measures such as ARP poisoning detection and prevention techniques. This may include using tools or protocols that monitor ARP traffic and detect abnormalities, implementing secure network configurations, and employing techniques like static ARP entries or ARP poisoning protection mechanisms.
 
 ## Subdomain Takeover attack (TODO)
 
