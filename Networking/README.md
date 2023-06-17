@@ -91,6 +91,8 @@
     - [Format of a TCP segment](#format-of-a-tcp-segment)
     - [Resources](#resources)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
+    - [About](#about)
+    - [Use Cases](#use-cases)
   - [`ICMP` (Internet Control Message Protocol)](#icmp-internet-control-message-protocol)
     - [Host Unreachable](#host-unreachable)
     - [Port Unreachable](#port-unreachable)
@@ -134,6 +136,12 @@
     - [Example 1 : Pinging another machine in the same subnet](#example-1--pinging-another-machine-in-the-same-subnet)
     - [Example 2 : Pinging another machine in a different network](#example-2--pinging-another-machine-in-a-different-network)
     - [Example 3 : Pinging your own machine](#example-3--pinging-your-own-machine)
+- [VPNs (Virtual Private Networks)](#vpns-virtual-private-networks)
+  - [Working](#working)
+  - [Protocols Used](#protocols-used)
+    - [TCP or UDP](#tcp-or-udp)
+  - [Important Examples](#important-examples)
+    - [What if the sender is using TCP but the VPN uses UDP?](#what-if-the-sender-is-using-tcp-but-the-vpn-uses-udp)
 - [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
   - [What are hostnames?](#what-are-hostnames)
     - [Why do we use `www` in front of a hostname (TODO)](#why-do-we-use-www-in-front-of-a-hostname-todo)
@@ -1251,7 +1259,20 @@ All data reaches the destination uncorrupted. For documents etc.
 
 ## `UDP` (User Datagram Protocol)
 
-All data need not reach the other end. For video conferencing where some frame drops don't matter.
+### About
+
+- Layer 4 protocol
+- Ability to address specific process in a host, using ports.
+- Prior communication not required, which makes it faster, but also more unsecure.
+- It is considered stateless because it does not maintain any form of connection state or session information between the sender and receiver. 
+- In a UDP communication, each datagram (packet) is treated as an independent unit, without any knowledge of previous or future packets.
+- Datagram has an 8 byte header.
+
+### Use Cases
+
+- Video streaming
+- DNS
+
 
 ## `ICMP` (Internet Control Message Protocol)
 
@@ -1671,6 +1692,66 @@ This information that the IP address maps to `localhost` is stored in the ARP ca
 So now, even if we disconnect from the LAN of our Router and try pinging our previous local IP address, we would get information from the ARP cache, that the machine we are trying to ping is `localhost` itself, which is why we would still get a response.
 
 But, if we restart our machine, the ARP cache would get reset. So, if we tried pinging the address while not connected to the Router, we would no longer get a response.
+
+--- 
+
+# VPNs (Virtual Private Networks)
+
+## Working
+
+Depending on whether a VPN is working at the layer 3 or 4, what they essentially do is take the IP packet OR TCP/UDP segment you are about to send, encrypt it, and put it in another IP packet OR TCP/UDP segment destined for the servers of the VPN provider.
+
+So, our ISP is only able to see a bunch of packets/segments going to a single server, with the data being encrypted, *maintaining the user's privacy*.
+
+This warrants it to be called a ***Virtual Private Network***.
+
+Once, the packets/segments reach the VPN provider's server, the contents are decrypted and sent to their intended destination.
+
+## Protocols Used
+
+### TCP or UDP
+
+- VPNs can support both UDP and TCP as transport protocols. The choice between UDP and TCP depends on the specific requirements and priorities of the VPN application.
+
+- When choosing between TCP and UDP for a **direct connection**, the decision is typically based on the specific requirements of the application and the nature of the data being transmitted:
+  - TCP is preferred when reliability and ordered delivery of data are critical.
+  - UDP is favored for low-latency and loss-tolerant applications.
+
+- While the choice between TCP and UDP in a VPN can be influenced by similar factors as in a direct connection, it's important to understand that VPNs operate at a different layer of the network stack and introduce additional considerations.
+
+- Some VPN protocols may be designed to work more efficiently with UDP due to the lower protocol overhead and the ability to traverse firewalls and NAT devices more easily. 
+
+  In this case, even if the underlying application might have used TCP for a direct connection, the VPN implementation may choose to use UDP to optimize performance and compatibility.
+
+- Furthermore, some VPN protocols have their own mechanisms for ensuring reliability and data integrity, independent of the transport protocol being used. 
+
+  For instance, the VPN protocol may include error correction, retransmission, or encryption at the VPN layer, making the transport layer (TCP or UDP) less significant in terms of reliability.
+
+
+
+## Important Examples
+
+### What if the sender is using TCP but the VPN uses UDP?
+
+If the sender uses TCP and the VPN uses UDP, there can be potential issues that may lead to packet drops or other undesirable effects. 
+
+When there is a mismatch in the transport protocols used by the sender and the VPN, it can impact the reliability, ordering, and flow control mechanisms that TCP provides.
+
+1. Packet Drops: UDP does not have the same reliability mechanisms as TCP, so if UDP packets are lost or dropped along the VPN path, there is no automatic retransmission. 
+   
+   The sender using TCP may not receive acknowledgments for its packets and may interpret this as network congestion, triggering its congestion control mechanisms and reducing its sending rate.
+
+2. Out-of-Order Delivery: UDP packets may take different paths through the network compared to TCP packets. 
+   
+   This can result in UDP packets arriving out of order at the destination. 
+   
+   For TCP, out-of-order delivery may lead to retransmissions and impact the overall performance and efficiency of the TCP connection.
+
+3. Congestion Control Mismatch: TCP relies on congestion control mechanisms to detect and react to network congestion. 
+  
+    If the VPN using UDP does not provide congestion control mechanisms compatible with TCP, it may result in suboptimal network behavior, including excessive packet drops or congestion collapse.
+
+To mitigate these issues, VPN implementations that use UDP often include additional mechanisms to handle reliability, packet ordering, and congestion control ***at the VPN layer***. 
 
 ---
 
