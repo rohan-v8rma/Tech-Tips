@@ -91,8 +91,12 @@
     - [Format of a TCP segment](#format-of-a-tcp-segment)
     - [Resources](#resources)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
-    - [About](#about)
+    - [About the protocol](#about-the-protocol)
+    - [UDP Datagram](#udp-datagram)
     - [Use Cases](#use-cases)
+    - [Advantages](#advantages)
+    - [Disadvantages](#disadvantages)
+    - [Multiplexing and De-multiplexing in UDP](#multiplexing-and-de-multiplexing-in-udp)
   - [`ICMP` (Internet Control Message Protocol)](#icmp-internet-control-message-protocol)
     - [Host Unreachable](#host-unreachable)
     - [Port Unreachable](#port-unreachable)
@@ -140,6 +144,7 @@
   - [Working](#working)
   - [Protocols Used](#protocols-used)
     - [TCP or UDP](#tcp-or-udp)
+    - [Directly on IP (TODO)](#directly-on-ip-todo)
   - [Important Examples](#important-examples)
     - [What if the sender is using TCP but the VPN uses UDP?](#what-if-the-sender-is-using-tcp-but-the-vpn-uses-udp)
 - [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
@@ -1259,20 +1264,87 @@ All data reaches the destination uncorrupted. For documents etc.
 
 ## `UDP` (User Datagram Protocol)
 
-### About
+### About the protocol
 
 - Layer 4 protocol
 - Ability to address specific process in a host, using ports.
 - Prior communication not required, which makes it faster, but also more unsecure.
 - It is considered stateless because it does not maintain any form of connection state or session information between the sender and receiver. 
 - In a UDP communication, each datagram (packet) is treated as an independent unit, without any knowledge of previous or future packets.
-- Datagram has an 8 byte header.
+
+### UDP Datagram
+
+- Enclosed in IP packet.
+- Has an 8 byte header, in the case of IPv4.
+- Fields in Header:
+  
+  - Ports (Source, as well as Destination) are 16 bit (0 to 65535).
+  
+  - Length (16 bits): This field indicates the length of the UDP datagram, including the header and the data payload. 
+    
+    The length is measured in bytes and ranges from 8 (minimum length for an empty UDP datagram) to 65,535 (maximum length).
+  
+  - Checksum (16 bits): The checksum field is used for error detection. It contains a checksum value calculated over the entire UDP datagram (header and data). 
+    
+    The checksum is computed at the sender and verified at the receiver to ensure the integrity of the UDP datagram. If the checksum at the receiver does not match the calculated value, the datagram is considered corrupted.
 
 ### Use Cases
 
 - Video streaming
+- Some VPN protocols
 - DNS
 
+### Advantages
+
+- Simple protocol
+- Header size is small so datagrams are small
+- Uses less bandwidth
+- Stateless, leading to less memory consumption (no state stored in server/client)
+- Low latency due to no handshake, ordering, re-transmission or guaranteed delivery.
+
+### Disadvantages
+
+- No acknowledgement, so no guarantee of delivery.
+- Connectionless - anyone can send data without prior knowledge.
+- No flow and congestion control.
+
+  We don't have any idea of whether the target can handle the amount of packets we are sending them.
+
+  Also, even if the network is congested, we would continue sending data at the same rate, resulting in the network becoming even more congested.
+
+  > ***Note***: Flow control can be separately implemented at the application-level, without having to use TCP. 
+  > 
+  > For example, we can regulate data by asking the server to send a message using UDP, specifying the amount of data it can take.
+
+- No ordered packets
+
+- Unsecure - can be easily spoofed
+
+  For example, suppose a DNS resolver functions using UDP, meaning no connection needs to be established. 
+
+  So, a bad actor could send hundreds of requests to the DNS resolver, with all the requests having the source IP address of the machine that they want to take down.
+
+  The DNS resolver would send responses to the target machine, even though the target machine did not send the requests; but it would still need to process the responses, taking up system resources.
+
+  If enough of such responses were received, it would result in the machine crashing.
+
+### Multiplexing and De-multiplexing in UDP
+
+- Multiplexing and de-multiplexing refer to the processes of combining multiple data streams into a single UDP datagram at the sender's side (*multiplexing*) and then correctly delivering and separating those data streams at the receiver's side (*de-multiplexing*).
+
+- You can imagine a multiplexed datagram as a set of pieces of data where each piece has different source and destination port numbers associated with it. 
+  
+  In a multiplexed UDP datagram, multiple application data units, known as *UDP segments*, are combined together into a single datagram for transmission.
+
+- Each *segment within the datagram* contains its own source port number, indicating the port/process from which the data originates, and destination port number, indicating the port/process to which the data should be delivered. 
+  
+  These *port numbers help in the de-multiplexing process* at the receiving end, where the data is extracted and forwarded to the appropriate application based on the port numbers.
+
+> ***Note***: The concept of multiplexing is not unique to UDP. 
+> 
+> Other protocols, such as TCP, also use multiplexing techniques to combine and transmit multiple data streams over a single connection.
+
+---
 
 ## `ICMP` (Internet Control Message Protocol)
 
@@ -1727,7 +1799,9 @@ Once, the packets/segments reach the VPN provider's server, the contents are dec
 
   For instance, the VPN protocol may include error correction, retransmission, or encryption at the VPN layer, making the transport layer (TCP or UDP) less significant in terms of reliability.
 
+### Directly on IP (TODO)
 
+VPN protocols directly based on IP
 
 ## Important Examples
 
