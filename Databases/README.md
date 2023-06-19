@@ -32,6 +32,7 @@
       - [Right Outer Join](#right-outer-join)
       - [Full Outer Join](#full-outer-join)
   - [Indexes](#indexes)
+  - [Unions](#unions)
   - [Views](#views)
   - [Stored Procedures](#stored-procedures)
   - [Triggers](#triggers)
@@ -198,9 +199,51 @@ A full outer join returns all rows from both tables, matching rows from each tab
 
 Indexes are used to improve the performance of data retrieval in a SQL database. They are used to quickly locate specific rows in a table based on the values in a specific column. Indexes can be created on one or multiple columns and can be unique or non-unique.
 
+## Unions
+
+A union is analogous to a join, the only difference being the way it joins tables.
+
+- In a regular join, the table gets an increase in the number of columns due to some kind of combination of columns from the participating tables.
+
+- In a union, the participating tables must have the same number of columns, because the records are simply combined into one table without any change in the number of columns.
+
+Here is an example of two tables:
+
+1. Customer Table:
+    | CustomerID |	CustomerName | ContactName | Address | City |	PostalCode | Country |
+    |-|-|-|-|-|-|-|
+
+2. Suppliers Table:
+    | SupplierID |	SupplierName | ContactName | Address | City |	PostalCode | Country | PhoneNo |
+    |-|-|-|-|-|-|-|-|
+
+- This is the query, for performing the union of the 2 tables:
+  ```sql
+  SELECT 'CUSTOMER' as PersonType, *, 'no phone lol' as PhoneNo FROM Customers;
+  UNION
+  SELECT 'SUPPLIER', * FROM Suppliers;
+  ORDER BY CustomerName;
+  ```
+
+  > ***Note***: The column names of the table obtained using `UNION`, are same as the column names of the first table, which is Customers in this case.
+
+---
+
 ## Views 
 
-A view is a virtual table that is based on the result of a SELECT statement. It does not store data but rather presents data from one or more tables in a specific format. Views can be used to simplify data access, hide sensitive data, or present data in a specific format for a specific user or application.
+- A view is a virtual table that is based on the result of a SELECT statement. 
+- It does not store data but rather simplifies the process of querying data from one or more tables in a specific format. 
+- Views can be used to simplify data access, hide sensitive data, or present data in a specific format for a specific user or application.
+
+> ***Note***: A view always shows up-to-date data, because the database engine re-creates the view , everytime a user queries it.
+
+- Basic syntax:
+  ```sql
+  CREATE VIEW view_name AS
+  SELECT column1, column2, ...
+  FROM table_name
+  WHERE condition;
+  ```
 
 ## Stored Procedures 
 
