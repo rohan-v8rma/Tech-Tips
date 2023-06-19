@@ -88,12 +88,16 @@
   - [Stateful Protocol](#stateful-protocol)
   - [Stateless and Stateful Protocols (TODO)](#stateless-and-stateful-protocols-todo)
   - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
+    - [About the protocol](#about-the-protocol)
+    - [About TCP connection](#about-tcp-connection)
     - [Format of a TCP segment](#format-of-a-tcp-segment)
+    - [Use cases](#use-cases)
+    - [Packets arriving out-of-order in TCP](#packets-arriving-out-of-order-in-tcp)
     - [Resources](#resources)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
-    - [About the protocol](#about-the-protocol)
+    - [About the protocol](#about-the-protocol-1)
     - [UDP Datagram](#udp-datagram)
-    - [Use Cases](#use-cases)
+    - [Use Cases](#use-cases-1)
     - [Advantages](#advantages)
     - [Disadvantages](#disadvantages)
     - [Multiplexing and De-multiplexing in UDP](#multiplexing-and-de-multiplexing-in-udp)
@@ -190,6 +194,9 @@
   - [2. Data-Link Layer](#2-data-link-layer)
   - [1. Physical Layer](#1-physical-layer)
 - [TCP-IP Model](#tcp-ip-model)
+- [Sockets](#sockets)
+    - [1. Network Sockets](#1-network-sockets)
+    - [2. UNIX Domain Sockets](#2-unix-domain-sockets)
 - [Proxy Servers](#proxy-servers)
   - [Forward Proxy](#forward-proxy)
   - [Reverse Proxy](#reverse-proxy)
@@ -211,6 +218,14 @@
   - [Distributed-Denial-of-Service (DDoS) attack](#distributed-denial-of-service-ddos-attack)
   - [Man-in-the-Middle Attacks](#man-in-the-middle-attacks)
     - [ARP poisoning attack](#arp-poisoning-attack)
+  - [SQL Injection Attack](#sql-injection-attack)
+    - [Classic SQL Injection](#classic-sql-injection)
+    - [Error-Based SQL Injection](#error-based-sql-injection)
+    - [Blind SQL Injection](#blind-sql-injection)
+      - [Time-Based Blind SQL Injection](#time-based-blind-sql-injection)
+      - [Boolean-Based Blind SQL Injection](#boolean-based-blind-sql-injection)
+    - [Union-Based SQL Injection](#union-based-sql-injection)
+    - [Second-Order SQL Injection](#second-order-sql-injection)
   - [Subdomain Takeover attack (TODO)](#subdomain-takeover-attack-todo)
   - [Cross Site Request Forgery (TODO)](#cross-site-request-forgery-todo)
   - [How is `referrer` information in web exploited (TODO)](#how-is-referrer-information-in-web-exploited-todo)
@@ -1249,11 +1264,42 @@ https://www.mygreatlearning.com/blog/stateful-vs-stateless/
 
 ## `TCP` (Transmission Control Protocol)
 
-All data reaches the destination uncorrupted. For documents etc.
+### About the protocol
+
+- Layer 4 protocol (so, has the ability to address processes in a host using ports).
+- "Controls" the transmission unlike UDP which is like a firehose.
+- Requires handshake and allows communication only if a connection exists (stateful).
+- Similar to an IP packet, a TCP segment has a minimum of 20 bytes of header, which can go up to 60 whe options are enabled.
+
+### About TCP connection
+
+- A TCP Connection can be considered part of Layer 5 (Session Layer).
+- Must create a connection before sending data, making spoofing difficult.
+- Connection identified by 4 properties:
+  - Source IP - Source Port
+  - Destination IP - Destination Port
+
+  The operating system hashes these 4 values and keeps it in a lookup table along with these corresponding values. This value is known as a **Socket File Descriptor**.
 
 ### Format of a TCP segment
 
 ![](./tcp-segment.webp)
+
+### Use cases
+
+- Reliable communication (Ensure accuracy of messages)
+- Database connections (SQL commands)
+- Web communications (HTTP)
+
+### Packets arriving out-of-order in TCP
+
+TCP can handle reordered packets successfully, but in practice reordering tends to cause significant performance issues. 
+
+For instance, if the other end sees packets in the order `1 2 4 3`, it will notice when it sees packet 4 that it has not yet seen packet 3, and request for the other end to resend it - and it will then receive packet 3 twice (the one originally sent plus the resend). 
+
+This results in bandwith being wasted (by sending packets twice unnecessarily), and also in reduced connection performance, since the sender will assume the "packet loss" it thinks it has seen is due to congestion, so it will slow down its sending.
+
+Therefore most quality switches and routers will go to quite some lengths to avoid packet reordering, and as part of this will try to send all packets from the same TCP stream along the same path (in case one path has higher latency than the other).
 
 ### Resources
 
@@ -2097,6 +2143,40 @@ Ultimately, the classification of encryption and decryption within the OSI model
 
 ---
 
+# Sockets
+
+Sockets are a communication endpoint that enables processes to communicate with each other. They provide an abstraction for inter-process communication.
+
+Sockets use the client-server model, where one process acts as the server and listens for incoming connections, while other processes act as clients and establish connections to the server. 
+
+Once a connection is established, processes can exchange data through the sockets.
+
+By using sockets, processes can send and receive data to exchange information, share resources, synchronize activities, or implement various communication patterns. Sockets provide a flexible and standardized way for processes to communicate, enabling a wide range of applications and distributed systems
+
+There are two types of sockets commonly used for Inter-process Communication:
+
+### 1. Network Sockets
+
+These sockets enable communication between processes over a network. They use network protocols such as TCP/IP or UDP/IP for data transmission. 
+
+Sockets are identified by an IP address and a port number, which together specify the destination of the communication. The IP address identifies the network node (such as a computer), and the port number specifies the specific service or application running on that node.
+
+Network sockets are commonly used for communication between processes running on different machines.
+
+They are widely used in network programming and form the foundation of many network protocols and applications, including web browsing, email, file transfer, and real-time communication systems. 
+
+
+### 2. UNIX Domain Sockets
+
+These sockets offer high performance and low overhead for communication between processes running on the same machine. 
+
+- They use files to store socket information in the file system namespace.
+- These type of sockets are created & accessed using file-system realted functions, and they are represented by ENTRIES in file system directory hierarchy.
+- So, a process can have its socket file (as if it is listening on a particular address), which other processes can open, send data to and receive data from; just like reading & writing regular files.
+- Each process that is participating in communication must have its own established socket.
+
+---
+
 # Proxy Servers
 
 Read cloudfare's article on Proxies: https://www.cloudflare.com/en-gb/learning/cdn/glossary/reverse-proxy/
@@ -2375,6 +2455,79 @@ By manipulating the ARP tables of other devices, the malicious device intercepts
 The goal of the ARP poisoning attack is to redirect network traffic through the attacker's device, giving them unauthorized access to the data being transmitted. This attack can be particularly harmful if the attacker is able to intercept and manipulate sensitive information, such as login credentials or financial transactions.
 
 To mitigate ARP poisoning attacks, network administrators can implement security measures such as ARP poisoning detection and prevention techniques. This may include using tools or protocols that monitor ARP traffic and detect abnormalities, implementing secure network configurations, and employing techniques like static ARP entries or ARP poisoning protection mechanisms.
+
+## SQL Injection Attack
+
+SQL Injection is a type of security vulnerability that occurs when an attacker is able to insert malicious SQL code into a query via user-supplied input. This can happen when user input is directly concatenated into SQL statements without proper sanitization or validation.
+
+SQL Injection attacks can have severe consequences as they allow attackers to manipulate the intended behavior of the SQL query and potentially gain unauthorized access to the underlying database or perform unauthorized operations. 
+
+Here are some common types of SQL Injection Attacks:
+
+### Classic SQL Injection
+
+This type of attack occurs when an attacker is able to inject malicious SQL code into a query by exploiting input fields that are directly concatenated into SQL statements. 
+
+For example, consider a login form where the username and password are concatenated into an SQL query without proper validation. 
+
+An attacker could input a malicious value such as `' OR '1'='1' --` as the username, which could manipulate the query to bypass authentication and log in as any user.
+
+### Error-Based SQL Injection
+
+Error-based SQL injection relies on exploiting SQL queries that generate error messages revealing information about the underlying database structure or data. 
+
+The attacker injects SQL code that intentionally causes an error, and the error message returned by the application contains valuable information that can be used to further exploit the vulnerability.
+
+For example, Go to http://esjindex.org/search.php?id=1, and try changing the id to `'`, which will give you an error along the lines of:
+```
+Warning: mysql_num_rows() expects parameter 1 to be resource...
+```
+
+### Blind SQL Injection
+
+In blind SQL injection, an attacker injects SQL code into a query but does not receive the actual query result in the response. The attacker leverages the application's behavior to infer information from the true/false responses or time delays. 
+
+#### Time-Based Blind SQL Injection 
+
+This is a variant of blind SQL injection where the attacker uses time delays to extract information. By injecting SQL code that introduces time delays, such as `AND SLEEP(5)`, the attacker can determine if the injected condition is true or false based on the observed delay in the application's response.
+
+#### Boolean-Based Blind SQL Injection
+
+Boolean-based SQL injection is referred to as "blind" because the attacker doesn't have direct visibility into the database responses or error messages. Instead, they rely on analyzing the application's behavior and the variations in the responses to infer information.
+
+In this type of attack, the attacker inserts malicious payloads into the application, which generate conditional queries. 
+
+There are two possibilities after this:
+
+1. The attackers subsequently analyze the website's responses, to determine whether the *first part of the conditional query* (which was actually written in the source code) evaluated to true OR false.
+    The first part of the conditional query might take longer when it evaluates to true, leading to a slower response time.
+
+2. The first part of the conditional query is always true (`username = ''`), as well as the injected condition (`'1'='1'`), which would result in all records being retrieved from the table.
+
+By injecting payloads that manipulate the application's behavior depending on whether the injected condition holds true or false, the attacker can gather insights about the underlying database structure or retrieve specific data.
+
+
+### Union-Based SQL Injection
+
+Union-based SQL injection is used when an attacker can inject a `SELECT` statement that retrieves additional data from other tables in the database. 
+
+Here is a simple example using `UNION` operator:
+```sql
+SELECT 'CUSTOMER' as PersonType, *, 'no phone lol' as PhoneNo FROM Customers;
+UNION
+SELECT 'SUPPLIER', * FROM Suppliers;
+ORDER BY CustomerName;
+```
+
+The injected SELECT statement is typically combined with a `UNION` operator to merge the attacker's results with the original query's results. 
+
+By leveraging the `UNION` operator, the attacker can extract data from other tables or infer information about the database structure.
+
+### Second-Order SQL Injection
+
+In second-order SQL injection, the initial injection occurs in one location, but the actual exploitation happens later when the injected data is used in a different context. For example, if user input is stored in a database and later used in dynamic SQL queries without proper validation, an attacker could inject malicious data during the initial input, which gets executed later in a different context.
+
+These are just a few examples of SQL Injection Attacks, and there are many other variants and techniques that attackers can employ. To protect against SQL Injection, it is crucial to adopt secure coding practices such as using parameterized queries or prepared statements, input validation, and sanitization to prevent user-supplied data from being executed as part of SQL statements.
 
 ## Subdomain Takeover attack (TODO)
 
