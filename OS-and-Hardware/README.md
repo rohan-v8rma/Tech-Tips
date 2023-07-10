@@ -1,18 +1,28 @@
 # INDEX
 
+Refer OS notes.
+
 - [INDEX](#index)
 - [What happens when a program runs?](#what-happens-when-a-program-runs)
 - [What is an Operating System?](#what-is-an-operating-system)
   - [How OS achieves the task of making programs easier to run (*Virtualization*)](#how-os-achieves-the-task-of-making-programs-easier-to-run-virtualization)
   - [How users interface with the OS to perform general operations (*System Calls* \& *Standard Library*)](#how-users-interface-with-the-os-to-perform-general-operations-system-calls--standard-library)
   - [How OS functions as a *Resource Manager*](#how-os-functions-as-a-resource-manager)
-  - [Different ways to represent dates in Software](#different-ways-to-represent-dates-in-software)
-    - [Epoch time](#epoch-time)
-    - [ISO 8601](#iso-8601)
-    - [Calendar date](#calendar-date)
-    - [Julian date](#julian-date)
-    - [`.NET` date time](#net-date-time)
-    - [UNIX timestamp](#unix-timestamp)
+- [Different ways to represent dates in Software](#different-ways-to-represent-dates-in-software)
+  - [Epoch time](#epoch-time)
+  - [ISO 8601](#iso-8601)
+  - [Calendar date](#calendar-date)
+  - [Julian date](#julian-date)
+  - [`.NET` date time](#net-date-time)
+  - [UNIX timestamp](#unix-timestamp)
+- [Parallelism and Concurrency](#parallelism-and-concurrency)
+  - [Simultaneous Multithreading](#simultaneous-multithreading)
+    - [What is meant by CPU having 4 cores and 8 threads?](#what-is-meant-by-cpu-having-4-cores-and-8-threads)
+    - [How is SMT different from threads created and scheduled by OS?](#how-is-smt-different-from-threads-created-and-scheduled-by-os)
+    - [How is SMT implemented? (Difference in hardware from Non-SMT)](#how-is-smt-implemented-difference-in-hardware-from-non-smt)
+      - [Register File](#register-file)
+      - [Program Counter](#program-counter)
+      - [Execution Pipelines](#execution-pipelines)
 - [TODO](#todo)
   - [A deep dive into Virtualization](#a-deep-dive-into-virtualization)
   - [Concurrency](#concurrency)
@@ -101,31 +111,88 @@ Because of this, the OS is sometimes known as as ***Resource Manager***
 
 The CPU, memory and disk are ***resources*** of the system, which the OS transforms into *virtual* resources. It then needs to ***manage*** these, doing so efficiently or fairly or indeed with many other possible goals in mind.
 
-## Different ways to represent dates in Software
+# Different ways to represent dates in Software
 
-### Epoch time
+## Epoch time
 
 This is the number of seconds that have elapsed since January 1, 1970 (UTC). This is a commonly used representation in computer systems and programming languages.
 
-### ISO 8601
+## ISO 8601
 
 This is an international standard for representing date and time in a machine-readable format. It uses the format `YYYY-MM-DDTHH:MM:SS`.
 
-### Calendar date
+## Calendar date
 
 This is the traditional way of representing a date, using the format `MM/DD/YYYY` or `DD/MM/YYYY`. This format is often used in human-readable interfaces and user input.
 
-### Julian date
+## Julian date
 
 A Julian date is the number of days that have elapsed since January 1, 4713 BC (Julian calendar). It is widely used in astronomical applications.
 
-### `.NET` date time
+## `.NET` date time
 
 `.NET` Framework provides a set of date and time classes in the System namespace that are designed for both local and global use. It is widely used in Microsoft applications.
 
-### UNIX timestamp
+## UNIX timestamp
 
 similar to Epoch time but the reference point is January 1, 1970 (UTC) but not limited to seconds but also includes milliseconds, microseconds and nanoseconds.
+
+---
+
+# Parallelism and Concurrency
+
+## Simultaneous Multithreading
+
+### What is meant by CPU having 4 cores and 8 threads?
+
+This is known as simultaneous multi-threading, where the CPU has hardware level support for concurrent execution (read ahead to know what is different in the hardware).
+
+With SMT, each physical core appears as multiple logical cores to the operating system. 
+
+For example, a dual-core processor with SMT would appear as four logical cores to the OS. Each logical core can execute its own thread independently, allowing for concurrent execution of multiple threads on a single physical core.
+
+### How is SMT different from threads created and scheduled by OS?
+
+- OS level threads need to be created and managed by OS. 
+
+  They need to be scheduled according to loads on various cores, by the OS, using some type of scheduling algorithm.
+
+  Special code needs to be written for handling these type of threads.
+
+- In the case of SMT, the threads in a CPU are available as distinct logical cores to the OS,
+  which can be used as a physical core would be.
+
+  No special code is required for enabling this concurrent behavior, as it is already looked after by the CPU manufacturer.
+
+### How is SMT implemented? (Difference in hardware from Non-SMT)
+
+It involves duplicating certain components within a physical core to support simultaneous execution of multiple threads. 
+
+Each logical core within a physical core has its own set of architectural registers, program counters, and execution pipelines, **allowing independent instruction streams to be executed concurrently**.
+
+> ***Note***: These independent instruction streams can include instructions from various OS level threads that are executing concurrently, on the OS level.
+>
+> So, a 4 core 8 thread processor could be running more than 8 processes at a time due to **OS levl thread creating and scheduling**.
+
+By duplicating these components, SMT enables the processor to schedule and execute instructions from different threads in parallel, effectively utilizing idle resources within a physical core. This improves overall performance and throughput, especially in situations where there are multiple threads with independent instruction streams.
+
+From the perspective of the operating system, SMT appears as if there are more cores available than the actual physical cores. The OS can schedule threads onto these logical cores, and **the processor's hardware takes care of interleaving and executing the instructions from different threads concurrently**.
+
+The primary components that are duplicated in an SMT implementation include:
+
+#### Register File
+
+Each logical core has its own set of architectural registers, allowing independent register state for each thread. This allows simultaneous execution of multiple threads without interfering with each other's register state.
+
+#### Program Counter
+
+Each logical core maintains its own program counter, which keeps track of the currently executing instruction for that thread. This enables each thread to independently fetch and execute instructions without relying on a shared program counter.
+
+#### Execution Pipelines
+
+SMT typically includes multiple execution pipelines within a physical core, allowing simultaneous execution of instructions from different threads. These pipelines may be duplicated or augmented to handle the increased instruction throughput.
+
+---
 
 # TODO
 
