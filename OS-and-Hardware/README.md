@@ -23,6 +23,7 @@ Refer OS notes.
       - [Register File](#register-file)
       - [Program Counter](#program-counter)
       - [Execution Pipelines](#execution-pipelines)
+  - [Why can't we have an unlimited number of cores?](#why-cant-we-have-an-unlimited-number-of-cores)
 - [TODO](#todo)
   - [A deep dive into Virtualization](#a-deep-dive-into-virtualization)
   - [Concurrency](#concurrency)
@@ -191,6 +192,26 @@ Each logical core maintains its own program counter, which keeps track of the cu
 #### Execution Pipelines
 
 SMT typically includes multiple execution pipelines within a physical core, allowing simultaneous execution of instructions from different threads. These pipelines may be duplicated or augmented to handle the increased instruction throughput.
+
+---
+
+## Why can't we have an unlimited number of cores?
+
+See this video to get core info: https://www.youtube.com/watch?v=dMejriBC_Kc&t=382s
+
+1. **IO Operations and Memory Speed:** As the number of cores increases, the demand for IO (Input/Output) operations also increases. IO operations involve communication with peripherals, storage devices, network interfaces, and other external resources. 
+
+   These operations often require waiting for data transfers or responses, which can lead to core idle time. 
+   
+   Additionally, the speed of RAM (Random Access Memory) is generally slower compared to the speed of CPU cores. 
+   
+   As a result, when there are a large number of cores, they can be frequently stalled waiting for data from memory, limiting their overall performance.
+
+2. **Heat Dissipation and Throttling:** Increasing the number of cores on a single chip leads to a higher density of components, resulting in concentrated heat generation. 
+   
+   This concentration of heat can cause overheating issues if not properly managed. To prevent overheating, processors employ thermal management techniques, including throttling, which reduces the operating frequency or performance of the cores when they reach certain temperature thresholds. 
+   
+   Throttling is necessary to protect the chip from damage, but it also reduces the throughput per core, impacting the overall performance.
 
 ---
 
