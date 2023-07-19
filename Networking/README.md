@@ -87,6 +87,21 @@
   - [What is a Network Protocol?](#what-is-a-network-protocol)
   - [Stateful Protocol](#stateful-protocol)
   - [Stateless and Stateful Protocols (TODO)](#stateless-and-stateful-protocols-todo)
+  - [`IP` (Internet Protocol)](#ip-internet-protocol)
+    - [Basic Description (TODO)](#basic-description-todo)
+    - [Introduction to `IP` packets](#introduction-to-ip-packets)
+    - [Structure of `IP` packets](#structure-of-ip-packets)
+      - [1. Version field](#1-version-field)
+      - [2. IHL (Internet Header Length)](#2-ihl-internet-header-length)
+      - [3. Total Length](#3-total-length)
+      - [*Fields useful for implementing packet fragmentation*](#fields-useful-for-implementing-packet-fragmentation)
+        - [4. Identification](#4-identification)
+        - [5. Flags](#5-flags)
+        - [6. Fragment Offset](#6-fragment-offset)
+      - [7. Time To Live](#7-time-to-live)
+      - [8. Protocol](#8-protocol)
+      - [9. Explicit Congestion Notification (ECN)](#9-explicit-congestion-notification-ecn)
+    - [How IPv6 packets are different](#how-ipv6-packets-are-different)
   - [`TCP` (Transmission Control Protocol)](#tcp-transmission-control-protocol)
     - [About the protocol](#about-the-protocol)
     - [About TCP connection](#about-tcp-connection)
@@ -96,6 +111,7 @@
     - [Congestion Control (Network Congestion)](#congestion-control-network-congestion)
       - [Slow Start](#slow-start)
       - [Congestion Avoidance](#congestion-avoidance)
+      - [`ECN` flag in IP packets used by routers to convey congestion to session layer](#ecn-flag-in-ip-packets-used-by-routers-to-convey-congestion-to-session-layer)
     - [Packets arriving out-of-order in TCP](#packets-arriving-out-of-order-in-tcp)
     - [Is a new socket created by a server when it accepts a SYN request received from a client?](#is-a-new-socket-created-by-a-server-when-it-accepts-a-syn-request-received-from-a-client)
     - [Resources](#resources)
@@ -118,21 +134,6 @@
         - [2. Timeout Adjustment](#2-timeout-adjustment)
         - [3. Disable Reverse DNS Lookups](#3-disable-reverse-dns-lookups)
     - [Packets Getting Dropped due to Buffer Overflow](#packets-getting-dropped-due-to-buffer-overflow)
-  - [`IP` (Internet Protocol)](#ip-internet-protocol)
-    - [Basic Description (TODO)](#basic-description-todo)
-    - [Introduction to `IP` packets](#introduction-to-ip-packets)
-    - [Structure of `IP` packets](#structure-of-ip-packets)
-      - [1. Version field](#1-version-field)
-      - [2. IHL (Internet Header Length)](#2-ihl-internet-header-length)
-      - [3. Total Length](#3-total-length)
-      - [*Fields useful for implementing packet fragmentation*](#fields-useful-for-implementing-packet-fragmentation)
-        - [4. Identification](#4-identification)
-        - [5. Flags](#5-flags)
-        - [6. Fragment Offset](#6-fragment-offset)
-      - [7. Time To Live](#7-time-to-live)
-      - [8. Protocol](#8-protocol)
-      - [9. Explicit Congestion Notification (ECN)](#9-explicit-congestion-notification-ecn)
-    - [How IPv6 packets are different](#how-ipv6-packets-are-different)
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
     - [What are "Resources"?](#what-are-resources)
     - [`HTTP` request methods](#http-request-methods)
@@ -1283,6 +1284,144 @@ https://www.mygreatlearning.com/blog/stateful-vs-stateless/
 
 ---
 
+## `IP` (Internet Protocol)
+
+### Basic Description (TODO)
+
+### Introduction to `IP` packets
+
+- It has headers and data sections.
+- The header section is 20 bytes, and can go up to 60 bytes if options are enabled.
+
+  This would be an incredible waste of bandwidth, if we just wanted to send 1 byte of data, and had to send 20 additional bytes along with it.
+
+### Structure of `IP` packets
+
+According to the OSI model, the IP packet is essentially a TCP segment, bundled with a bunch of headers, which also include the source and destination IP address.
+
+However, the actual structure of an IP packet looks somewhat like this:
+
+![](./ip-packet.png)
+
+#### 1. Version field
+
+- Takes up 4 bits. 
+- Used to specify whether it is a `v4` or a `v6` packet.
+- For `v4`, an IP address takes up 32 bits.
+- For `v6`, an IP address takes up 128 bits.
+
+#### 2. IHL (Internet Header Length)
+
+- Takes up 4 bits.
+- Specifies the number of 32-bit words in the header of the IP packet.
+- The default value is 5, i.e., 160 bits or 20 bytes. No options are included in this.
+- The max value is 15 i.e., 480 bits or 60 bytes. This is with the maximum size of the options field.
+
+#### 3. Total Length
+
+- Takes up 16 bits
+- So, the maximum value it can hold is, *2<sup>16</sup>-1 = 65535*
+- This is why, the total size of an IP packet is limited to 65535 bytes (including a 20-60 byte header).
+
+---
+
+#### *Fields useful for implementing packet fragmentation*
+
+##### 4. Identification
+
+- It serves the purpose of uniquely identifying a fragmented IP packet.
+- When an IP packet is fragmented, the Identification field is set to the same value for all the fragments belonging to the same original packet. 
+
+  This allows the receiving host to identify and reassemble the original packet correctly.
+
+##### 5. Flags
+
+- Provides control information for packet fragmentation.
+- Consists of 3 individual flags.
+  - **"Reserved" (bit 0)**
+
+    This bit is reserved for future use and must be set to 0.
+  - **"Don't Fragment" (bit 1)**
+    
+    When this flag is set to 1, it indicates that the packet should not be fragmented. 
+    
+    If a router determines that the packet needs to be fragmented but the "Don't Fragment" flag is set, the packet will be dropped.
+  - **"More Fragments" (bit 2)**
+    
+    This flag is set to 1 for all fragments except the last one in a series. 
+    
+    It indicates that more fragments follow and that the receiving host should continue reassembling the packet.
+
+##### 6. Fragment Offset
+
+- Takes up 13 bits.
+- When an IP packet is fragmented, each fragment is assigned a Fragment Offset value that represents the position of the fragment's data relative to the original unfragmented packet. 
+- The Fragment Offset is measured in units of 8 bytes (64 bits). 
+- By examining the Fragment Offset values, the receiving host can correctly reassemble the fragments in the correct order to reconstruct the original packet.
+
+---
+
+#### 7. Time To Live
+
+- Read up on it what it means [above](#time-to-live-ttl).
+-  Uses 8 bits.
+-  So the maximum number of hops an IP packet can travel is *2<sup>8</sup>-1 = 255*.
+-  This field is **decremented** with each hop.
+-  In a case when a packet is having to take a longer path, an intermediate client may increase the number to prevent it from happening.
+#### 8. Protocol
+- Uses 8 bits.
+- Tells the protocol used in the string of bits in the data section of the packet. 
+
+ E.g: [TCP](#tcp-transmission-control-protocol), [UDP](#udp-user-datagram-protocol), etc.
+- Without it, it would NOT be possible to determine what protocol is used, resulting in the data section being just a meaningless string of bits.
+- It allows clients to determine the protocol being used easily and drop packets of protocols that have been blocked.
+- Each protocol is assigned a specific number is known as the **Protocol Identifier**.
+  - 6: TCP (Transmission Control Protocol)
+  - 17: UDP (User Datagram Protocol)
+  - 1: ICMP (Internet Control Message Protocol)
+
+#### 9. Explicit Congestion Notification (ECN)
+
+- Traditionally, network congestion is detected and managed through implicit methods, such as packet drops. 
+  
+  When a network becomes congested, routers may discard packets due to filling of buffer memory, and the endpoints interpret this as an indication of congestion and respond by reducing their transmission rates. 
+  
+  However, relying solely on packet drops as an indicator of congestion can lead to unnecessary latency and inefficiency, since the time out period must complete every time congestion occurs.
+- ECN is a low-level and easy way of informing endpoints about congestion.
+- Uses 2 bits.
+  - **ECN-Capable Transport (ECT)**
+
+    This indication is set by the sender in the IP header to signal that it supports ECN. 
+    
+    It informs the network that the sender is willing to reduce its transmission rate if congestion is detected.
+  - **Congestion Experienced (CE)**
+
+    This indication is set by routers to mark packets that have encountered congestion along their path. 
+
+    The CE marking notifies the receiver that congestion has been encountered and that it should adjust its behavior accordingly.
+
+- When the CE bit is set, this information can be passed up the OSI layers.
+  
+- The IP layer can pass this ECN information to the TCP layer by setting specific flags in the TCP header. 
+  
+  These flags are known as the ECN bits in the TCP header, and they provide information about congestion to the TCP layer.
+
+  Read up on the related flags in the TCP header, under [How is `ECN` flag in IP packets used by routers to convey congestion to session layer](#how-is-ecn-flag-in-ip-packets-used-by-routers-to-convey-congestion-to-session-layer), below.
+
+- 
+
+
+---
+
+### How IPv6 packets are different
+
+The fields discussed above are assuming that we are discussing IPv4 packets. 
+
+An IPv6 header has some of the fields in common, but not all of them:
+![](comparing-ipv4-and-ipv6-headers.png)
+
+---
+
 ## `TCP` (Transmission Control Protocol)
 
 ### About the protocol
@@ -1384,6 +1523,27 @@ https://www.mygreatlearning.com/blog/stateful-vs-stateless/
   2. Sender waits for the ACKs for these 3 packets.
   3. Once the ACKs are received, the congestion window size is bumped up to 4 (`cwnd` = 3+1 = 4).
   4. Sender now sends 4 segments, and so on.
+
+#### `ECN` flag in IP packets used by routers to convey congestion to session layer
+
+Read up about [`ECN`](#9-explicit-congestion-notification-ecn) above, for a little bit of background.
+
+There are two ECN-related flags in the **TCP header**:
+
+  - **ECE (ECN-Echo)**
+    
+    This flag is set by the sender to indicate that it has received an IP packet with the CE (Congestion Experienced) marking. 
+    
+    It informs the receiver that congestion has been encountered along the network path.
+
+  - **CWR (Congestion Window Reduced)**
+  
+    This flag is set by the receiver to indicate that it has reduced its congestion window size in response to congestion indications received from the network layer.
+
+- When the receiver's IP layer detects the `CE` marking in an incoming packet, it sets the `ECE` flag in the **TCP header** of the acknowledgment (ACK) packet it sends back to the sender. 
+  
+  This informs the sender that congestion has been encountered and that it should respond accordingly.
+
 ---
 
 ### Packets arriving out-of-order in TCP
@@ -1595,156 +1755,6 @@ Disabling reverse DNS lookups can reduce the impact of these inaccuracies and pr
 Routers have limited buffer capacity to temporarily store incoming packets before forwarding them. 
 
 If the incoming packet rate exceeds the capacity of the router's buffers, packets may be dropped to prevent buffer overflow. 
-
----
-
-## `IP` (Internet Protocol)
-
-### Basic Description (TODO)
-
-### Introduction to `IP` packets
-
-- It has headers and data sections.
-- The header section is 20 bytes, and can go up to 60 bytes if options are enabled.
-
-  This would be an incredible waste of bandwidth, if we just wanted to send 1 byte of data, and had to send 20 additional bytes along with it.
-
-### Structure of `IP` packets
-
-According to the OSI model, the IP packet is essentially a TCP segment, bundled with a bunch of headers, which also include the source and destination IP address.
-
-However, the actual structure of an IP packet looks somewhat like this:
-
-![](./ip-packet.png)
-
-#### 1. Version field
-
-- Takes up 4 bits. 
-- Used to specify whether it is a `v4` or a `v6` packet.
-- For `v4`, an IP address takes up 32 bits.
-- For `v6`, an IP address takes up 128 bits.
-
-#### 2. IHL (Internet Header Length)
-
-- Takes up 4 bits.
-- Specifies the number of 32-bit words in the header of the IP packet.
-- The default value is 5, i.e., 160 bits or 20 bytes. No options are included in this.
-- The max value is 15 i.e., 480 bits or 60 bytes. This is with the maximum size of the options field.
-
-#### 3. Total Length
-
-- Takes up 16 bits
-- So, the maximum value it can hold is, *2<sup>16</sup>-1 = 65535*
-- This is why, the total size of an IP packet is limited to 65535 bytes (including a 20-60 byte header).
-
----
-
-#### *Fields useful for implementing packet fragmentation*
-
-##### 4. Identification
-
-- It serves the purpose of uniquely identifying a fragmented IP packet.
-- When an IP packet is fragmented, the Identification field is set to the same value for all the fragments belonging to the same original packet. 
-
-  This allows the receiving host to identify and reassemble the original packet correctly.
-
-##### 5. Flags
-
-- Provides control information for packet fragmentation.
-- Consists of 3 individual flags.
-  - **"Reserved" (bit 0)**
-
-    This bit is reserved for future use and must be set to 0.
-  - **"Don't Fragment" (bit 1)**
-    
-    When this flag is set to 1, it indicates that the packet should not be fragmented. 
-    
-    If a router determines that the packet needs to be fragmented but the "Don't Fragment" flag is set, the packet will be dropped.
-  - **"More Fragments" (bit 2)**
-    
-    This flag is set to 1 for all fragments except the last one in a series. 
-    
-    It indicates that more fragments follow and that the receiving host should continue reassembling the packet.
-
-##### 6. Fragment Offset
-
-- Takes up 13 bits.
-- When an IP packet is fragmented, each fragment is assigned a Fragment Offset value that represents the position of the fragment's data relative to the original unfragmented packet. 
-- The Fragment Offset is measured in units of 8 bytes (64 bits). 
-- By examining the Fragment Offset values, the receiving host can correctly reassemble the fragments in the correct order to reconstruct the original packet.
-
----
-
-#### 7. Time To Live
-
-- Read up on it what it means [above](#time-to-live-ttl).
--  Uses 8 bits.
--  So the maximum number of hops an IP packet can travel is *2<sup>8</sup>-1 = 255*.
--  This field is **decremented** with each hop.
--  In a case when a packet is having to take a longer path, an intermediate client may increase the number to prevent it from happening.
-#### 8. Protocol
-- Uses 8 bits.
-- Tells the protocol used in the string of bits in the data section of the packet. 
-
- E.g: [TCP](#tcp-transmission-control-protocol), [UDP](#udp-user-datagram-protocol), etc.
-- Without it, it would NOT be possible to determine what protocol is used, resulting in the data section being just a meaningless string of bits.
-- It allows clients to determine the protocol being used easily and drop packets of protocols that have been blocked.
-- Each protocol is assigned a specific number is known as the **Protocol Identifier**.
-  - 6: TCP (Transmission Control Protocol)
-  - 17: UDP (User Datagram Protocol)
-  - 1: ICMP (Internet Control Message Protocol)
-
-#### 9. Explicit Congestion Notification (ECN)
-
-- Traditionally, network congestion is detected and managed through implicit methods, such as packet drops. 
-  
-  When a network becomes congested, routers may discard packets due to filling of buffer memory, and the endpoints interpret this as an indication of congestion and respond by reducing their transmission rates. 
-  
-  However, relying solely on packet drops as an indicator of congestion can lead to unnecessary latency and inefficiency, since the time out period must complete every time congestion occurs.
-- ECN is a low-level and easy way of informing endpoints about congestion.
-- Uses 2 bits.
-  - **ECN-Capable Transport (ECT)**
-
-    This indication is set by the sender in the IP header to signal that it supports ECN. 
-    
-    It informs the network that the sender is willing to reduce its transmission rate if congestion is detected.
-  - **Congestion Experienced (CE)**
-
-    This indication is set by routers to mark packets that have encountered congestion along their path. 
-
-    The CE marking notifies the receiver that congestion has been encountered and that it should adjust its behavior accordingly.
-
-- When the CE bit is set, this information can be passed up the OSI layers.
-  
-- The IP layer can pass this ECN information to the TCP layer by setting specific flags in the TCP header. 
-  
-  These flags are known as the ECN bits in the TCP header, and they provide information about congestion to the TCP layer.
-
-- There are two ECN-related flags in the TCP header:
-
-  - **ECE (ECN-Echo)**
-    
-    This flag is set by the sender to indicate that it has received an IP packet with the CE (Congestion Experienced) marking. 
-    
-    It informs the receiver that congestion has been encountered along the network path.
-
-  - **CWR (Congestion Window Reduced)**
-  
-    This flag is set by the receiver to indicate that it has reduced its congestion window size in response to congestion indications received from the network layer.
-
-- When the receiver's IP layer detects the CE marking in an incoming packet, it sets the ECE flag in the TCP header of the acknowledgment (ACK) packet it sends back to the sender. 
-  
-  This informs the sender that congestion has been encountered and that it should respond accordingly.
-
-
----
-
-### How IPv6 packets are different
-
-The fields discussed above are assuming that we are discussing IPv4 packets. 
-
-An IPv6 header has some of the fields in common, but not all of them:
-![](comparing-ipv4-and-ipv6-headers.png)
 
 ---
 
