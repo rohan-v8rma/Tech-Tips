@@ -92,6 +92,10 @@
     - [About TCP connection](#about-tcp-connection)
     - [Format of a TCP segment](#format-of-a-tcp-segment)
     - [Use cases](#use-cases)
+    - [Flow Control (Windows \& Window Scaling Factor)](#flow-control-windows--window-scaling-factor)
+    - [Congestion Control (Network Congestion)](#congestion-control-network-congestion)
+      - [Slow Start](#slow-start)
+      - [Congestion Avoidance](#congestion-avoidance)
     - [Packets arriving out-of-order in TCP](#packets-arriving-out-of-order-in-tcp)
     - [Is a new socket created by a server when it accepts a SYN request received from a client?](#is-a-new-socket-created-by-a-server-when-it-accepts-a-syn-request-received-from-a-client)
     - [Resources](#resources)
@@ -1296,17 +1300,91 @@ https://www.mygreatlearning.com/blog/stateful-vs-stateless/
   - Source IP - Source Port
   - Destination IP - Destination Port
 
-  The operating system hashes these 4 values and keeps it in a lookup table along with these corresponding values. This value is known as a **Socket File Descriptor**.
+- The operating system hashes these 4 values and keeps it in a lookup table along with these corresponding values. This value is known as a **Socket File Descriptor**.
+  
+  When a segment arrives, the OS quickly looks up the hash of these details to see if a connection has been established or not.
 
 ### Format of a TCP segment
 
-![](./tcp-segment.webp)
+![](./tcp-segment.png)
 
 ### Use cases
 
 - Reliable communication (Ensure accuracy of messages)
 - Database connections (SQL commands)
 - Web communications (HTTP)
+
+### Flow Control (Windows & Window Scaling Factor)
+
+- As specified in notes, **Window Size** and **Scaling Factor** are decided upon during the 3-way handshake, which helps make it clear how much data throughput the receiver on each end can handle, without packet drops occurring. 
+
+- It is important to think of this as a way of increasing/decreasing the rate of data transmission, rather than the typical definition that mentions ***unacknowledged data***.
+
+- Since the sender has to wait for acknowledgements before sending more data, this IDLE PERIOD or WAITING **reduces the rate of transmission**.
+
+- The point to note here is that the window size is a 16 bit field in the header. 
+  
+  So, it can hold a max value of 2^16-1, which is 65535, meaning the window size can be a max of 64KB.
+
+- This is an extremely small size for modern times, which is where **Window Scaling Factor** comes in.
+  
+  It is carried in an optional field in the TCP header, called **Window Scale**, that can have a value ranging from 0 (scale by 2^0) to 14 (scale by 2^14).
+  
+- This scaling factor for the window is captured only during the 3-way handshake, and stays the same for the remaining duration of the connection.
+
+- Watch this video for visualizing using wireshark: https://www.youtube.com/watch?v=2PJVHvthrNU.
+
+### Congestion Control (Network Congestion)
+
+- As specified above, window size can help minimize packet drops at the receiver's end by controlling the end-to-end rate of transmission. 
+
+- But, it is possible that intermediate devices like routers and switches are NOT capable of handling the rate of data flow that is determined by the send and receive window size. 
+  
+  This can result in a scenario known as **Network Congestion**.
+
+- They can be busy with packets received from other parties or they may have less processing power.
+  
+  This can cause filling of their buffers faster than they can route the packets to their destination.
+
+  If the buffers get full, packets are dropped which result in bandwidth wastage due to re-transmission.
+
+- TCP uses various mechanisms to control the rate at which data is transmitted over a network, to minimize this type of situation.
+  
+- They use the concept of a **congestion window** (`cwnd`), that determines the number of packets allowed in flight at any given time.
+
+#### Slow Start
+
+- Slow Start is the inital phase of TCP congestion control, where sender start transmission slowly but increases rate of transmission exponentially.
+
+- This mechanism helps avoid overwhelming the network with a burst of packets and allows the sender to probe the available bandwidth.
+
+- The sender starts by sending a small number of packets and then doubles the number of packets sent in each round-trip time (`RTT`).
+  
+  > ***Note***: If the sender sends 4 segments, the time till the ACK for the fourth segment is received is classified as the `RTT``.
+
+  This can be understood with the help of an example:
+  
+  1. Sender sends 1 packet.
+  2. Sender waits for the acknowledgment (ACK) for that packet.
+  3. Once the ACK is received, the sender sends 2 packets.
+  4. Sender waits for the ACKs for these 2 packets.
+  5. Once the ACKs are received, the sender sends 4 packets.
+  6. Sender waits for the ACKs for these 4 packets.
+  
+  This process continues until a *congestion threshold* or the **max permissible congestion window** size, is reached.
+
+#### Congestion Avoidance
+
+- This mechanism kicks in when the *congestion threshold* is reached and the network is carrying more data that it can handle.
+- It aims to prevent **congestion collapse**, where performance of a network deteriorates significantly due to excessive congestion.
+- The sender increases the rate of transmission more gradually by adding one packet for each RTT, unlike Slow Start which doubled the packet count each RTT.
+
+  Taking another example:
+  1. Sender sends 3 segments (`cwnd` = 3).
+  2. Sender waits for the ACKs for these 3 packets.
+  3. Once the ACKs are received, the congestion window size is bumped up to 4 (`cwnd` = 3+1 = 4).
+  4. Sender now sends 4 segments, and so on.
+---
 
 ### Packets arriving out-of-order in TCP
 
