@@ -112,6 +112,7 @@
       - [Slow Start](#slow-start)
       - [Congestion Avoidance](#congestion-avoidance)
       - [`ECN` flag in IP packets used by routers to convey congestion to session layer](#ecn-flag-in-ip-packets-used-by-routers-to-convey-congestion-to-session-layer)
+      - [What happens when congestion is actually detected by session layer?](#what-happens-when-congestion-is-actually-detected-by-session-layer)
     - [Packets arriving out-of-order in TCP](#packets-arriving-out-of-order-in-tcp)
     - [Is a new socket created by a server when it accepts a SYN request received from a client?](#is-a-new-socket-created-by-a-server-when-it-accepts-a-syn-request-received-from-a-client)
     - [Resources](#resources)
@@ -1490,6 +1491,10 @@ An IPv6 header has some of the fields in common, but not all of them:
 - TCP uses various mechanisms to control the rate at which data is transmitted over a network, to minimize this type of situation.
   
 - They use the concept of a **congestion window** (`cwnd`), that determines the number of packets allowed in flight at any given time.
+  
+  > *Note*: It may be obvious, but it is important to keep in mind that **congestion window size** CANNOT be greater than **receiver window size**.
+  >  
+  > This is because packet drops will occur at the receiver-end, even if they don't get dropped along the network route.
 
 #### Slow Start
 
@@ -1510,19 +1515,23 @@ An IPv6 header has some of the fields in common, but not all of them:
   5. Once the ACKs are received, the sender sends 4 packets.
   6. Sender waits for the ACKs for these 4 packets.
   
-  This process continues until a *congestion threshold* or the **max permissible congestion window** size, is reached.
+- This process continues until a *slow start threshold* or the **max permissible congestion window** size, is reached. 
+
+  The initial value of the *slow start threshold* is set based on the **Maximum Segment Size** (`MSS`) of the TCP connection.
 
 #### Congestion Avoidance
 
-- This mechanism kicks in when the *congestion threshold* is reached and the network is carrying more data that it can handle.
-- It aims to prevent **congestion collapse**, where performance of a network deteriorates significantly due to excessive congestion.
-- The sender increases the rate of transmission more gradually by adding one packet for each RTT, unlike Slow Start which doubled the packet count each RTT.
+- This mechanism kicks in when the *slow start threshold* is reached. 
+
+- In Congestion Avoidance, the sender uses an additive increase for each RTT, rather than an exponential increase per RTT as in the slow start phase.
 
   Taking another example:
   1. Sender sends 3 segments (`cwnd` = 3).
   2. Sender waits for the ACKs for these 3 packets.
   3. Once the ACKs are received, the congestion window size is bumped up to 4 (`cwnd` = 3+1 = 4).
-  4. Sender now sends 4 segments, and so on.
+  4. Sender now sends 4 segments, and so on.  
+
+- It aims to prevent **congestion collapse**, where performance of a network deteriorates significantly due to excessive congestion.
 
 #### `ECN` flag in IP packets used by routers to convey congestion to session layer
 
@@ -1543,6 +1552,20 @@ There are two ECN-related flags in the **TCP header**:
 - When the receiver's IP layer detects the `CE` marking in an incoming packet, it sets the `ECE` flag in the **TCP header** of the acknowledgment (ACK) packet it sends back to the sender. 
   
   This informs the sender that congestion has been encountered and that it should respond accordingly.
+
+#### What happens when congestion is actually detected by session layer?
+
+- The *slow start threshold* (congestion window size at which **congestion avoidance** kicks in) is reduced to half of whatever unacknowledged data is sent.
+
+  - This is roughly equal to `cwnd`/2 if all `cwnd` worth of data is unacknowledged, but can be lesser.
+  - It also means that the *slow start threshold* will be reached faster than before.
+
+  > ***Note***: The lowest value the *slow start threshold* can be reduced to is twice the `MSS` (Maximum Segment Size).
+
+- The actual **congestion window size** is reset to 1*`MSS` (quite a big hit to the application), and we begin with Slow Start, followed by Congestion Avoidance, again.
+
+- Here is a graph depicting the congestion window size:
+  ![](./slow-start-vs-congestion-avoidance.png)
 
 ---
 
