@@ -93,6 +93,7 @@
     - [Format of a TCP segment](#format-of-a-tcp-segment)
     - [Use cases](#use-cases)
     - [Packets arriving out-of-order in TCP](#packets-arriving-out-of-order-in-tcp)
+    - [Is a new socket created by a server when it accepts a SYN request received from a client?](#is-a-new-socket-created-by-a-server-when-it-accepts-a-syn-request-received-from-a-client)
     - [Resources](#resources)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
     - [About the protocol](#about-the-protocol-1)
@@ -1317,6 +1318,21 @@ This results in bandwith being wasted (by sending packets twice unnecessarily), 
 
 Therefore most quality switches and routers will go to quite some lengths to avoid packet reordering, and as part of this will try to send all packets from the same TCP stream along the same path (in case one path has higher latency than the other).
 
+### Is a new socket created by a server when it accepts a SYN request received from a client?
+
+- Yes, when a server receives a SYN (synchronize) request from a client, it typically creates a new socket to handle the communication over the newly established connection. 
+
+  This new socket is specific to that particular client and is used for bidirectional communication between the client and the server.
+
+- The server's listening socket, which is *responsible for accepting incoming connections*, remains available to accept new connection requests from other clients. 
+  
+  Once the server accepts the connection request from a client, it creates a new socket (often referred to as a "child" socket) to handle the ongoing communication with that client. 
+
+  The server can have multiple child sockets, each corresponding to a different client connection.
+
+- By creating a new socket for each client connection, the server can manage and handle simultaneous communication with multiple clients independently. 
+  
+  This allows for parallel processing and enables efficient handling of multiple client requests.
 
 ### Resources
 
