@@ -168,12 +168,28 @@
   - [Wide Area Network](#wide-area-network)
     - [SONET (Synchronous Optical Networking) (TODO)](#sonet-synchronous-optical-networking-todo)
     - [Frame relay (TODO)](#frame-relay-todo)
-- [What is the difference between a Modem and a Router?](#what-is-the-difference-between-a-modem-and-a-router)
-  - [What is a Modem?](#what-is-a-modem)
-  - [What is a Router?](#what-is-a-router)
-- [More network devices...](#more-network-devices)
+- [Networking HARDWARE](#networking-hardware)
+  - [Straight-through vs. Crossover Cables](#straight-through-vs-crossover-cables)
+    - [Straight-through cable](#straight-through-cable)
+    - [Crossover cable](#crossover-cable)
+  - [What is the difference between a Modem and a Router?](#what-is-the-difference-between-a-modem-and-a-router)
+    - [What is a Modem?](#what-is-a-modem)
+    - [What is a Router?](#what-is-a-router)
   - [What is a Hub?](#what-is-a-hub)
   - [What is a Switch?](#what-is-a-switch)
+    - [MAC Address Table in Switches](#mac-address-table-in-switches)
+    - [Broadcast Storms in Switching Loops](#broadcast-storms-in-switching-loops)
+      - [1. Broadcast Frames](#1-broadcast-frames)
+      - [2. Switch Flooding](#2-switch-flooding)
+      - [3. Loop Formation](#3-loop-formation)
+      - [4. Network Congestion](#4-network-congestion)
+      - [5. Broadcast Storm](#5-broadcast-storm)
+    - [`STP` (Spanning Tree Protocol) for loop preventiong](#stp-spanning-tree-protocol-for-loop-preventiong)
+      - [1. Elect a root bridge](#1-elect-a-root-bridge)
+      - [2. Determine root ports](#2-determine-root-ports)
+      - [3. Determine designated ports](#3-determine-designated-ports)
+      - [4. Use blocking and forwarding states](#4-use-blocking-and-forwarding-states)
+      - [5. Calculate path costs and adapt to changes](#5-calculate-path-costs-and-adapt-to-changes)
   - [What is a Firewall?](#what-is-a-firewall)
     - [Network Level Firewall OR Transparent Firewall (performs Packet Filtering)](#network-level-firewall-or-transparent-firewall-performs-packet-filtering)
     - [Stateful Firewall (performs Stateful Inspection)](#stateful-firewall-performs-stateful-inspection)
@@ -1301,6 +1317,7 @@ This results in bandwith being wasted (by sending packets twice unnecessarily), 
 
 Therefore most quality switches and routers will go to quite some lengths to avoid packet reordering, and as part of this will try to send all packets from the same TCP stream along the same path (in case one path has higher latency than the other).
 
+
 ### Resources
 
 1. https://www.educative.io/answers/what-is-tcp 
@@ -1967,12 +1984,33 @@ It extends over a large geographical area, across countries, usually using subma
 ### Frame relay (TODO)
 
 
+# Networking HARDWARE
 
-# What is the difference between a Modem and a Router?
+## Straight-through vs. Crossover Cables
+
+The main difference between straight-through and crossover cables lies in the way the wires inside the cable are connected to the connector pins. Here's a breakdown of the differences:
+
+### Straight-through cable
+
+- A straight-through cable is the most commonly used Ethernet cable for connecting different devices, such as a computer to a switch, router, or hub.
+- In a straight-through cable, the wiring configuration on one end of the cable is identical to the wiring configuration on the other end.
+- Pin 1 on one end is connected to Pin 1 on the other end, Pin 2 to Pin 2, and so on, following a consistent pattern.
+- Straight-through cables are wired with a T568A or T568B standard, where the wire pairs (orange, green, blue, and brown) are connected in the same order on both ends.
+
+### Crossover cable
+
+- A crossover cable is used to connect similar devices directly to each other, such as two computers, or a switch to another switch.
+- In a crossover cable, the wiring configuration on one end of the cable is different from the wiring configuration on the other end.
+- Specifically, the transmit (TX) pair on one end is crossed over to the receive (RX) pair on the other end, allowing the devices to communicate directly.
+- Crossover cables are typically wired with the T568A standard on one end and the T568B standard on the other end to achieve the crossover configuration.
+
+---
+
+## What is the difference between a Modem and a Router?
 
 To put it simply, a modem connects your home to the Internet, while a router creates a network inside your house.
 
-## What is a Modem?
+### What is a Modem?
 
 - Modem is short for "modulator demodulator".
 
@@ -1982,7 +2020,7 @@ To put it simply, a modem connects your home to the Internet, while a router cre
 
 - It functions at Layer 1 of the OSI model as it is directly interacting with the physical medium.
 
-## What is a Router?
+### What is a Router?
 
 - A router helps in associating a single public IP address with multiple devices. It does this by setting up a private LAN/WLAN and assigning local IP addresses to each device connected to it.
 
@@ -2000,8 +2038,6 @@ To put it simply, a modem connects your home to the Internet, while a router cre
 
 ---
 
-# More network devices...
-
 ## What is a Hub?
 
 - It simply sends the incoming data to all machines connected to it.
@@ -2010,12 +2046,105 @@ To put it simply, a modem connects your home to the Internet, while a router cre
 
 ## What is a Switch?
 
-- Operating at the data link layer (Layer 2) of the network, switches can inspect incoming data frames and make forwarding decisions based on
-the MAC addresses they contain.
+- Operating at the data link layer (Layer 2) of the network, switches can inspect incoming data frames and make forwarding decisions based on the MAC addresses they contain.
 
 - It can be used to connect:
   - Hosts in the same subnet.
   - Two different subnets.
+
+### MAC Address Table in Switches
+
+- Switches keep a record of what computer with what MAC address is connected to which port of the switch, in the MAC address table.
+
+- So, if a frame comes to it intended for a specific destination MAC, it looks up the port number corresponding to that destination MAC.
+
+- In case the destination MAC doesn't have an entry in the table, 
+  it broadcasts an ARP request packet to all ports. 
+  
+  The correct destination device responds with its MAC address, and the switch makes an entry of that port where the reply was received and the destination MAC address.
+
+### Broadcast Storms in Switching Loops
+
+In computer networking, a broadcast storm refers to a situation where a network experiences excessive broadcast traffic that overwhelms the network's capacity and causes network performance issues. 
+
+Broadcast storms occur when broadcast frames are continuously and rapidly transmitted, causing each switch in the network to rebroadcast the frames to all of its ports, creating a loop-like effect.
+
+Here's how a broadcast storm occurs:
+
+#### 1. Broadcast Frames
+
+Broadcast frames are network data frames that are sent to all devices within a network, using the destination MAC address of `FF:FF:FF:FF:FF:FF``. These frames are intended to be received by all devices on the network segment.
+
+#### 2. Switch Flooding 
+
+When a switch receives a broadcast frame, it typically floods the frame to all of its connected ports (except the port where the frame was received).
+
+This allows the frame to reach all devices within the network.
+
+#### 3. Loop Formation 
+
+If there is a loop or multiple redundant paths in the network, the flooded broadcast frames will be forwarded to all connected switches, including the one that originally sent the broadcast frame. 
+
+This creates a loop where each switch continuously receives and rebroadcasts the broadcast frames, perpetuating the cycle.
+
+#### 4. Network Congestion 
+
+As the loop continues, the repeated transmission and rebroadcast of broadcast frames consume network bandwidth and resources. 
+
+This can lead to network congestion, reduced network performance, and increased network latency.
+
+#### 5. Broadcast Storm 
+
+When the number of broadcast frames in the network reaches a critical level, it can overwhelm the network's capacity, causing severe performance degradation. 
+
+This condition is known as a broadcast storm.
+
+---
+
+Broadcast storms are detrimental to network performance and can lead to network downtime if not addressed. They can disrupt normal network operation, flood network devices with unnecessary traffic, and impact the delivery of legitimate network communication.
+
+### `STP` (Spanning Tree Protocol) for loop preventiong
+
+To prevent broadcast storms, network administrators implement measures such as using spanning tree protocols (like STP) to prevent loops, configuring proper network segmentation, optimizing network design, and implementing switches with broadcast storm control features. 
+
+These measures help to mitigate the impact of broadcast storms and maintain a stable and efficient network environment.
+
+This is how Spanning Tree Protocol (STP) is implemented:
+
+#### 1. Elect a root bridge 
+
+STP elects a root bridge, which serves as the reference point for all other switches in the network.
+
+#### 2. Determine root ports 
+
+Each non-root switch determines its best path to the root bridge by comparing path costs. 
+
+The switch selects its root port, which is the port connecting to the neighboring switch with the lowest path cost to the root bridge.
+
+#### 3. Determine designated ports 
+
+Each network segment has a designated switch and port that provides the best path to reach the root bridge. 
+
+The designated switch configures its port as a designated port, while other switches on the segment configure their ports as non-designated ports.
+
+#### 4. Use blocking and forwarding states 
+
+STP uses blocking and forwarding states to prevent loops. 
+
+Blocking state is used on non-designated ports to prevent traffic forwarding, ensuring a loop-free topology. Forwarding state allows traffic to be forwarded through designated ports.
+
+#### 5. Calculate path costs and adapt to changes 
+
+STP calculates path costs based on the speed of the links. 
+
+If there are changes in the network, such as link failures or new connections, STP dynamically adjusts the topology by recalculating path costs and updating forwarding states.
+
+---
+
+By implementing these steps, STP ensures a loop-free network topology, prevents broadcast storms, and enables reliable and efficient communication within the network.
+
+See this video for more in-depth explanation: https://www.youtube.com/watch?v=GSKoQ8ZR8rw.
+
 
 ## What is a Firewall?
 
