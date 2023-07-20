@@ -52,6 +52,7 @@
 - [MAC Addresses](#mac-addresses)
   - [If we have a globally unique identifier, why do we further need IP addresses?](#if-we-have-a-globally-unique-identifier-why-do-we-further-need-ip-addresses)
   - [Why not get rid of MAC addresses then?](#why-not-get-rid-of-mac-addresses-then)
+  - [Unique MAC Address Prefixes By Manufacturer (Organizationally Unique Identifier)](#unique-mac-address-prefixes-by-manufacturer-organizationally-unique-identifier)
 - [IP Addresses](#ip-addresses)
   - [IPv4](#ipv4)
   - [Process of reaching from host to destination (***Network \& Host Address***)](#process-of-reaching-from-host-to-destination-network--host-address)
@@ -927,6 +928,24 @@ IP addresses help rule out devices and provide data routing capabilities.
 - While IP is an hierarchical addressing system which is used by a distant node to locate the network to which its communicating node is located. 
   
 - So both addressing schemes are required and works in parallel to provide effective communication.
+
+##  Unique MAC Address Prefixes By Manufacturer (Organizationally Unique Identifier)
+
+- Different manufacturers are assigned unique prefixes known as the **Organizationally Unique Identifier** (`OUI`) or the Company ID. 
+  
+  An OUI is a 24-bit number assigned by the Institute of Electrical and Electronics Engineers (IEEE) to hardware manufacturers. 
+  
+  The first 3 bytes (24 bits) of a MAC address represent the OUI, and the remaining 3 bytes (24 bits) are typically assigned by the manufacturer.
+
+- By examining the first 3 bytes of a MAC address, one can determine the manufacturer or vendor of a network interface card (NIC). 
+  
+  This helps in identifying the manufacturer of a device within a network. 
+  
+  However, it is important to note that MAC addresses are not directly used for communication between devices outside of the local network, as they are specific to the Data Link Layer (Layer 2) of the OSI model.
+
+- The IEEE maintains a database of OUI assignments, and you can often find online resources that allow you to look up the manufacturer of a specific MAC address based on its OUI prefix. 
+  
+  This can be useful for troubleshooting and inventory management purposes in networking environments.
 
 ---
 
