@@ -15,6 +15,20 @@ Refer OS notes.
   - [Julian date](#julian-date)
   - [`.NET` date time](#net-date-time)
   - [UNIX timestamp](#unix-timestamp)
+- [CPU vs. GPU](#cpu-vs-gpu)
+  - [What is unique in a GPU, that makes it different from a CPU?](#what-is-unique-in-a-gpu-that-makes-it-different-from-a-cpu)
+  - [Why CPUs are still needed](#why-cpus-are-still-needed)
+- [Deepdive on Cores](#deepdive-on-cores)
+  - [What is meant by the Clock Speed of a core within a CPU?](#what-is-meant-by-the-clock-speed-of-a-core-within-a-cpu)
+  - [How can smaller transistors help a core achieve higher clockspeeds?](#how-can-smaller-transistors-help-a-core-achieve-higher-clockspeeds)
+  - [What is the impact of die size on a CPU?](#what-is-the-impact-of-die-size-on-a-cpu)
+  - [Tensor cores and how they are different from CUDA cores](#tensor-cores-and-how-they-are-different-from-cuda-cores)
+    - [What tensor cores do better](#what-tensor-cores-do-better)
+    - [What tensor cores lose out on](#what-tensor-cores-lose-out-on)
+  - [Architectural difference between Regular, CUDA and Tensor cores](#architectural-difference-between-regular-cuda-and-tensor-cores)
+    - [Regular CPU Cores](#regular-cpu-cores)
+    - [CUDA Cores (GPU)](#cuda-cores-gpu)
+    - [Tensor Cores (GPU)](#tensor-cores-gpu)
 - [Parallelism and Concurrency](#parallelism-and-concurrency)
   - [Simultaneous Multithreading](#simultaneous-multithreading)
     - [What is meant by CPU having 4 cores and 8 threads?](#what-is-meant-by-cpu-having-4-cores-and-8-threads)
@@ -137,6 +151,147 @@ A Julian date is the number of days that have elapsed since January 1, 4713 BC (
 ## UNIX timestamp
 
 similar to Epoch time but the reference point is January 1, 1970 (UTC) but not limited to seconds but also includes milliseconds, microseconds and nanoseconds.
+
+---
+
+# CPU vs. GPU
+
+## What is unique in a GPU, that makes it different from a CPU?
+
+GPU contains a large number of microprocessors, which are designed to handle parallel processing tasks. 
+
+These microprocessors work in unison to perform computations on multiple data points simultaneously, making GPUs highly efficient for tasks that can be parallelized.
+
+## Why CPUs are still needed
+
+CPUs are better suited for certain tasks compared to GPUs due to their architectural design and characteristics. Here are some tasks that CPUs excel at:
+
+1. **Single-Threaded Performance**: CPUs are optimized for single-threaded performance and are well-suited for tasks that require sequential processing and complex control flow. Tasks that involve frequent branching, conditional statements, and serial computations tend to perform better on CPUs.
+
+2. **Serial Processing**: Applications that are inherently serial in nature, where one task depends on the completion of another, benefit from CPUs. This includes operating system tasks, system management, and certain types of database operations.
+
+3. **Branch-Intensive Algorithms**: Algorithms with unpredictable or frequent branching, such as certain types of encryption and decryption algorithms, often perform better on CPUs due to their advanced branch prediction mechanisms.
+
+4. **Latency-Sensitive Applications**: CPUs have lower latency compared to GPUs, making them suitable for tasks that require low response times. Real-time applications, such as certain types of networking and communication protocols, benefit from the CPU's ability to quickly handle events and interrupts.
+
+5. **Complex Control Logic**: Tasks that involve complex control logic, dynamic task scheduling, and task prioritization are better handled by CPUs. This includes managing I/O operations, multitasking, and resource allocation.
+
+6. **General-Purpose Computing**: CPUs are versatile and can handle a wide range of tasks, making them suitable for general-purpose computing. They are capable of running diverse applications without requiring specialized optimization.
+
+7. **Legacy Software**: Older software or software that is not optimized for parallel processing may perform better on CPUs. Many legacy applications and software libraries are designed with single-threaded execution in mind.
+
+8. **Small Data Sets**: CPUs are efficient for processing small data sets that do not benefit significantly from parallelization. Tasks that do not involve large-scale data processing or matrix computations can be handled efficiently by CPUs.
+
+---
+
+# Deepdive on Cores
+
+## What is meant by the Clock Speed of a core within a CPU?
+
+- The clock speed of a core within a CPU refers to the rate at which the core can execute instructions and perform calculations. 
+  
+  It is measured in Hertz (Hz) and indicates how many cycles the core can complete in one second. 
+  
+- A higher clock speed generally means that the core can process instructions more quickly, leading to faster overall performance.
+
+- In modern CPUs, each core typically has its own clock generator that controls its internal operations. 
+  
+  The clock speed ***determines how quickly the core's logic gates can switch between 0 and 1 states***, which directly affects the execution of instructions and data processing.
+
+## How can smaller transistors help a core achieve higher clockspeeds?
+
+Smaller transistors can attain higher clock speeds primarily due to several key factors related to their size, structure, and electrical properties. 
+
+These factors contribute to improved performance and faster switching times, enabling higher clock frequencies. Here's why smaller transistors can achieve higher clock speeds:
+
+1. **Reduced Capacitance:** Smaller transistors have lower capacitance between their components. Capacitance is a measure of the ability to store electrical charge, and smaller capacitance allows for faster charging and discharging of the transistor. This leads to shorter signal propagation delays and faster switching times, enabling higher clock speeds.
+
+2. **Shorter Interconnects:** Smaller transistors require shorter interconnects between components, such as gates and sources. Shorter interconnects lead to lower resistance and lower parasitic capacitance, which in turn reduces signal propagation delays and improves overall performance.
+
+3. **Lower Inertia:** The smaller size of transistors reduces the inertia of the electrons moving through them. This means that electrons can change direction and speed more quickly, resulting in faster switching times and higher clock speeds.
+
+4. **Reduced Gate Length:** The gate length of a transistor is a critical factor in determining its switching speed. Smaller transistors have shorter gate lengths, allowing the gate voltage to control the flow of current more rapidly. This enables faster on-off transitions and higher clock speeds.
+
+5. **Improved Materials and Manufacturing:** Advances in semiconductor manufacturing techniques and materials have allowed for the creation of smaller transistors with better performance characteristics. These advancements include new materials with higher electron mobility and more precise manufacturing processes, which contribute to faster transistor switching speeds.
+
+6. **Heat Dissipation:** Smaller transistors generate less heat during operation due to their reduced size and lower power consumption. This improved heat dissipation allows for more efficient cooling and thermal management, which can support higher clock speeds without overheating.
+
+7. **Reduced Electron Transit Time:** Electrons can move shorter distances in smaller transistors, resulting in reduced electron transit time between different parts of the transistor. This further contributes to faster switching and higher clock speeds.
+
+8. **Quantum Effects:** In smaller transistors, quantum effects can come into play, allowing for faster electron tunneling and other quantum phenomena. While these effects can be challenging to control, they can also be harnessed to achieve faster switching times.
+
+It's important to note that while smaller transistors can achieve higher clock speeds, there are also limitations and challenges associated with shrinking transistor sizes, such as increased leakage current and heat generation. 
+
+As a result, the pursuit of higher clock speeds is often balanced with considerations of power efficiency, thermal management, and overall system design.
+
+## What is the impact of die size on a CPU?
+
+The die size of a CPU, which refers to the physical size of the silicon wafer on which the processor is manufactured, has significant impacts on various aspects of the CPU's performance, power consumption, and capabilities. 
+
+Here are some of the key impacts of die size on a CPU:
+
+1. **Performance:** A larger die size allows for more transistors to be integrated onto the chip. This can lead to more complex and powerful processor designs, enabling higher levels of performance. More transistors can be allocated to features like cache memory, execution units, and specialized accelerators, which can enhance the CPU's ability to process instructions and data more efficiently.
+
+2. **Transistor Count:** A larger die size directly translates to a higher transistor count. More transistors provide the opportunity for more advanced features and functionalities to be included in the CPU design. This includes additional cores, larger caches, better branch prediction, and improved instruction pipelines.
+
+3. **Thermal Design Power (TDP):** A larger die size generally leads to higher power consumption and heat generation. This can potentially impact the CPU's thermal design power (TDP), which is the maximum amount of heat the cooling system needs to dissipate to keep the CPU within its operational temperature range. CPUs with larger die sizes may require more sophisticated cooling solutions to manage heat.
+
+4. **Manufacturing Cost:** Larger die sizes require more silicon wafers and are therefore more expensive to manufacture. The cost of producing CPUs with larger die sizes can impact the overall pricing strategy of a product. Manufacturers often aim for a balance between die size, manufacturing cost, and market demand.
+
+5. **Integration of Components:** A larger die size provides more space for integrating various components onto the chip. This can include not only CPU cores but also integrated graphics, memory controllers, and other specialized units. Integrated components can improve overall system efficiency and reduce the need for separate chips.
+
+6. **Manufacturability and Yield:** While a larger die size offers more room for features, it can also present challenges during the manufacturing process. Larger dies may have a higher likelihood of defects, which can affect yield (the percentage of functional chips from a wafer). Manufacturers need to carefully balance die size with yield considerations.
+
+7. **Upgradability:** In some cases, larger die sizes may limit the potential for CPU upgradability. Smaller CPUs with smaller die sizes might be easier to fit into existing socket designs and motherboard layouts, allowing for smoother upgrades without requiring major hardware changes.
+
+8. **Form Factor and Power Efficiency:** The size of the die can impact the overall form factor of the CPU package. Smaller die sizes can lead to more compact and power-efficient designs suitable for mobile devices and laptops.
+
+
+## Tensor cores and how they are different from CUDA cores
+
+### What tensor cores do better
+
+- Microprocessors (unique to GPUs) are inherently designed to perform a wide range of arithmetic and logical operations. 
+
+  Among these operations, matrix multiplication stands out as a crucial computation. For instance, the multiplication of two 4x4 matrices necessitates a staggering 64 multiplications and 48 additions.
+
+- The significance of tensor cores becomes particularly evident in tasks like convolution and multiplication. These computational operations are central to various fields, including Machine Learning, Deep Learning, and Ray Tracing.
+
+- As the dimensions and size of matrices (or tensors) expand, the computational complexity increases significantly. This surge in complexity is especially pronounced in domains such as Machine Learning, where intricate mathematical operations are common.
+
+- In essence, tensor cores are specialized processing units tailored to excel in scenarios involving extensive matrix computations. Their enhanced capabilities are particularly valuable in applications demanding large-scale multiplications, as seen in Machine Learning algorithms and graphics rendering processes like Ray Tracing.
+
+### What tensor cores lose out on
+
+
+
+## Architectural difference between Regular, CUDA and Tensor cores
+
+### Regular CPU Cores
+
+1. **Architecture**: Regular CPU cores are designed for general-purpose computing and are based on complex instruction set architecture (CISC) or a combination of CISC and reduced instruction set architecture (RISC) principles.
+2. **Instruction Set**: They support a wide range of instructions for executing various tasks, including arithmetic, logic, memory access, and control operations.
+3. **Single-Threaded Performance**: CPU cores are optimized for single-threaded performance, aiming to execute complex instructions quickly and efficiently.
+4. **Multithreading**: Many modern CPUs support simultaneous multithreading (SMT), allowing multiple threads to run on a single core.
+5. **Cache Hierarchy**: CPUs have a hierarchical cache design with L1, L2, and sometimes L3 caches to reduce memory access latency.
+6. **Power Efficiency**: Regular CPU cores are designed to balance performance and power efficiency, making them suitable for a wide range of tasks.
+
+### CUDA Cores (GPU)
+
+1. **Architecture**: CUDA cores are specific to NVIDIA GPUs and are designed for parallel processing tasks. They are based on the streaming multiprocessor (SM) architecture.
+2. **Parallel Processing**: CUDA cores are designed to execute multiple threads simultaneously, making them well-suited for parallel workloads like graphics rendering, scientific simulations, and data parallel computations.
+3. **SIMD Execution**: They use single instruction, multiple data (SIMD) execution, where each core can execute the same instruction on multiple data elements in parallel.
+4. **Thread Blocks and Grids**: CUDA cores are organized into thread blocks and grids, which allow for fine-grained parallelism and task distribution.
+5. **Memory Hierarchy**: GPUs have specialized memory hierarchies, including global memory, shared memory, and texture memory, optimized for parallel access patterns.
+6. **Floating-Point Performance**: CUDA cores excel at floating-point computations, making them suitable for graphics rendering and high-performance computing (HPC) applications.
+
+### Tensor Cores (GPU)
+
+1. **Architecture**: Tensor cores are a specialized component found in some NVIDIA GPUs, designed specifically for deep learning and tensor-based computations.
+2. **Matrix Operations**: Tensor cores accelerate matrix-matrix multiplications and mixed-precision operations, common in neural network training and inference.
+3. **Mixed-Precision**: Tensor cores perform computations in mixed precision (e.g., FP16), which improves performance without significantly sacrificing accuracy.
+4. **AI Workloads**: Tensor cores greatly accelerate AI workloads by performing multiple operations per clock cycle.
+5. **Support for DL Libraries**: They are designed to work seamlessly with popular deep learning frameworks and libraries like TensorFlow and PyTorch.
 
 ---
 
