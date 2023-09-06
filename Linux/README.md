@@ -32,13 +32,23 @@
     - [`dd` command (For making bootable USBs and swap partitions)](#dd-command-for-making-bootable-usbs-and-swap-partitions)
   - [`readlink`](#readlink)
     - [**flags**](#flags)
-  - [command substitution (`$`)](#command-substitution-)
+  - [command substitution (`$(...)`)](#command-substitution-)
   - [`chmod`](#chmod)
     - [Classes of users](#classes-of-users)
     - [Classes of permissions](#classes-of-permissions)
     - [Operators for changing permissions](#operators-for-changing-permissions)
   - [comment operator (`<<`)](#comment-operator-)
-- [Subshells and Grouping commands using `(` and `)` operators (TODO)](#subshells-and-grouping-commands-using--and--operators-todo)
+- [Subshells in Linux](#subshells-in-linux)
+  - [How to create a subshell](#how-to-create-a-subshell)
+  - [Subshell Applications](#subshell-applications)
+    - [Using a subshell to set a temporary variable](#using-a-subshell-to-set-a-temporary-variable)
+    - [Change directories without affecting the parent shell’s current directory](#change-directories-without-affecting-the-parent-shells-current-directory)
+  - [Running commands in the background using Subshells](#running-commands-in-the-background-using-subshells)
+    - [1. Basic Background Execution](#1-basic-background-execution)
+    - [2. Running a Subshell in the Background](#2-running-a-subshell-in-the-background)
+    - [3. Backgrounding an Already Running Process](#3-backgrounding-an-already-running-process)
+    - [4. Checking Background Jobs](#4-checking-background-jobs)
+    - [5. Bringing a Background Job to the Foreground](#5-bringing-a-background-job-to-the-foreground)
 - [Package Management](#package-management)
   - [Advanced Packaging Tool (`apt`)](#advanced-packaging-tool-apt)
     - [Functions of `apt` tool](#functions-of-apt-tool)
@@ -49,6 +59,8 @@
     - [Fun fact about tarballs](#fun-fact-about-tarballs)
   - [Debian Package Installer `dpkg`](#debian-package-installer-dpkg)
   - [Alien Package Converter `alien`](#alien-package-converter-alien)
+- [Deepdives of Specific Commands](#deepdives-of-specific-commands)
+  - [sh -c "$(wget \<URL\> -O -)"](#sh--c-wget-url--o--)
 - [Some insights about Linux](#some-insights-about-linux)
   - [Why do Linux and Windows show different time in a Dual Boot?](#why-do-linux-and-windows-show-different-time-in-a-dual-boot)
   - [Terminal](#terminal)
@@ -202,10 +214,30 @@ We can use the command substitution method `$@`/`$#` in order to get the values 
 
 ## Single Quotes vs. Double Quotes in Bash
 
+Comprehensive documentation:
 - [Single Quotes](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Single-Quotes)
 - [Double Quotes](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Double-Quotes)
 
-It is better to use Single Quotes unless you know what you are doing.
+1. For command or parameter substitution, use double-quotes, since no character has special meaning within single quotes. Example:
+   
+  ```sh
+  echo "$ENV_VAR"
+  # OR
+  bash -c "$( wget URL )"
+  ```
+
+  Using double-quotes helps retain the meaning of `$` for parameter substitution and `$(...)` for command substitution.
+
+2. If quotes within quotes need to be used:
+   A. Double quotes within single quotes
+    ```sh
+    bash -c 'echo "hello"'
+    ```
+
+   B. Double quotes within single quotes (the quotes inside should be preceded by backslashes)
+    ```sh
+    bash -c "echo \"hello\""
+    ```
 
 ## Invoking interpreters using shebang (`#!`)
 
@@ -430,7 +462,7 @@ home/example/foo/foo.txt
 root@ubuntu:~/home/example$
 ```
 
-## command substitution (`$`)
+## command substitution (`$(...)`)
 
 Syntax: `$(command)`  
 where `command` is executed in a sub-shell, and the output from `command` replaces its call.<br><br>
@@ -480,7 +512,168 @@ comment-name
 ```
 where `comment-name` can be replaced by any string.
 
-# Subshells and Grouping commands using `(` and `)` operators (TODO)
+---
+
+# Subshells in Linux
+
+A subshell is a child shell that is spawned by the main shell (also known as the parent shell). 
+
+It is a separate process with its own set of variables and command history, and it allows you to execute commands and perform operations within a separate environment.
+
+## How to create a subshell 
+
+- Use the parentheses operator, like this:
+  ```sh
+  ( command1 ; command2 ; command3 )
+  ```
+  OR
+  ```sh
+  ( 
+    command1 
+    command2
+    command3 
+  )
+  ```
+  
+  This will execute the commands within the parentheses in a subshell. 
+  
+  The commands are separated by semicolons, and the subshell will terminate when all commands have completed execution.
+
+- Use the `bash` OR `sh` command, like this:
+  ```sh
+  bash -c "command1 ; command2 ; command3"
+  # OR
+  sh -c "command1 ; command2 ; command3"
+  ```
+
+  This will execute the commands within the quotation marks in a subshell created by the bash command.
+
+## Subshell Applications
+
+Subshells allow you to isolate the effects of certain commands or operations. 
+
+For example, you can use a subshell to set temporary variables or change directories without affecting the parent shell’s environment.
+
+> ***Note***: Command substitution actually makes use of subshells to execute commands and then the output is substituted in place of the dollar.
+
+### Using a subshell to set a temporary variable
+
+```sh
+# Set a variable in the parent shell
+FOO=bar
+
+# Create a subshell and set a different value for the same variable
+( 
+  FOO=baz
+  echo $FOO 
+)
+
+# The value of FOO in the parent shell is unchanged
+echo $FOO
+```
+ 
+Output:
+```
+baz
+bar
+```
+ 
+As you can see, the value of the FOO variable is set to baz within the subshell, but the value in the parent shell remains unchanged.
+
+### Change directories without affecting the parent shell’s current directory
+
+```sh
+# Show the current directory in the parent shell
+pwd
+
+# Create a subshell and change to a different directory
+( cd /tmp ; pwd )
+
+# The current directory in the parent shell is unchanged
+pwd
+```
+
+Output:
+```
+/home/user
+/tmp
+/home/user
+```
+
+As you can see, the subshell changes to the `/tmp` directory, but the parent shell’s current directory remains unchanged.
+
+---
+
+## Running commands in the background using Subshells
+
+Subshells can be used to execute commands in the background by appending an ampersand (`&`) to the end of the command. 
+
+When you do this, the command will run in a subshell as a background process, allowing you to continue using the terminal while the command executes independently.
+
+When running commands in the background, they will continue to execute even if you log out of your terminal session. To manage background processes more effectively, tools like `screen` or `tmux` can be used to create persistent terminal sessions that can be detached and reattached.
+
+### 1. Basic Background Execution
+
+```bash
+( command-to-run & ) 
+```
+
+For example:
+
+```bash
+( sleep 10 & )
+```
+
+In this example, the `sleep 10` command is executed in the background, and the terminal prompt returns immediately. You can continue working in the terminal while the `sleep` command runs in the background for 10 seconds.
+
+### 2. Running a Subshell in the Background
+
+You can also run an entire subshell in the background, which can be useful for running multiple commands concurrently:
+
+```bash
+( commands-to-run-in-subshell ) &
+```
+
+For example:
+
+```bash
+( echo "Task 1" ; sleep 5 ; echo "Task 2" ) &
+```
+
+This will run a subshell with three commands (`echo "Task 1"`, `sleep 5`, and `echo "Task 2"`) in the background.
+
+### 3. Backgrounding an Already Running Process
+
+If you have a command that is already running in the foreground, you can suspend it (usually by pressing `Ctrl+Z`) and then use the `bg` command to send it to the background:
+
+```bash
+Ctrl+Z
+bg
+```
+
+This will resume the suspended command in the background.
+
+### 4. Checking Background Jobs
+
+You can check the status of background jobs using the `jobs` command:
+
+```bash
+jobs
+```
+
+This will list the background jobs along with their job numbers.
+
+### 5. Bringing a Background Job to the Foreground
+
+If you want to bring a background job back to the foreground, you can use the `fg` command followed by the job number:
+
+```bash
+fg %1
+```
+
+In this example, `%1` refers to job number 1 as shown by the `jobs` command.
+
+---
 
 # Package Management
 
@@ -580,6 +773,32 @@ Refer [this](https://www.serverlab.ca/tutorials/linux/administration-linux/how-i
 
 ---
 
+# Deepdives of Specific Commands
+
+## sh -c "$(wget \<URL\> -O -)"
+
+This approach is commonly used for downloading and executing scripts directly from the web. 
+
+It allows users to install software or configure their systems with a single command, pulling the necessary scripts or files from the internet.
+
+Here's a breakdown of how the command works:
+
+1. `sh -c`: This part of the command invokes a subshell (`sh`) and uses the `-c` option to specify that the following string should be treated as a command and executed by the subshell.
+
+2. `$(...)`: This is a command substitution. The expression inside the `$()` is executed, and its output is used as part of the command. In this case, it's used to execute the `wget` command and fetch the script from the specified URL.
+
+3. `wget \<URL\> -O -`: This part of the command uses the `wget` utility to download a script from the specified URL.
+   
+    `-O` specifies the output file, and `-` as its argument means that the output should be directed to the standard output (stdout) instead of saving it to a file.
+
+So, when you run the entire command, here's what happens:
+
+1. A subshell (`sh`) is invoked with the `-c` option.
+2. Inside the subshell, the `wget` command is executed to download the installation script.
+3. The downloaded script is passed as input to the subshell for execution.
+
+
+--- 
 
 # Some insights about Linux
 
