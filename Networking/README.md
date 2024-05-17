@@ -145,13 +145,31 @@
     - [Descriptions of HTTP methods](#descriptions-of-http-methods)
       - [`POST` method](#post-method)
       - [`DELETE` method](#delete-method)
+  - [`SSL` (Secure Socket Layer) / `TLS` (Transport Layer Security)](#ssl-secure-socket-layer--tls-transport-layer-security)
+    - [Meaning of the term `SSL`](#meaning-of-the-term-ssl)
+    - [SSL Handshake Procedure](#ssl-handshake-procedure)
   - [`HTTPS` (HyperText Transfer Protocol Secure)](#https-hypertext-transfer-protocol-secure)
-  - [`SSL` (Secure Socket Layer)](#ssl-secure-socket-layer)
   - [`ARP` (Address Resolution Protocol)](#arp-address-resolution-protocol)
     - [ARP Cache OR ARP Table](#arp-cache-or-arp-table)
     - [Example 1 : Pinging another machine in the same subnet](#example-1--pinging-another-machine-in-the-same-subnet)
     - [Example 2 : Pinging another machine in a different network](#example-2--pinging-another-machine-in-a-different-network)
     - [Example 3 : Pinging your own machine](#example-3--pinging-your-own-machine)
+- [Public Key Infrastructure](#public-key-infrastructure)
+  - [X.509 digital certificates](#x509-digital-certificates)
+  - [Digital signatures](#digital-signatures)
+  - [Public and private key pairs (asymmetric and symmetric)](#public-and-private-key-pairs-asymmetric-and-symmetric)
+  - [Certificate Authority (`CA`)](#certificate-authority-ca)
+  - [Chain of trust](#chain-of-trust)
+    - [Root Certificate Authority (Root CA)](#root-certificate-authority-root-ca)
+    - [Root Certificate Store](#root-certificate-store)
+      - [How it works?](#how-it-works-1)
+      - [Who is responsible for creating and updating it?](#who-is-responsible-for-creating-and-updating-it)
+    - [Intermediate Certificate Authorities (Intermediate CAs)](#intermediate-certificate-authorities-intermediate-cas)
+    - [Leaf Certificates](#leaf-certificates)
+    - [Certificate Issuance and Chain Formation](#certificate-issuance-and-chain-formation)
+    - [Verification Process](#verification-process)
+    - [Maintaining Trustworthiness](#maintaining-trustworthiness)
+  - [Local Usage of Self Signed Certificates for Development](#local-usage-of-self-signed-certificates-for-development)
 - [VPNs (Virtual Private Networks)](#vpns-virtual-private-networks)
   - [Working](#working)
   - [Protocols Used](#protocols-used)
@@ -160,6 +178,7 @@
   - [Important Examples](#important-examples)
     - [What if the sender is using TCP but the VPN uses UDP?](#what-if-the-sender-is-using-tcp-but-the-vpn-uses-udp)
 - [How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS](#how-are-web-server-ip-addresses-and-domain-names-linked--introduction-to-dns)
+  - [Why DNS (Domain Name System)?](#why-dns-domain-name-system)
   - [What are hostnames?](#what-are-hostnames)
     - [Why do we use `www` in front of a hostname (TODO)](#why-do-we-use-www-in-front-of-a-hostname-todo)
   - [Understanding Sub-domains (TODO)](#understanding-sub-domains-todo)
@@ -168,8 +187,30 @@
     - [Examples of `FQDN`](#examples-of-fqdn)
   - [Partially Qualified Domain Name (`PQDN`)](#partially-qualified-domain-name-pqdn)
     - [Examples of `PQDN`](#examples-of-pqdn)
-  - [A (Address) Record](#a-address-record)
-  - [CNAME (Canonical Name) Record](#cname-canonical-name-record)
+  - [DNS Zones](#dns-zones)
+  - [Types of DNS records](#types-of-dns-records)
+    - [A (Address) Record](#a-address-record)
+    - [AAAA (IPv6 Address) Record](#aaaa-ipv6-address-record)
+    - [CNAME (Canonical Name) Record](#cname-canonical-name-record)
+    - [MX (Mail Exchange) Record](#mx-mail-exchange-record)
+      - [Priorities in MX Records](#priorities-in-mx-records)
+      - [How MX Records Work?](#how-mx-records-work)
+    - [TXT (Text) Record](#txt-text-record)
+    - [PTR (Pointer) Record](#ptr-pointer-record)
+    - [SRV (Service) Record](#srv-service-record)
+    - [NS (Name Server) Record](#ns-name-server-record)
+    - [SOA (Start of Authority) Record](#soa-start-of-authority-record)
+  - [DNS query from start to end](#dns-query-from-start-to-end)
+    - [Storing of DNS query on client side](#storing-of-dns-query-on-client-side)
+    - [DNS Resolver](#dns-resolver)
+      - [DNS Reflection Attack](#dns-reflection-attack)
+    - [Root Server](#root-server)
+      - [Why are there only 13 DNS root server addresses?](#why-are-there-only-13-dns-root-server-addresses)
+    - [TLD (Top Level Domain) Server](#tld-top-level-domain-server)
+    - [Authoritative Name Server](#authoritative-name-server)
+      - [Why is it referred to as authoritative?](#why-is-it-referred-to-as-authoritative)
+  - [Link between E-mail IDs and Domains](#link-between-e-mail-ids-and-domains)
+  - [Load Balancing at DNS level](#load-balancing-at-dns-level)
 - [Types of Networks](#types-of-networks)
   - [Local Area Network](#local-area-network)
   - [Metropolitan Area Network](#metropolitan-area-network)
@@ -1920,13 +1961,54 @@ DELETE /idX/delete HTTP/1.1   -> Returns 404
 
 ---
 
+## `SSL` (Secure Socket Layer) / `TLS` (Transport Layer Security)
+
+SSL (Secure Sockets Layer) is a cryptographic protocol that ensures secure communication over the internet by establishing an encrypted connection between a client (such as a web browser) and a server (such as a website). 
+
+It's important to note that SSL has been succeeded by TLS (Transport Layer Security), but the term "SSL" is often used colloquially to refer to both SSL and TLS protocols.
+
+### Meaning of the term `SSL`
+
+The term "Secure Socket Layer" (SSL) refers to the original cryptographic protocol developed by Netscape Communications Corporation in the mid-1990s. The name "Secure Socket Layer" is derived from the key aspects of the protocol:
+
+1. **Security**:
+   - The primary purpose of SSL is to ensure security in data transmission over the internet. It achieves this by encrypting data to protect it from unauthorized access and eavesdropping.
+
+2. **Socket**:
+   - Read more about [sockets](#sockets).
+   - SSL operates at the socket level, securing the communication channel between a client's and a server's sockets.
+
+3. **Layer**:
+   - SSL operates as a layer above the transport layer (usually TCP/IP) in the networking stack. This "layer" refers to the additional security functionalities provided by SSL without modifying the underlying network protocols.
+
+The term "Secure Socket Layer" reflects the foundational elements of the SSL protocol: ensuring security (Secure), operating at the [socket](#sockets) level (Socket), and adding a security layer on top of existing network protocols (Layer).
+
+### SSL Handshake Procedure
+
+![](./tls-handshake.webp)
+
+1. **Client-Server Handshake**:
+   - The SSL handshake begins when a client (e.g., a web browser) initiates a connection to a server (e.g., a website) by sending a "Hello" message.
+   - The server responds with its own "Hello" message, including its SSL certificate, which contains the server's public key and identity information.
+   - The client verifies the server's SSL certificate to ensure it's legitimate and issued by a trusted Certification Authority (CA). This verification helps establish trust in the server's identity.
+   - If the certificate is valid and trusted, the client generates a session key (a symmetric encryption key) and encrypts it using the server's public key. This encrypted session key is sent to the server.
+
+2. **Encryption and Decryption**:
+   - Once the initial handshake is completed, both the client and server have the session key for encryption and decryption of data exchanged during the SSL session.
+   - All data transmitted between the client and server is encrypted using symmetric encryption algorithms like AES (Advanced Encryption Standard). This ensures that even if intercepted, the data remains secure and confidential.
+
+3. **Data Transfer**:
+   - With the encrypted SSL connection established, the client and server can securely exchange data, such as web pages, form submissions, login credentials, and other sensitive information.
+   - The data is encrypted before transmission and decrypted upon reception using the shared session key, ensuring privacy and integrity of the communication.
+
+4. **Session Termination**:
+   - When the SSL session is complete (e.g., after the client finishes browsing a website), the connection can be terminated gracefully.
+   - The session key, which was used for encryption during the session, is discarded to maintain security. This helps prevent unauthorized access to future sessions using the same key.
+
 ## `HTTPS` (HyperText Transfer Protocol Secure)
 
 TODO
 
-## `SSL` (Secure Socket Layer)
-
-TODO
 
 ## `ARP` (Address Resolution Protocol)
 
@@ -1975,6 +2057,135 @@ So now, even if we disconnect from the LAN of our Router and try pinging our pre
 But, if we restart our machine, the ARP cache would get reset. So, if we tried pinging the address while not connected to the Router, we would no longer get a response.
 
 --- 
+
+# Public Key Infrastructure
+
+PKI is a combination of cryptographic technologies, policies and procedures that you use to secure data in the digital world and to authenticate yourself. The term also relates to the issuance, use, storage, distribution, management, and revocation of digital certificates and keys — also known as the certificate lifecycle — as well as the entities that issue them.
+
+There are two things PKI does to secure communications:
+- **Authentication** — This ensures that the other party is the legitimate server/individual that you’re trying to communicate with.
+- **Encryption** — This makes sure that no other parties can read your communications.
+
+![](how-pki-works-overview.png)
+
+For deeper dive, checkout out Network Security bookmarks in edge.
+
+## X.509 digital certificates
+
+These types of certificates include a key, information about the identity of the owner (of the certificate and keys), and the digital signature of the certificate authority. These types of certificates include:
+- [SSL/TLS](#ssl-secure-socket-layer--tls-transport-layer-security) website security certificates,
+- S/MIME (client authentication) certificates,
+- Code signing certificates, and
+- Document signing certificates.
+- TODO: Learn about each of these in detail.
+
+Each certificate contains several key components:
+  - **Public Key**: The certificate holder's public key, used for encryption and digital signatures.
+  - **Identity Information**: Information about the certificate holder, such as their name, organization, and email address.
+  - **Issuer Information**: Information about the CA that issued the certificate, including its digital signature.
+  - **Validity Period**: The timeframe during which the certificate is valid.
+  - **Certificate Serial Number**: A unique identifier for the certificate.
+  - **Digital Signature**: A cryptographic signature created by the CA using its private key to validate the certificate's authenticity.
+  - **Extensions**: Additional information or settings, such as key usage purposes or certificate revocation information.
+
+## Digital signatures
+
+- Digital signatures are what guarantees that a message, file, or data hasn’t been altered in any way. 
+- A constant length hash like SHA-512 of the entire certificate, is signed using the private key. User can then validate the signature by decrypting the signed hash.
+
+## Public and private key pairs (asymmetric and symmetric)
+
+- PKI works because of the key pairs that encrypt and decrypt data. 
+- In asymmetric encryption, there’s a public key that’s shared with everyone and a matching private key that’s kept secret. 
+- In symmetric encryption, there is one key that both parties use to communicate.
+
+## Certificate Authority (`CA`)
+
+Certificate Authorities (CAs) play a critical role in the security infrastructure of the internet by issuing and managing digital certificates.
+
+1. **Issuance of Digital Certificates**
+   - CAs issue digital certificates that are used to authenticate the identity of entities (such as websites, servers, and individuals) in online communication.
+
+2. **Certificate Revocation**
+   - CAs maintain Certificate Revocation Lists (`CRL`s) or use the Online Certificate Status Protocol (`OCSP`) to provide real-time information about revoked certificates. 
+   - TODO: Learn more about Online Certificate Status Protocol
+   - This allows clients to check if a certificate has been revoked due to compromise or other reasons.
+
+3. **Compliance and Standards**
+   - CAs adhere to industry standards and best practices, such as the CA/Browser Forum guidelines, to ensure the security, integrity, and reliability of their certificate issuance processes.
+
+## Chain of trust
+
+The Chain of Trust is a fundamental concept in Public Key Infrastructure (PKI) that establishes a hierarchy of trust relationships between entities, particularly Certificate Authorities (CAs) and the digital certificates they issue.
+
+In short, it is a series of certificates (root, intermediate, and leaf certificates) that links back to the issuing CA who signed off on it.
+
+### Root Certificate Authority (Root CA)
+
+- At the top of the Chain of Trust is the Root CA. It is a highly trusted entity whose public key is widely distributed and trusted by clients (e.g., web browsers, operating systems).
+- The Root CA issues and signs its own self-signed certificate, which serves as the trust anchor for the entire PKI hierarchy. 
+- A certificate authority only issues a handful of **Root Certificates** and they’re valid for extended periods of time. As you can imagine, this means that CAs closely guard and protect these certificates.
+- This certificate is pre-installed in client devices' trust stores (Checkout [Root Certificate Store](#root-certificate-store) just below).
+
+### Root Certificate Store
+
+#### How it works?
+
+- Browsers and operating systems come pre-installed with a list of trusted root CAs, known as the **Root Certificate Store**.
+- When a client (e.g., web browser) receives a digital certificate from a server during an SSL/TLS handshake, it checks the certificate's digital signature against the root CA's public key in its **Root Certificate Store**. 
+- If the signature is valid and the certificate is trusted, the client establishes trust in the server's identity.
+
+#### Who is responsible for creating and updating it?
+
+- Root certificates are pre-installed in the Root Certificate Store by software vendors (such as Microsoft, Apple, Mozilla, Google) and are considered inherently trustworthy.
+- Software vendors regularly update and manage the Root Certificate Store to add new trusted root certificates and remove certificates that are no longer trusted or have been compromised.
+- Updates to the Root Certificate Store are typically distributed through software updates or patches to ensure that clients have the latest set of trusted root certificates.
+- In some cases, users or administrators may have the ability to manage the Root Certificate Store by adding or removing trusted root certificates based on organizational policies or specific trust requirements.
+
+### Intermediate Certificate Authorities (Intermediate CAs)
+
+- Intermediate CAs are subordinate to the Root CA and are responsible for issuing certificates on behalf of the Root CA or other Intermediate CAs.
+- Intermediate CAs have their own certificates signed by a higher-level CA in the hierarchy (either the Root CA or another Intermediate CA). These certificates are known as **Intermediate Certificates**.
+- Intermediate CAs help distribute the workload of certificate issuance and management and can be organized into multiple tiers within the PKI hierarchy.
+- These entities essentially serve as the go-between for the root CA and server certificates. (So, if an attacker compromises an intermediate CA’s key, only the certificates they signed become invalid.)
+
+### Leaf Certificates
+
+- A leaf certificate is what a CA issues for your domain. 
+- This is the certificate that you upload to your server that validates your domain, subdomains, etc. (depending on the certificate). 
+- These public certificates have a limited lifespan of one year (398 days, more specifically) starting on or before Sept. 1, 2020.
+
+### Certificate Issuance and Chain Formation
+
+- When a certificate is issued by an Intermediate CA, it includes not only the public key and identity information of the entity being certified (e.g., a website), but also the public key and identity information of the issuing Intermediate CA.
+- This creates a *chain or path of certificates*, starting from the end-entity certificate (e.g., SSL/TLS certificate for a website) and going up through the chain of Intermediate CA certificates until reaching the Root CA certificate.
+
+### Verification Process
+
+- During the SSL/TLS handshake or when verifying a digital signature, the client (e.g., web browser) receives the server's certificate and validates its authenticity.
+- The client checks the digital signature of the server's certificate using the public key of the issuing Intermediate CA (found in the certificate's chain).
+- If the Intermediate CA's certificate is trusted (i.e., its digital signature is valid and the CA is in the client's trust store), the client proceeds to validate the Root CA's certificate using the Intermediate CA's public key.
+- If the Root CA's certificate is trusted (typically because it's pre-installed in the client's trust store), the entire chain of trust is established, and the server's certificate is deemed valid and trusted.
+
+### Maintaining Trustworthiness
+
+- The Chain of Trust ensures that trust is propagated from highly trusted entities (Root CA) down to lower-level CAs and end-entity certificates.
+- CAs must adhere to strict security practices and policies to maintain the trustworthiness of their certificates and ensure the integrity and security of the Chain of Trust.
+
+## Local Usage of Self Signed Certificates for Development
+
+Check out this article:
+- https://www.sectigo.com/resource-library/what-is-a-self-signed-certificate
+- Covering 
+  1. why are they needed? 
+  2. How do they function? 
+  3. How are they created?
+
+Checkout this video:
+- https://www.youtube.com/watch?v=yrJzICVN5zY
+- For an in-depth tutorial on how to create one.
+
+---
 
 # VPNs (Virtual Private Networks)
 
@@ -2040,7 +2251,16 @@ To mitigate these issues, VPN implementations that use UDP often include additio
 
 # How are Web Server IP Addresses and Domain Names linked? : Introduction to DNS
 
-TODO
+TODO: Complete all headings under this section
+
+## Why DNS (Domain Name System)?
+
+- People can't remember IPs.
+- A domain is a text that points to an IP or a collection of IPs.
+- Additional layer of abstraction between client and server.
+- IP can change while the domain remains the same.
+- We can serve the IP of the server closest to the client.
+- [Load balancing at this level](#load-balancing-at-dns-level)
 
 ## What are hostnames?
 
@@ -2089,13 +2309,41 @@ An FQDN provides the full absolute path of the host, while the PQDN only gives a
 
 Suppose we use just `google.com` instead of the FQDN `www.google.com`. That would qualify as a `PQDN`.
 
-## A (Address) Record
+## DNS Zones
 
-An Address Record (abbreviated as **A record**) returns a 32-bit `IPv4` address, most commonly used to map hostnames to an IP address of the host. 
+DNS zones are a fundamental concept in the Domain Name System (DNS) architecture. A DNS zone is a portion of the DNS namespace that is managed by a specific authoritative DNS server or group of servers. Each DNS zone represents a distinct administrative boundary within the DNS hierarchy.
 
-## CNAME (Canonical Name) Record
+Here are the key points about DNS zones:
 
-A Canonical Name record (abbreviated as **CNAME record**) is a type of resource record in the Domain Name System (DNS) that maps one domain name (an alias) to another (the canonical name).
+1. **Authority:** A DNS zone is authoritative for the domain names (and their subdomains) within it. This means that the DNS server(s) responsible for the zone have the definitive information about the domain names and their associated IP addresses (or other resource records).
+
+2. **Administrative Control:** DNS zones allow for delegated administrative control over different parts of the DNS namespace. For example, an organization may have separate DNS zones for its main domain (`example.com`) and its subdomains (`sales.example.com`, `support.example.com`, etc.). Different administrators can manage each zone independently.
+
+3. **Zone Files:** Each DNS zone is typically associated with a zone file, which contains the resource records that define the DNS information for the domain names within the zone. These records include A records (IPv4 addresses), AAAA records (IPv6 addresses), MX records (mail servers), CNAME records (aliases), NS records (name servers), and more.
+
+4. **Primary and Secondary Zones:** A DNS zone can be configured as either a primary zone or a secondary zone. 
+   - **Primary Zone:** The primary DNS server for a zone is authoritative and has the original, read-write copy of the zone's data. Changes to the zone's records are made on the primary server.
+   - **Secondary Zone:** Secondary DNS servers for a zone have read-only copies of the zone's data. They obtain updates from the primary server through zone transfers (AXFR or IXFR). Secondary servers provide redundancy and improve fault tolerance.
+
+5. **Zone Transfers:** Zone transfers are mechanisms by which DNS servers synchronize zone data. In a typical setup, primary servers initiate zone transfers to secondary servers to ensure that all servers have consistent and up-to-date information about the zone.
+
+6. **Forward and Reverse Zones:** DNS zones can be classified based on the direction of name resolution they support.
+   - **Forward Zone:** This type of zone resolves domain names to IP addresses. For example, it maps `www.example.com` to `192.168.1.1`.
+   - **Reverse Zone:** Also known as reverse DNS (rDNS), this type of zone resolves IP addresses to domain names. For example, it maps `192.168.1.1` to `www.example.com`.
+
+## Types of DNS records
+
+### A (Address) Record
+
+An Address Record (**A record**) returns a 32-bit `IPv4` address, most commonly used to map hostnames to an IP address of the host. 
+
+### AAAA (IPv6 Address) Record
+
+An IPv6 Address record (**AAAA record**) is similar to the A record but returns a 128-bit `IPv6` address. It maps hostnames to IPv6 addresses, enabling communication over IPv6 networks.
+
+### CNAME (Canonical Name) Record
+
+A Canonical Name record (**CNAME record**) is a type of resource record in the Domain Name System (DNS) that maps one domain name (an alias) to another (the canonical name).
 
 This can prove convenient when running multiple services (like an FTP server and a web server, each running on different ports) from a single IP address. 
 
@@ -2104,6 +2352,114 @@ For example, we can use CNAME records to point `ftp.example.com` and `www.exampl
 Then, if the IP address ever changes, one only has to record the change in one place within the network: in the DNS [A record](#a-address-record) for `example.com`.
 
 CNAME records must always point to another domain name, never directly to an IP address.
+
+### MX (Mail Exchange) Record
+
+A Mail Exchange record (**MX record**) specifies the mail server responsible for receiving email on behalf of a domain. 
+
+In DNS, your [A records](#a-address-record) for your website (`example.com`) point to your web server, and your MX records point to your mail server. When someone sends emails to `user@example.com`, the MX record directs to a specified mail server, like Gmail or wherever your email server is hosted.
+
+#### Priorities in MX Records
+
+To load balance and avoid outages, users can add multiple servers to a single MX record and select a priority order. Mail is sent to the MX record with the lowest priority, or evenly across multiple servers if they have the same priority.
+
+When selecting priority numbers, lower numbers have higher priority. Here’s an example:
+```
+Mail server 1: Priority 10
+Mail server 2: Priority 20
+Mail server 3: Priority 30
+```
+In this scenario, emails use the lowest priority server, or mail server 1. If mail server 1 is overwhelmed or experiences an outage, the email is routed through mail server 2.
+
+#### How MX Records Work?
+
+Here’s how MX records work when someone sends you an email:
+
+1. Their email client forwards the message to an email server
+2. The sending message transfer agent (MTA) sends a DNS query to identify the MX record
+3. The MX record identifies the mail exchange server for the destination’s domain
+4. The sending MTA establishes an SMTP connection with the destination mail server
+5. The email is delivered
+
+### TXT (Text) Record
+
+A Text record (**TXT record**) stores text information related to the domain. It is commonly used for domain verification, email authentication (SPF, DKIM, DMARC), and providing human-readable information about the domain.
+
+### PTR (Pointer) Record
+
+A Pointer record (**PTR record**) is used in reverse DNS lookups to map an IP address to a domain name (hostname). It is commonly used for network diagnostics and verification of reverse DNS configurations.
+
+### SRV (Service) Record
+
+A Service record (**SRV record**) specifies information about available services within a domain. It includes the service name, protocol, domain, and port number, enabling clients to discover and connect to specific services such as SIP, XMPP, LDAP, and more.
+
+### NS (Name Server) Record
+
+A Name Server record (**NS record**) specifies authoritative DNS servers for a domain. It identifies the DNS servers responsible for providing DNS information about the domain, such as resolving domain names to IP addresses.
+
+### SOA (Start of Authority) Record
+
+A Start of Authority record (**SOA record**) contains administrative information about the domain, such as the primary authoritative DNS server, email of the domain administrator, domain serial number, refresh interval, retry interval, and more. 
+
+It is crucial for DNS zone management and synchronization between DNS servers.
+
+## DNS query from start to end
+
+```
+Host -> DNS Resolver -> Root Server -> TLD Server -> Authoritative Name Server
+```
+
+### Storing of DNS query on client side
+
+### DNS Resolver
+
+recursive resolvers (like 1.1.1.1 or 8.8.8.8)
+
+#### DNS Reflection Attack
+
+- This happens when an attacker uses a botnet to send lots of DNS queries to an open DNS resolver (like cloudflare or google), with source IP kept as the server they want to attack.
+- This causes the target server to get flooded with lots of DNS responses from queries that it did not initiate (TODO: Can this be defeated by randomizing DNS ports)
+
+### Root Server
+
+- Can directly answer queries for records stored or cached within the root zone, or can refer other requests to the appropriate TLD server. 
+
+- The Internet Corporation for Assigned Names and Numbers (ICANN) operates servers for one of the 13 IP addresses in the root zone and delegated operation of the other 12 IP addresses to various organizations . 
+
+  Check out [this](https://www.cloudflare.com/en-gb/learning/dns/glossary/dns-root-server/#:~:text=The%20Internet%20Corporation,the%20F%2DRoot.) link for more details.
+
+- Since the DNS root zone is at the top of the DNS hierarchy, recursive resolvers cannot be directed to them in a DNS lookup. 
+  
+  Because of this, every DNS resolver has a list of the 13 IP root server addresses built into its software. Whenever a DNS lookup is initiated, the recursor’s first communication is with one of those 13 IP addresses.
+
+
+#### Why are there only 13 DNS root server addresses?
+
+A common misconception is that there are only 13 root servers in the world. In reality there are many more, but still only 13 IP addresses used to query the different root server networks.
+
+A combination of limits in the DNS and certain protocols, namely the practical size of unfragmented User Datagram Protocol (UDP) packets, resulted in a decision to limit the number of root servers to thirteen server addresses.
+
+In the early days of the Internet, there was only one server for each of the 13 IP addresses, most of which were located in the United States.
+
+Today each of the 13 IP addresses has several servers, which use Anycast routing to distribute requests based on load and proximity. Right now there are over 1733 different DNS root servers (March 2024) distributed across every populated continent on earth.
+
+
+### TLD (Top Level Domain) Server
+
+- One step below root servers in the DNS hierarchy, and are an integral part of resolving DNS queries.
+- 
+
+### Authoritative Name Server
+
+#### Why is it referred to as authoritative?
+
+## Link between E-mail IDs and Domains
+
+## Load Balancing at DNS level
+
+
+
+---
 
 # Types of Networks
 
