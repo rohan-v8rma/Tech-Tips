@@ -114,9 +114,10 @@
       - [Congestion Avoidance](#congestion-avoidance)
       - [`ECN` flag in IP packets used by routers to convey congestion to session layer](#ecn-flag-in-ip-packets-used-by-routers-to-convey-congestion-to-session-layer)
       - [What happens when congestion is actually detected by session layer?](#what-happens-when-congestion-is-actually-detected-by-session-layer)
+    - [Head-of-line blocking in TCP](#head-of-line-blocking-in-tcp)
     - [Packets arriving out-of-order in TCP](#packets-arriving-out-of-order-in-tcp)
+    - [Congestion in Parallel TCP Connections vs. Re-using Single TCP Connection](#congestion-in-parallel-tcp-connections-vs-re-using-single-tcp-connection)
     - [Is a new socket created by a server when it accepts a SYN request received from a client?](#is-a-new-socket-created-by-a-server-when-it-accepts-a-syn-request-received-from-a-client)
-    - [Resources](#resources)
   - [`UDP` (User Datagram Protocol)](#udp-user-datagram-protocol)
     - [About the protocol](#about-the-protocol-1)
     - [UDP Datagram](#udp-datagram)
@@ -137,6 +138,7 @@
         - [3. Disable Reverse DNS Lookups](#3-disable-reverse-dns-lookups)
     - [Packets Getting Dropped due to Buffer Overflow](#packets-getting-dropped-due-to-buffer-overflow)
   - [`HTTP` (HyperText Transfer Protocol)](#http-hypertext-transfer-protocol)
+    - [All HTTP Request \& Response Headers](#all-http-request--response-headers)
     - [What are "Resources"?](#what-are-resources)
     - [`HTTP` request methods](#http-request-methods)
       - [Safe](#safe)
@@ -145,6 +147,37 @@
     - [Descriptions of HTTP methods](#descriptions-of-http-methods)
       - [`POST` method](#post-method)
       - [`DELETE` method](#delete-method)
+    - [HTTP Versions](#http-versions)
+      - [HTTP/1.0](#http10)
+        - [Connection Handling](#connection-handling)
+        - [Data Transmission](#data-transmission)
+        - [Buffering Strategies](#buffering-strategies)
+        - [Content-Length Header](#content-length-header)
+        - [Efficiency and Performance](#efficiency-and-performance)
+        - [How Basic Authentication Works](#how-basic-authentication-works)
+          - [Example Interaction](#example-interaction)
+          - [Security Considerations](#security-considerations)
+      - [HTTP/1.1](#http11)
+        - [Improvements over HTTP/1.0](#improvements-over-http10)
+        - [Changes in authentication process](#changes-in-authentication-process)
+          - [How Digest Authentication Works](#how-digest-authentication-works)
+          - [Key Components and Parameters](#key-components-and-parameters)
+          - [Security Advantages](#security-advantages)
+          - [Example Interaction](#example-interaction-1)
+        - [Scenario for a Authentication Replay Attack Working](#scenario-for-a-authentication-replay-attack-working)
+          - [Conditions Where Replay Attack Might Succeed](#conditions-where-replay-attack-might-succeed)
+          - [Example of a Weak Setup](#example-of-a-weak-setup)
+        - [HOL Blocking at Application Layer (HTTP layer)](#hol-blocking-at-application-layer-http-layer)
+      - [HTTP/2](#http2)
+        - [Improvements over HTTP/1.1](#improvements-over-http11)
+        - [HOL Blocking at Transport Layer (TCP Layer)](#hol-blocking-at-transport-layer-tcp-layer)
+        - [Application Layer Protocol Negotiation: An extension of TLS](#application-layer-protocol-negotiation-an-extension-of-tls)
+        - [Server Push](#server-push)
+        - [Header Compression using HPACK](#header-compression-using-hpack)
+        - [Load Balancing in HTTP/2](#load-balancing-in-http2)
+        - [Caching with E-tags](#caching-with-e-tags)
+      - [HTTP/3](#http3)
+        - [Improvements over HTTP/2](#improvements-over-http2)
   - [`SSL` (Secure Socket Layer) / `TLS` (Transport Layer Security)](#ssl-secure-socket-layer--tls-transport-layer-security)
     - [Meaning of the term `SSL`](#meaning-of-the-term-ssl)
     - [SSL Handshake Procedure](#ssl-handshake-procedure)
@@ -1485,6 +1518,10 @@ An IPv6 header has some of the fields in common, but not all of them:
 
 ## `TCP` (Transmission Control Protocol)
 
+For in-depth analysis
+1. https://www.educative.io/answers/what-is-tcp 
+2. See notes for in-depth understanding.
+
 ### About the protocol
 
 - Layer 4 protocol (so, has the ability to address processes in a host using ports).
@@ -1629,6 +1666,8 @@ There are two ECN-related flags in the **TCP header**:
 
 ---
 
+### Head-of-line blocking in TCP
+
 ### Packets arriving out-of-order in TCP
 
 TCP can handle reordered packets successfully, but in practice reordering tends to cause significant performance issues. 
@@ -1638,6 +1677,22 @@ For instance, if the other end sees packets in the order `1 2 4 3`, it will noti
 This results in bandwith being wasted (by sending packets twice unnecessarily), and also in reduced connection performance, since the sender will assume the "packet loss" it thinks it has seen is due to congestion, so it will slow down its sending.
 
 Therefore most quality switches and routers will go to quite some lengths to avoid packet reordering, and as part of this will try to send all packets from the same TCP stream along the same path (in case one path has higher latency than the other).
+
+### Congestion in Parallel TCP Connections vs. Re-using Single TCP Connection
+
+Parallel TCP connections can indeed introduce congestion for several reasons: 
+
+1. **Shared Network Resources:** When multiple TCP connections are active simultaneously, they compete for network resources such as bandwidth and buffer space. This competition can lead to congestion, especially in scenarios where network capacity is limited. 
+
+2. **Synchronization Issues:** Parallel TCP connections may experience synchronization issues, where multiple connections trying to send or receive data concurrently can lead to inefficient use of network resources and potential congestion. 
+
+3. **TCP Congestion Control:** TCP is designed with congestion control mechanisms to handle congestion in the network. When multiple TCP connections are active in parallel, each connection may independently trigger congestion control mechanisms, leading to unnecessary congestion avoidance behavior that can limit overall throughput.
+
+4. **TCP Reno Behavior:** TCP Reno, one of the widely used congestion control algorithms, reduces its congestion window upon detecting packet loss, which is interpreted as a sign of network congestion. In parallel connections, this behavior can occur more frequently due to increased chances of packet loss, exacerbating congestion issues.
+
+5. **Flow Control Interference:** TCP's flow control mechanisms ensure that a sender does not overwhelm a receiver with data. In parallel connections, multiple senders may interact with a single receiver, potentially leading to flow control interference and suboptimal throughput. 
+
+In summary, while parallel TCP connections can help distribute workload and potentially improve performance, they also introduce complexities and challenges related to network congestion management, synchronization, and flow control, which can limit their utility in certain scenarios.
 
 ### Is a new socket created by a server when it accepts a SYN request received from a client?
 
@@ -1653,12 +1708,7 @@ Therefore most quality switches and routers will go to quite some lengths to avo
 
 - By creating a new socket for each client connection, the server can manage and handle simultaneous communication with multiple clients independently. 
   
-  This allows for parallel processing and enables efficient handling of multiple client requests.
-
-### Resources
-
-1. https://www.educative.io/answers/what-is-tcp 
-2. See notes for in-depth understanding.
+  This allows for parallel processing and enables efficient handling of multiple client requests. 
 
 ---
 
@@ -1847,6 +1897,10 @@ This is used by web browsers.
 
 It defines the format of data transmission between clients and web servers. 
 
+### All HTTP Request & Response Headers
+
+Checkout this in-depth documentation from MDN, about the topic: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
+
 ### What are "Resources"?
 
 HTTP is used to transmit *resources*, not just files. 
@@ -1958,6 +2012,357 @@ DELETE /idX/delete HTTP/1.1   -> Returns 200 if idX exists
 DELETE /idX/delete HTTP/1.1   -> Returns 404 as it just got deleted
 DELETE /idX/delete HTTP/1.1   -> Returns 404
 ```
+
+### HTTP Versions
+
+For a more practical analysis: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Evolution_of_HTTP
+
+Understanding via illustrations (ByteByteGo): https://www.youtube.com/watch?v=a-sBfyiXysI
+
+#### HTTP/1.0
+
+##### Connection Handling
+
+- **Non-Persistent Connections:** In HTTP/1.0, each HTTP request/response pair opens a new TCP connection. After the server sends the response, the connection is closed. This means the client must establish a new connection for every resource (HTML file, image, CSS, etc.).
+- **Impact on Buffering:** This approach leads to significant overhead due to the TCP connection setup and teardown for each request, which involves multiple round trips between client and server. This can be particularly inefficient for web pages with many embedded resources.
+
+##### Data Transmission
+
+- **Immediate Sending:** HTTP/1.0 typically sends headers and data immediately as they are available. This can lead to inefficient use of network bandwidth and increased latency due to the overhead of managing multiple small packets.
+- **Lack of Pipelining:** HTTP/1.0 does not support request pipelining, where multiple requests can be sent out without waiting for the corresponding responses. This further exacerbates the inefficiency in handling multiple resources.
+
+##### Buffering Strategies
+
+- **Server-Side Buffering:** Servers might buffer the entire response before sending it to ensure that headers are sent only once and that they can include accurate Content-Length information.
+- **Client-Side Buffering:** Clients may read data into a buffer as it arrives to improve rendering performance and user experience by reducing the number of read operations.
+
+##### Content-Length Header
+
+- The `Content-Length` header is crucial in HTTP/1.0 to indicate the size of the response body. Knowing the content length helps both client and server manage buffering effectively, ensuring the entire response can be properly received and processed.
+- **Without Content-Length:** If the `Content-Length` header is not provided, the server may use chunked transfer encoding (introduced later in HTTP/1.1) or simply close the connection after sending the response, which was a common practice in HTTP/1.0.
+
+##### Efficiency and Performance
+
+- **Connection Overhead:** The non-persistent connection model of HTTP/1.0 leads to increased latency and reduced efficiency due to the constant setup and teardown of TCP connections.
+- **Buffer Management:** Effective buffering strategies can partially mitigate these issues by reducing the number of read/write operations and improving data transmission efficiency, but the fundamental limitations of HTTP/1.0 remain a bottleneck.
+
+##### How Basic Authentication Works
+
+Basic authentication in HTTP/1.0 is a simple challenge-response mechanism that allows a server to request credentials (username and password) from a client before granting access to a protected resource. Here's how it works:
+
+1. **Client Request:**
+   - The client (usually a web browser) requests a resource from the server.
+
+2. **Server Response:**
+   - If the resource is protected, the server responds with a `401 Unauthorized` status code and includes a `WWW-Authenticate` header in the response. This header indicates that Basic authentication is required:
+     ```
+     HTTP/1.0 401 Unauthorized
+     WWW-Authenticate: Basic realm="example"
+     ```
+
+3. **Client Credentials:**
+   - The client prompts the user to enter a username and password.
+   - The client encodes these credentials in base64 format. For example, if the username is `user` and the password is `password`, the string `user:password` is encoded as `dXNlcjpwYXNzd29yZA==`.
+
+4. **Client Request with Authorization Header:**
+   - The client sends the original request again, this time including an `Authorization` header with the encoded credentials:
+     ```
+     GET /protected-resource HTTP/1.0
+     Authorization: Basic dXNlcjpwYXNzd29yZA==
+     ```
+
+5. **Server Validation:**
+   - The server decodes the credentials from the `Authorization` header and validates them against its stored user database.
+   - If the credentials are valid, the server grants access to the requested resource.
+   - If the credentials are invalid, the server responds with a `401 Unauthorized` status again.
+
+###### Example Interaction
+
+1. Initial Request:
+   ```
+   GET /protected-resource HTTP/1.0
+   Host: example.com
+   ```
+
+2. Server Response:
+   ```
+   HTTP/1.0 401 Unauthorized
+   WWW-Authenticate: Basic realm="example"
+   ```
+
+3. Client Request with Credentials:
+   ```
+   GET /protected-resource HTTP/1.0
+   Host: example.com
+   Authorization: Basic dXNlcjpwYXNzd29yZA==
+   ```
+
+4. Server Response (if credentials are valid):
+   ```
+   HTTP/1.0 200 OK
+   ```
+
+###### Security Considerations
+
+- **Base64 Encoding:** The credentials are only encoded in base64, not encrypted, making them easily decodable by anyone who intercepts the request.
+- **Transmission Security:** Without HTTPS, Basic authentication is vulnerable to interception and eavesdropping because the credentials are transmitted in clear text over the network.
+- **HTTPS Requirement:** To mitigate these security risks, Basic authentication should always be used over HTTPS to ensure the credentials are encrypted during transmission.
+
+#### HTTP/1.1 
+
+##### Improvements over HTTP/1.0
+
+This research paper elaborates on the [Key Differences between HTTP/1.1 and HTTP/1.0](https://www.ra.ethz.ch/cdstore/www8/data/2136/pdf/pd1.pdf).
+
+HTTP/1.1 introduced several improvements to address the inefficiencies of HTTP/1.0:
+
+- **Persistent Connections:** Keep connections open for multiple requests/responses, reducing the overhead of connection setup and teardown.
+- **Pipelining:** Allows multiple requests to be sent without waiting for the corresponding responses, improving efficiency.
+  
+  However, this is disabled by-default due to [head-of-line blocking](#hol-blocking-at-application-layer-http-layer).
+- **Chunked Transfer Encoding:** Enables data to be sent in chunks without knowing the total content length upfront, enhancing flexibility and performance.
+
+These improvements help mitigate the issues related to buffering and connection management inherent in HTTP/1.0, leading to more efficient and performant web communications.
+
+##### Changes in authentication process
+
+Digest access authentication, introduced in HTTP/1.1, is a more secure method than Basic authentication for HTTP authentication. It addresses many of the security issues associated with Basic authentication by using cryptographic hashing to protect the credentials. Here’s how Digest authentication works and its key features:
+
+###### How Digest Authentication Works
+
+1. **Client Request:**
+   - The client requests a resource from the server without providing any authentication credentials.
+
+2. **Server Challenge:**
+   - The server responds with a `401 Unauthorized` status code and includes a `WWW-Authenticate` header specifying Digest authentication and providing details required for the client to generate a hashed response. This header includes various parameters such as realm, nonce, algorithm, and qop (quality of protection):
+     ```
+     HTTP/1.1 401 Unauthorized
+     WWW-Authenticate: Digest realm="example", qop="auth", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", opaque="5ccc069c403ebaf9f0171e9517f40e41"
+     ```
+
+3. **Client Response:**
+   - The client uses the provided parameters along with the username, password, HTTP method, and requested URI to compute a hashed response (digest). The client then sends a new request with an `Authorization` header containing this hashed response:
+     ```
+     GET /protected-resource HTTP/1.1
+     Host: example.com
+     Authorization: Digest username="user", realm="example", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/protected-resource", qop=auth, nc=00000001, cnonce="0a4f113b", response="6629fae49393a05397450978507c4ef1", opaque="5ccc069c403ebaf9f0171e9517f40e41"
+     ```
+
+4. **Server Validation:**
+   - The server performs the same hashing operations using the stored password and the provided parameters to compute its own version of the response hash.
+   - The server compares its computed hash with the hash sent by the client. If they match, the server knows the client has the correct password without having received the actual password itself.
+   
+###### Key Components and Parameters
+
+1. **Realm:** A string that specifies the protection space (or realm) for the resource, used to indicate the scope of protection.
+2. **Opaque:** A string of data specified by the server which should be returned by the client unchanged.
+3. **Algorithm:** Indicates the algorithm used to hash the credentials, typically MD5.
+4. **Qop (Quality of Protection):** Indicates the security features applied to the message, such as `auth` (authentication) or `auth-int` (authentication with message integrity).
+5. **Nonce:**
+   - A nonce is a unique, one-time-use value generated by the server and sent to the client as part of the authentication challenge.
+   - Each time the server issues a 401 Unauthorized response, it includes a new nonce value.
+   - The client must include this nonce value in its subsequent request, which means that each request will have a unique signature.
+6. **Nonce Count (nc):**
+   - The nonce count is a hexadecimal value that keeps track of the number of times the client has used a particular nonce value.
+   - This value starts at `00000001` and increments with each request using the same nonce.
+   - The server checks that the nonce count is greater than the previous nonce count used, ensuring that each request is unique and in sequence.
+
+7. **Client Nonce (cnonce):**
+   - The client nonce is a random string generated by the client and included in the request.
+   - It adds an extra layer of randomness and ensures that even if the same nonce is reused by the server, the resulting hash will be different due to the client nonce.
+
+8. **Timestamp (optional):**
+   - Some implementations of Digest authentication include a timestamp in the nonce to ensure that it expires after a certain period.
+   - This further limits the time window during which a captured nonce can be reused.
+
+###### Security Advantages
+
+- **Protection Against Replay Attacks:** The use of nonce and nonce count helps prevent replay attacks, where an attacker could reuse captured requests. 
+- **Password Hashing:** Instead of sending the password in plaintext, the password is hashed with a nonce and other details, making it more secure.
+- **Message Integrity (with qop=auth-int):** When using `auth-int`, Digest authentication can also provide message integrity by hashing the entity body of the HTTP message.
+
+###### Example Interaction
+
+1. Initial Request:
+   ```
+   GET /protected-resource HTTP/1.1
+   Host: example.com
+   ```
+
+2. Server Challenge:
+   ```
+   HTTP/1.1 401 Unauthorized
+   WWW-Authenticate: Digest realm="example", qop="auth", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", opaque="5ccc069c403ebaf9f0171e9517f40e41"
+   ```
+
+3. Client Response with Credentials:
+   ```
+   GET /protected-resource HTTP/1.1
+   Host: example.com
+   Authorization: Digest username="user", realm="example", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/protected-resource", qop=auth, nc=00000001, cnonce="0a4f113b", response="6629fae49393a05397450978507c4ef1", opaque="5ccc069c403ebaf9f0171e9517f40e41"
+   ```
+
+4. Server Response (if credentials are valid):
+   ```
+   HTTP/1.1 200 OK
+   ```
+
+In the context of Digest Access Authentication, a replay attack occurs when an attacker intercepts a valid authentication message and reuses it to gain unauthorized access. Although Digest authentication includes mechanisms to prevent such attacks, an attacker might still exploit certain scenarios if these mechanisms are not properly implemented or if there are weaknesses in the setup. Here’s how an attacker could potentially execute a replay attack:
+
+##### Scenario for a Authentication Replay Attack Working 
+
+1. **Intercepting a Valid Request:**
+   - The attacker uses a tool like a packet sniffer (e.g., Wireshark) to intercept the communication between the client and server.
+   - The attacker captures a valid HTTP request from the client to the server that includes the `Authorization` header with the Digest authentication credentials.
+
+   Example of the captured request:
+   ```http
+   GET /protected-resource HTTP/1.1
+   Host: example.com
+   Authorization: Digest username="user", realm="example", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/protected-resource", qop=auth, nc=00000001, cnonce="0a4f113b", response="6629fae49393a05397450978507c4ef1", opaque="5ccc069c403ebaf9f0171e9517f40e41"
+   ```
+
+2. **Replay the Captured Request:**
+   - The attacker resends the intercepted request to the server with the same `Authorization` header, hoping the server will accept it as a valid request.
+
+###### Conditions Where Replay Attack Might Succeed
+
+1. **Non-Unique or Reusable Nonce:**
+   - If the server issues a nonce that remains valid for an extended period or allows the same nonce to be reused without a nonce count mechanism, the attacker can reuse the captured nonce.
+
+2. **No Nonce Count Verification:**
+   - If the server does not properly implement nonce count (`nc`) verification, it won't detect that the same nonce is being used multiple times.
+   - The nonce count (`nc`) is supposed to increment with each request from the client using the same nonce. If the server does not verify that the nonce count is increasing, it cannot distinguish between legitimate requests and replayed ones.
+
+3. **No Timestamp or Expiration on Nonce:**
+   - If the nonce does not have an expiration time or timestamp, the attacker can reuse the nonce at any time.
+   - Proper implementation should ensure the nonce has a limited validity period, reducing the window for potential replay attacks.
+
+###### Example of a Weak Setup
+
+1. **Initial Request:**
+   ```http
+   GET /protected-resource HTTP/1.1
+   Host: example.com
+   ```
+
+2. **Server Challenge with Nonce:**
+   ```http
+   HTTP/1.1 401 Unauthorized
+   WWW-Authenticate: Digest realm="example", qop="auth", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", opaque="5ccc069c403ebaf9f0171e9517f40e41"
+   ```
+
+3. **Client Response with Credentials:**
+   ```http
+   GET /protected-resource HTTP/1.1
+   Host: example.com
+   Authorization: Digest username="user", realm="example", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/protected-resource", qop=auth, nc=00000001, cnonce="0a4f113b", response="6629fae49393a05397450978507c4ef1", opaque="5ccc069c403ebaf9f0171e9517f40e41"
+   ```
+
+4. **Server Validates and Responds:**
+   ```http
+   HTTP/1.1 200 OK
+   ```
+
+5. **Attacker Intercepts and Replays the Request:**
+   ```http
+   GET /protected-resource HTTP/1.1
+   Host: example.com
+   Authorization: Digest username="user", realm="example", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/protected-resource", qop=auth, nc=00000001, cnonce="0a4f113b", response="6629fae49393a05397450978507c4ef1", opaque="5ccc069c403ebaf9f0171e9517f40e41"
+   ```
+
+##### HOL Blocking at Application Layer (HTTP layer)
+
+Read this article from CRED to understand it: https://engineering.cred.club/head-of-line-hol-blocking-in-http-1-and-http-2-50b24e9e3372
+
+---
+
+#### HTTP/2 
+
+##### Improvements over HTTP/1.1
+
+HTTP/2 introduced several enhancements to address the limitations of HTTP/1.1, focusing on performance, efficiency, and scalability.
+
+1. **Binary Protocol:**
+   - **Description:** HTTP/2 uses a binary framing layer instead of the text-based format of HTTP/1.1.
+   - **Benefits:** This change simplifies parsing, reduces errors, and improves performance by enabling more efficient processing of requests and responses.
+
+2. **Multiplexing:**
+   - **Description:** Multiple streams of data can be sent concurrently over a single TCP connection.
+   - **Benefits:** Eliminates the head-of-line blocking problem present in HTTP/1.1, where one large or slow response could delay other responses. This allows for more efficient use of the network connection.
+
+3. **Header Compression:**
+   - **Description:** HTTP/2 uses HPACK, a header compression algorithm, to reduce the overhead of HTTP headers.
+   - **Benefits:** Significantly reduces the size of headers, saving bandwidth and improving load times, especially for requests with large or repetitive headers.
+
+4. **Stream Prioritization:**
+   - **Description:** Clients can assign priorities to different streams to indicate the importance of certain resources.
+   - **Benefits:** Allows more critical resources (e.g., main content) to be loaded before less critical ones (e.g., images), optimizing the overall user experience.
+
+5. **Server Push:**
+   - **Description:** Servers can proactively send resources to the client before they are requested.
+   - **Benefits:** Reduces latency by preloading resources that the client is likely to need, improving page load times.
+
+6. **Single Connection:**
+   - **Description:** HTTP/2 maintains a single persistent connection between the client and server.
+   - **Benefits:** Reduces the overhead associated with establishing multiple TCP connections and improves network utilization.
+
+##### HOL Blocking at Transport Layer (TCP Layer)
+
+Read this article from CRED to understand it: https://engineering.cred.club/head-of-line-hol-blocking-in-http-1-and-http-2-50b24e9e3372
+
+##### Application Layer Protocol Negotiation: An extension of TLS
+
+1. https://en.wikipedia.org/wiki/Application-Layer_Protocol_Negotiation
+2. Hussein Nasser's video: https://www.youtube.com/watch?v=lR1uHVS7I-8
+
+##### Server Push
+
+TODO: Understand this
+
+##### Header Compression using HPACK
+
+1. https://blog.cloudflare.com/hpack-the-silent-killer-feature-of-http-2
+
+##### Load Balancing in HTTP/2
+
+1. https://www.youtube.com/watch?v=0avOYByiTRQ&list=PLQnljOFTspQU6zO0drAYHFtkkyfNJw1IO&index=37&pp=iAQB
+
+##### Caching with E-tags
+
+Hussein Nasser's video: https://www.youtube.com/watch?v=TgZnpp5wJWU
+
+---
+
+#### HTTP/3 
+
+##### Improvements over HTTP/2
+
+HTTP/3 builds upon the improvements of HTTP/2 and introduces a new transport layer to further enhance performance, reliability, and security.
+
+1. **QUIC Protocol:**
+   - **Description:** HTTP/3 is built on top of the QUIC (Quick UDP Internet Connections) protocol instead of TCP.
+   - **Benefits:** QUIC is designed to reduce latency and improve connection reliability, especially in lossy network environments.
+
+2. **Elimination of Head-of-Line Blocking:**
+   - **Description:** QUIC eliminates TCP's head-of-line blocking at the transport layer by using multiple independent streams within a single connection.
+   - **Benefits:** Ensures that packet loss in one stream does not block the delivery of data in other streams, enhancing overall performance.
+
+3. **Faster Connection Establishment:**
+   - **Description:** QUIC combines the handshake processes of TCP and TLS, allowing for faster connection setup.
+   - **Benefits:** Reduces latency during the initial connection establishment, speeding up the start of data transfer.
+
+4. **Improved Congestion Control:**
+   - **Description:** QUIC implements advanced congestion control algorithms.
+   - **Benefits:** Provides better performance and adaptability to varying network conditions, leading to more stable and efficient data transfer.
+
+5. **Built-In Security:**
+   - **Description:** QUIC has encryption built into the protocol, providing inherent security features.
+   - **Benefits:** Enhances privacy and security by default, ensuring all data is encrypted without requiring additional setup.
+
+6. **Connection Migration:**
+   - **Description:** QUIC supports connection migration, allowing a connection to seamlessly move between different IP addresses (e.g., switching from Wi-Fi to mobile data).
+   - **Benefits:** Provides greater connection resilience and continuity, particularly for mobile users who may change networks frequently.
 
 ---
 
